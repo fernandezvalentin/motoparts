@@ -69,11 +69,13 @@ function App() {
   const handleEditar = (producto) => {
     setProductoAEditar(producto);
     setPaginaActual("nuevo");
+    if (sidebarAbierto) setSidebarAbierto(false);
   };
 
   const handleNuevo = () => {
     setProductoAEditar(null);
     setPaginaActual("nuevo");
+    if (sidebarAbierto) setSidebarAbierto(false);
   };
 
   const handleRecargar = () => {
@@ -199,7 +201,7 @@ function App() {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="btn btn-secondary" onClick={() => setMostrarConfiguracion(true)} style={{ width: '100%', marginBottom: '10px' }}>
+          <button className="btn btn-secondary" onClick={() => { setMostrarConfiguracion(true); if (sidebarAbierto) setSidebarAbierto(false); }} style={{ width: '100%', marginBottom: '10px' }}>
             ⚙️ Configuración
           </button>
           <button className="btn btn-danger" onClick={handleLogout} style={{ width: '100%', marginBottom: '10px' }}>
