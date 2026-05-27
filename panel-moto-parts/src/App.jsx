@@ -6,6 +6,7 @@ import { InventarioList } from "./components/InventarioList";
 import { ProductoForm } from "./components/ProductoForm";
 import { PuntoVenta } from "./components/PuntoVenta";
 import { HistorialVentas } from "./components/HistorialVentas";
+import { Login } from "./components/Login";
 import { ToastContainer } from "./components/Toast";
 import { ConfirmModal } from "./components/ConfirmModal";
 
@@ -13,6 +14,9 @@ function App() {
   // Navigation
   const [paginaActual, setPaginaActual] = useState("dashboard");
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("moto_parts_token")
+  );
 
   // Data
   const [productoAEditar, setProductoAEditar] = useState(null);
@@ -44,6 +48,11 @@ function App() {
     setConfirmModal(null);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("moto_parts_token");
+    setIsAuthenticated(false);
+  };
+
   // Navigation helpers
   const navegar = (pagina) => {
     setPaginaActual(pagina);
@@ -63,6 +72,10 @@ function App() {
   const handleRecargar = () => {
     setRecargarFlag((prev) => !prev);
   };
+
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
+  }
 
   // Render active page
   const renderPagina = () => {
@@ -179,6 +192,9 @@ function App() {
         </nav>
 
         <div className="sidebar-footer">
+          <button className="btn btn-danger" onClick={handleLogout} style={{ width: '100%', marginBottom: '10px' }}>
+            Cerrar Sesión
+          </button>
           <p>Moto Parts Inventory v1.0</p>
           <p style={{ marginTop: 4 }}>
             <a href="https://github.com" target="_blank" rel="noopener noreferrer">

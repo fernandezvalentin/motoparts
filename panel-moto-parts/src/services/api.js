@@ -2,6 +2,28 @@
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5190/api";
 
+// Helper to get auth headers
+const getHeaders = () => {
+  const token = localStorage.getItem("moto_parts_token");
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
+export const login = async (username, password) => {
+  const res = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Error al iniciar sesión");
+  }
+  return res.json();
+};
+
 // GET: Traer todo el catálogo de productos
 export const obtenerProductos = async (params = {}) => {
   try {
@@ -13,7 +35,7 @@ export const obtenerProductos = async (params = {}) => {
     const queryString = searchParams.toString();
     const url = `${API_URL}/productos${queryString ? `?${queryString}` : ""}`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: getHeaders() });
     if (!response.ok) {
       throw new Error("Error al conectar con el servidor");
     }
@@ -27,7 +49,7 @@ export const obtenerProductos = async (params = {}) => {
 // GET: Obtener estadísticas del inventario
 export const obtenerEstadisticas = async () => {
   try {
-    const response = await fetch(`${API_URL}/productos/estadisticas`);
+    const response = await fetch(`${API_URL}/productos/estadisticas`, { headers: getHeaders() });
     if (!response.ok) {
       throw new Error("Error al obtener estadísticas");
     }
@@ -43,9 +65,7 @@ export const crearProducto = async (nuevoProducto) => {
   try {
     const response = await fetch(`${API_URL}/productos`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
       body: JSON.stringify(nuevoProducto),
     });
 
@@ -68,9 +88,7 @@ export const actualizarProducto = async (id, productoActualizado) => {
   try {
     const response = await fetch(`${API_URL}/productos/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
       body: JSON.stringify(productoActualizado),
     });
 
@@ -93,6 +111,7 @@ export const eliminarProducto = async (id) => {
   try {
     const response = await fetch(`${API_URL}/productos/${id}`, {
       method: "DELETE",
+      headers: getHeaders(),
     });
 
     if (!response.ok) {
@@ -110,9 +129,7 @@ export const registrarVenta = async (venta) => {
   try {
     const response = await fetch(`${API_URL}/ventas`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
       body: JSON.stringify(venta),
     });
 
@@ -130,7 +147,7 @@ export const registrarVenta = async (venta) => {
 // GET: Obtener historial de ventas
 export const obtenerVentas = async () => {
   try {
-    const response = await fetch(`${API_URL}/ventas`);
+    const response = await fetch(`${API_URL}/ventas`, { headers: getHeaders() });
     if (!response.ok) {
       throw new Error("Error al obtener el historial de ventas");
     }

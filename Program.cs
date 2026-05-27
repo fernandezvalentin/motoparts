@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using InventarioApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Conexión a la base de datos SQLite
+// 1. Configuración de Base de Datos (PostgreSQL)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
 
 // 2. Configuración de CORS
 builder.Services.AddCors(options =>
@@ -17,6 +20,22 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+// 3. Configuración de JWT
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "ClaveSuperSecretaParaDesarrolloQueTieneMasDe32Caracteres!";
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers()
     .AddJsonOptions(x =>
@@ -37,10 +56,11 @@ if (app.Environment.IsDevelopment())
 // Comentamos esta línea para evitar que el navegador bloquee la redirección de HTTP a HTTPS
 // app.UseHttpsRedirection(); 
 
-// CORS DEBE ir antes de Authorization y MapControllers
 app.UseCors("PermitirPanelAdmin"); 
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
