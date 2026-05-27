@@ -735,10 +735,6 @@ ul, ol {
 
 /* -------- Responsive Helpers -------- */
 @media (max-width: 768px) {
-  :root {
-    --sidebar-width: 0px;
-  }
-
   .hide-mobile {
     display: none !important;
   }
