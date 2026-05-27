@@ -1,0 +1,48 @@
+.config-modal {
+  max-width: 450px;
+  width: 90%;
+}
+
+.config-hint {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.config-error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.config-success {
+  text-align: center;
+  padding: 30px 10px;
+}
+
+.config-success h3 {
+  color: var(--success-color);
+  margin-bottom: 10px;
+}
+
+.config-success p {
+  color: var(--text-secondary);
+  margin-bottom: 15px;
+}
+
+.loading-text {
+  font-weight: 600;
+  color: var(--primary-color) !important;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}

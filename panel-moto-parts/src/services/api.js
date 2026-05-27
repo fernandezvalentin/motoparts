@@ -24,6 +24,19 @@ export const login = async (username, password) => {
   return res.json();
 };
 
+export const actualizarCredenciales = async (newUsername, newPassword) => {
+  const res = await fetch(`${API_URL}/auth/actualizar`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify({ newUsername, newPassword }),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Error al actualizar credenciales");
+  }
+  return res.json();
+};
+
 // GET: Traer todo el catálogo de productos
 export const obtenerProductos = async (params = {}) => {
   try {

@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using InventarioApi.Data;
 using InventarioApi.Models;
 
@@ -62,11 +63,51 @@ namespace InventarioApi.Controllers
 
             return Ok(new { token = tokenString, username = usuario.Username });
         }
+
+        [Authorize]
+        [HttpPut("actualizar")]
+        public async Task<IActionResult> ActualizarCredenciales(UpdateCredentialsDto request)
+        {
+            // El usuario tiene que estar logueado, obtenemos su username del token
+            var currentUsername = User.Identity?.Name;
+            
+            if (string.IsNullOrEmpty(currentUsername))
+            {
+                return Unauthorized();
+            }
+
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Username == currentUsername);
+            if (usuario == null)
+            {
+                return NotFound(new { message = "Usuario no encontrado." });
+            }
+
+            // Actualizar credenciales
+            if (!string.IsNullOrWhiteSpace(request.NewUsername))
+            {
+                usuario.Username = request.NewUsername;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Credenciales actualizadas exitosamente. Por favor, inicia sesión nuevamente." });
+        }
     }
 
     public class LoginRequest
     {
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+    }
+
+    public class UpdateCredentialsDto
+    {
+        public string NewUsername { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
     }
 }

@@ -9,6 +9,7 @@ import { HistorialVentas } from "./components/HistorialVentas";
 import { Login } from "./components/Login";
 import { ToastContainer } from "./components/Toast";
 import { ConfirmModal } from "./components/ConfirmModal";
+import { ConfiguracionModal } from "./components/ConfiguracionModal";
 
 function App() {
   // Navigation
@@ -27,6 +28,9 @@ function App() {
 
   // Confirm modal
   const [confirmModal, setConfirmModal] = useState(null);
+
+  // Configuración modal
+  const [mostrarConfiguracion, setMostrarConfiguracion] = useState(false);
 
   // Toast management
   const agregarToast = useCallback((message, type = "success") => {
@@ -192,6 +196,9 @@ function App() {
         </nav>
 
         <div className="sidebar-footer">
+          <button className="btn btn-secondary" onClick={() => setMostrarConfiguracion(true)} style={{ width: '100%', marginBottom: '10px' }}>
+            ⚙️ Configuración
+          </button>
           <button className="btn btn-danger" onClick={handleLogout} style={{ width: '100%', marginBottom: '10px' }}>
             Cerrar Sesión
           </button>
@@ -220,6 +227,14 @@ function App() {
           message={confirmModal.message}
           onConfirm={handleConfirm}
           onCancel={() => setConfirmModal(null)}
+        />
+      )}
+
+      {/* Configuracion Modal */}
+      {mostrarConfiguracion && (
+        <ConfiguracionModal 
+          onClose={() => setMostrarConfiguracion(false)}
+          onLogout={handleLogout}
         />
       )}
     </div>
