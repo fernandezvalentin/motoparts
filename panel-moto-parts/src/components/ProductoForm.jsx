@@ -140,7 +140,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
 
       <form onSubmit={handleSubmit} className="card" style={{ maxWidth: 800 }}>
         {/* Row 1: SKU + Nombre */}
-        <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "var(--space-5)", marginBottom: "var(--space-5)" }}>
+        <div className="form-grid-2-1">
           <div className="form-group">
             <label className="label" htmlFor="sku">SKU *</label>
             <input
@@ -172,7 +172,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
         </div>
 
         {/* Row 2: Categoría + Proveedor */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-5)", marginBottom: "var(--space-5)" }}>
+        <div className="form-grid-2">
           <div className="form-group">
             <label className="label" htmlFor="categoria">Categoría</label>
             <select
@@ -203,7 +203,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
         </div>
 
         {/* Row 3: Precio + Stock Actual + Stock Mínimo */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--space-5)", marginBottom: "var(--space-5)" }}>
+        <div className="form-grid-3">
           <div className="form-group">
             <label className="label" htmlFor="precio">Precio ($) *</label>
             <input

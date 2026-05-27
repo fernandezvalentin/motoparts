@@ -733,6 +733,36 @@ ul, ol {
   color: var(--accent);
 }
 
+/* -------- Form Grids -------- */
+.form-grid-2-1 {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+@media (max-width: 768px) {
+  .form-grid-2-1,
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* -------- Responsive Helpers -------- */
 @media (max-width: 768px) {
   .hide-mobile {
