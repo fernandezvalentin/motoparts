@@ -2,8 +2,6 @@
 
 ¡Hola! Desarrollé este sistema full-stack como una solución a medida para ayudar a mi papá a administrar el negocio familiar de repuestos de motos. Mi objetivo principal fue crear una herramienta que fuera robusta por detrás, pero extremadamente intuitiva y fácil de usar en el día a día, permitiéndole llevar el control del local sin fricciones tecnológicas.
 
-![Moto Parts Preview](./panel-moto-parts/public/icon.png)
-
 ## 🚀 Características Principales
 
 Decidí enfocarme en resolver los problemas reales de un mostrador, manteniendo la interfaz lo más limpia posible:
