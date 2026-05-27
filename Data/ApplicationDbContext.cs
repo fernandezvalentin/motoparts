@@ -30,7 +30,8 @@ namespace InventarioApi.Data
             {
                 Id = 1,
                 Username = "admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                // Hardcoded hash for 'admin123' to prevent EF from generating updates on every migration
+                PasswordHash = "$2a$11$yo4nwg6wxxAhwiEWGSuGPeBOxZrXUF831Baokb7GfVLCNyuH7PfFe",
                 FechaCreacion = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             });
         }
