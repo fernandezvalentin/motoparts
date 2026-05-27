@@ -56,7 +56,8 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
       busqueda === "" ||
       p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       p.sku.toLowerCase().includes(busqueda.toLowerCase()) ||
-      (p.proveedor && p.proveedor.toLowerCase().includes(busqueda.toLowerCase()));
+      (p.proveedor && p.proveedor.toLowerCase().includes(busqueda.toLowerCase())) ||
+      (p.marca && p.marca.toLowerCase().includes(busqueda.toLowerCase()));
 
     const coincideCategoria =
       categoriaFiltro === "Todas" || p.categoria === categoriaFiltro;
@@ -198,9 +199,9 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                   </td>
                   <td>
                     <div className="td-name">{producto.nombre}</div>
-                    {producto.proveedor && (
+                    {(producto.proveedor || producto.marca) && (
                       <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginTop: 2 }}>
-                        {producto.proveedor}
+                        {[producto.proveedor, producto.marca].filter(Boolean).join(" - ")}
                       </div>
                     )}
                   </td>

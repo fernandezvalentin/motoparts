@@ -18,6 +18,8 @@ namespace InventarioApi.Models
 
         public string Proveedor { get; set; } = string.Empty;
 
+        public string Marca { get; set; } = string.Empty;
+
         public decimal Precio { get; set; }
 
         public int StockActual { get; set; }

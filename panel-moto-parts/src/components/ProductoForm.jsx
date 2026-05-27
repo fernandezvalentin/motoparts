@@ -21,6 +21,7 @@ const INITIAL_STATE = {
   categoria: "Otros",
   descripcion: "",
   proveedor: "",
+  marca: "",
   precio: "",
   stockActual: "",
   stockMinimo: "",
@@ -41,6 +42,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
         categoria: productoAEditar.categoria || "Otros",
         descripcion: productoAEditar.descripcion || "",
         proveedor: productoAEditar.proveedor || "",
+        marca: productoAEditar.marca || "",
         precio: productoAEditar.precio?.toString() || "",
         stockActual: productoAEditar.stockActual?.toString() || "",
         stockMinimo: productoAEditar.stockMinimo?.toString() || "",
@@ -84,6 +86,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
       categoria: form.categoria,
       descripcion: form.descripcion.trim(),
       proveedor: form.proveedor.trim(),
+      marca: form.marca.trim(),
       precio: parseFloat(form.precio),
       stockActual: parseInt(form.stockActual),
       stockMinimo: parseInt(form.stockMinimo),
@@ -171,8 +174,8 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
           </div>
         </div>
 
-        {/* Row 2: Categoría + Proveedor */}
-        <div className="form-grid-2">
+        {/* Row 2: Categoría + Proveedor + Marca */}
+        <div className="form-grid-3">
           <div className="form-group">
             <label className="label" htmlFor="categoria">Categoría</label>
             <select
@@ -195,8 +198,21 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
               name="proveedor"
               type="text"
               className="input"
-              placeholder="Ej: Honda Original"
+              placeholder="Ej: Honda"
               value={form.proveedor}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="label" htmlFor="marca">Marca</label>
+            <input
+              id="marca"
+              name="marca"
+              type="text"
+              className="input"
+              placeholder="Ej: Original"
+              value={form.marca}
               onChange={handleChange}
             />
           </div>
