@@ -88,7 +88,7 @@ function App() {
   const renderPagina = () => {
     switch (paginaActual) {
       case "dashboard":
-        return <Dashboard onNavegar={navegar} />;
+        return <Dashboard onNavegar={handleNavigate} />;
       case "inventario":
         return (
           <InventarioList
@@ -105,7 +105,7 @@ function App() {
             setProductoAEditar={setProductoAEditar}
             onOperacionExitosa={handleRecargar}
             onAgregarToast={agregarToast}
-            onNavegar={navegar}
+            onNavegar={handleNavigate}
           />
         );
       case "pos":
@@ -113,7 +113,7 @@ function App() {
       case "historial":
         return <HistorialVentas />;
       default:
-        return <Dashboard onNavegar={navegar} />;
+        return <Dashboard onNavegar={handleNavigate} />;
     }
   };
 
@@ -159,7 +159,7 @@ function App() {
 
           <button
             className={`nav-item ${paginaActual === "dashboard" ? "active" : ""}`}
-            onClick={() => navegar("dashboard")}
+            onClick={() => handleNavigate("dashboard")}
           >
             <span className="nav-item-icon">📊</span>
             Panel de Control
@@ -167,7 +167,7 @@ function App() {
 
           <button
             className={`nav-item ${paginaActual === "inventario" ? "active" : ""}`}
-            onClick={() => navegar("inventario")}
+            onClick={() => handleNavigate("inventario")}
           >
             <span className="nav-item-icon">📦</span>
             Inventario
@@ -175,7 +175,7 @@ function App() {
 
           <button
             className={`nav-item ${paginaActual === "pos" ? "active" : ""}`}
-            onClick={() => navegar("pos")}
+            onClick={() => handleNavigate("pos")}
           >
             <span className="nav-item-icon">🛒</span>
             Punto de Venta
@@ -183,7 +183,7 @@ function App() {
 
           <button
             className={`nav-item ${paginaActual === "historial" ? "active" : ""}`}
-            onClick={() => navegar("historial")}
+            onClick={() => handleNavigate("historial")}
           >
             <span className="nav-item-icon">🧾</span>
             Historial de Ventas
