@@ -12,5 +12,7 @@ namespace InventarioApi.Data
 
         // Esta propiedad DbSet es la que representa la tabla física en SQL Server
         public DbSet<Producto> Productos { get; set; }
+        public DbSet<Venta> Ventas { get; set; }
+        public DbSet<VentaDetalle> VentaDetalles { get; set; }
     }
 }

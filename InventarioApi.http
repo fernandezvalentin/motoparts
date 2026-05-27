@@ -1,6 +1,59 @@
 @InventarioApi_HostAddress = http://localhost:5190
 
-GET {{InventarioApi_HostAddress}}/weatherforecast/
+### Obtener todos los productos
+GET {{InventarioApi_HostAddress}}/api/productos
 Accept: application/json
 
-###
+### Buscar productos por nombre o SKU
+GET {{InventarioApi_HostAddress}}/api/productos?busqueda=freno
+Accept: application/json
+
+### Filtrar por categoría
+GET {{InventarioApi_HostAddress}}/api/productos?categoria=Motor
+Accept: application/json
+
+### Solo productos con stock bajo
+GET {{InventarioApi_HostAddress}}/api/productos?soloStockBajo=true
+Accept: application/json
+
+### Obtener estadísticas del inventario
+GET {{InventarioApi_HostAddress}}/api/productos/estadisticas
+Accept: application/json
+
+### Obtener un producto por ID
+GET {{InventarioApi_HostAddress}}/api/productos/1
+Accept: application/json
+
+### Crear un nuevo producto
+POST {{InventarioApi_HostAddress}}/api/productos
+Content-Type: application/json
+
+{
+  "sku": "MOT-001",
+  "nombre": "Pistón 150cc",
+  "categoria": "Motor",
+  "descripcion": "Pistón estándar para motor 150cc",
+  "proveedor": "Honda Original",
+  "precio": 15500.00,
+  "stockActual": 10,
+  "stockMinimo": 3
+}
+
+### Actualizar un producto existente
+PUT {{InventarioApi_HostAddress}}/api/productos/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "sku": "MOT-001",
+  "nombre": "Pistón 150cc Premium",
+  "categoria": "Motor",
+  "descripcion": "Pistón premium para motor 150cc",
+  "proveedor": "Honda Original",
+  "precio": 17000.00,
+  "stockActual": 8,
+  "stockMinimo": 3
+}
+
+### Eliminar un producto
+DELETE {{InventarioApi_HostAddress}}/api/productos/1

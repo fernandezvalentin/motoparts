@@ -5,37 +5,79 @@ using InventarioApi.Models;
 
 namespace InventarioApi.Controllers
 {
-    // Esta ruta define cómo accederemos a los recursos: Ej. http://localhost:5000/api/productos
     [Route("api/[controller]")]
     [ApiController]
     public class ProductosController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        // Inyectamos el contexto de la base de datos
         public ProductosController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/productos
-        // Método funcional para consultar todo el catálogo actual
+        // GET: api/productos?busqueda=X&categoria=X&soloStockBajo=true
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Producto>>> GetProductos()
+        public async Task<ActionResult<IEnumerable<Producto>>> GetProductos(
+            [FromQuery] string? busqueda = null,
+            [FromQuery] string? categoria = null,
+            [FromQuery] bool soloStockBajo = false)
         {
-            return await _context.Productos.ToListAsync();
+            var query = _context.Productos.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                var term = busqueda.ToLower();
+                query = query.Where(p =>
+                    p.Nombre.ToLower().Contains(term) ||
+                    p.Sku.ToLower().Contains(term) ||
+                    p.Proveedor.ToLower().Contains(term));
+            }
+
+            if (!string.IsNullOrWhiteSpace(categoria) && categoria != "Todas")
+            {
+                query = query.Where(p => p.Categoria == categoria);
+            }
+
+            if (soloStockBajo)
+            {
+                query = query.Where(p => p.StockActual <= p.StockMinimo);
+            }
+
+            return await query.OrderBy(p => p.Nombre).ToListAsync();
         }
 
-        // POST: api/productos
-        // Método funcional para dar de alta un nuevo repuesto o accesorio
-        [HttpPost]
-        public async Task<ActionResult<Producto>> PostProducto(Producto producto)
+        // GET: api/productos/estadisticas
+        [HttpGet("estadisticas")]
+        public async Task<ActionResult> GetEstadisticas()
         {
-            _context.Productos.Add(producto);
-            await _context.SaveChangesAsync();
+            var productos = await _context.Productos.ToListAsync();
 
-            // Retornamos un estado 201 (Creado) junto con el producto generado
-            return CreatedAtAction(nameof(GetProductos), new { id = producto.Id }, producto);
+            var estadisticas = new
+            {
+                totalProductos = productos.Count,
+                valorInventario = productos.Sum(p => p.Precio * p.StockActual),
+                productosStockCritico = productos.Count(p => p.StockActual <= p.StockMinimo),
+                totalCategorias = productos.Select(p => p.Categoria).Distinct().Count(),
+                productosPorCategoria = productos
+                    .GroupBy(p => p.Categoria)
+                    .ToDictionary(g => g.Key, g => g.Count()),
+                alertasStock = productos
+                    .Where(p => p.StockActual <= p.StockMinimo)
+                    .OrderBy(p => p.StockActual)
+                    .Select(p => new
+                    {
+                        p.Id,
+                        p.Nombre,
+                        p.Sku,
+                        p.Categoria,
+                        p.StockActual,
+                        p.StockMinimo
+                    })
+                    .ToList()
+            };
+
+            return Ok(estadisticas);
         }
 
         // GET: api/productos/5
@@ -46,24 +88,52 @@ namespace InventarioApi.Controllers
 
             if (producto == null)
             {
-                return NotFound(); // Retorna un código 404 si el artículo no existe
+                return NotFound();
             }
 
             return producto;
+        }
+
+        // POST: api/productos
+        [HttpPost]
+        public async Task<ActionResult<Producto>> PostProducto(Producto producto)
+        {
+            // Validar SKU único
+            var skuExiste = await _context.Productos.AnyAsync(p => p.Sku.ToLower() == producto.Sku.ToLower());
+            if (skuExiste)
+            {
+                return Conflict(new { message = $"Ya existe un producto con el SKU '{producto.Sku}'" });
+            }
+
+            producto.FechaCreacion = DateTime.UtcNow;
+            producto.FechaActualizacion = DateTime.UtcNow;
+
+            _context.Productos.Add(producto);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetProducto), new { id = producto.Id }, producto);
         }
 
         // PUT: api/productos/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProducto(int id, Producto producto)
         {
-            // Validamos que el ID de la URL coincida con el ID del producto enviado
             if (id != producto.Id)
             {
-                return BadRequest(); 
+                return BadRequest();
             }
 
-            // Le avisamos a Entity Framework que este objeto fue modificado
+            // Validar que el SKU no esté duplicado por otro producto
+            var skuExiste = await _context.Productos.AnyAsync(p =>
+                p.Sku.ToLower() == producto.Sku.ToLower() && p.Id != id);
+            if (skuExiste)
+            {
+                return Conflict(new { message = $"Ya existe otro producto con el SKU '{producto.Sku}'" });
+            }
+
+            producto.FechaActualizacion = DateTime.UtcNow;
             _context.Entry(producto).State = EntityState.Modified;
+            _context.Entry(producto).Property(x => x.FechaCreacion).IsModified = false;
 
             try
             {
@@ -71,7 +141,6 @@ namespace InventarioApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                // Control de concurrencia: si dos personas intentan editar al mismo tiempo
                 if (!ProductoExists(id))
                 {
                     return NotFound();
@@ -82,13 +151,7 @@ namespace InventarioApi.Controllers
                 }
             }
 
-            return NoContent(); // Código 204: Significa que salió bien pero no hay contenido extra que devolver
-        }
-
-        // Método auxiliar analítico para verificar si el producto existe
-        private bool ProductoExists(int id)
-        {
-            return _context.Productos.Any(e => e.Id == id);
+            return NoContent();
         }
 
         // DELETE: api/productos/5
@@ -106,5 +169,10 @@ namespace InventarioApi.Controllers
 
             return NoContent();
         }
-    } // <-- Esta es la llave que cierra la clase ProductosController
-} // <-- Esta es la llave que cierra el namespace InventarioApi.Controllers
+
+        private bool ProductoExists(int id)
+        {
+            return _context.Productos.Any(e => e.Id == id);
+        }
+    }
+}

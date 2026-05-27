@@ -3,30 +3,44 @@ using InventarioApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Le decimos a la API que vamos a usar Controladores
-builder.Services.AddControllers(); 
-
+// 1. Conexión a la base de datos SQLite
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configuraciones por defecto para la documentación (Swagger)
+// 2. Configuración de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirPanelAdmin", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+builder.Services.AddControllers()
+    .AddJsonOptions(x =>
+        x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// 2. Configuramos la interfaz de Swagger para probar la API
+// Configuración de Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// 3. LA TUBERÍA DE EJECUCIÓN (El orden acá es vital)
+// Comentamos esta línea para evitar que el navegador bloquee la redirección de HTTP a HTTPS
+// app.UseHttpsRedirection(); 
+
+// CORS DEBE ir antes de Authorization y MapControllers
+app.UseCors("PermitirPanelAdmin"); 
 
 app.UseAuthorization();
-
-// 3. Mapeamos las rutas hacia nuestra carpeta Controllers
-app.MapControllers(); 
+app.MapControllers();
 
 app.Run();

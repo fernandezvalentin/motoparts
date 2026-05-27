@@ -1,0 +1,107 @@
+/* ==========================================================
+   Historial Ventas Styles
+   ========================================================== */
+
+.historial-container {
+  animation: fadeInUp 400ms var(--ease-out);
+}
+
+.venta-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-5);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.venta-card:hover {
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+.venta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  background: var(--bg-card-hover);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.venta-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.venta-id {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--font-sm);
+  background: var(--bg-secondary);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.venta-fecha {
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.venta-total {
+  font-size: var(--font-lg);
+  font-weight: 800;
+  color: var(--success);
+}
+
+.venta-detalles {
+  padding: var(--space-4) var(--space-5);
+}
+
+.detalle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: 1px dashed var(--border-secondary);
+}
+
+.detalle-item:last-child {
+  border-bottom: none;
+}
+
+.detalle-producto {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.detalle-qty {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.detalle-nombre {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.detalle-precio {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
