@@ -59,9 +59,11 @@ function App() {
   };
 
   // Navigation helpers
-  const navegar = (pagina) => {
-    setPaginaActual(pagina);
-    setSidebarAbierto(false);
+  const handleNavigate = (path) => {
+    setPaginaActual(path);
+    if (sidebarAbierto) {
+      setSidebarAbierto(false);
+    }
   };
 
   const handleEditar = (producto) => {

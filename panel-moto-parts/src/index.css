@@ -770,3 +770,22 @@ ul, ol {
     font-size: var(--font-xl);
   }
 }
+
+/* iOS Input Zoom Prevention & Mobile Modals */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  .modal-box,
+  .config-modal,
+  .product-form-container {
+    width: 95% !important;
+    max-width: 100% !important;
+    padding: var(--space-4) !important;
+  }
+  
+  .modal-overlay {
+    padding: var(--space-2);
+  }
+}

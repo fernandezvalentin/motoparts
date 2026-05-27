@@ -9,6 +9,9 @@ export function PuntoVenta({ onAgregarToast }) {
   const [busqueda, setBusqueda] = useState("");
   const [carrito, setCarrito] = useState([]);
   const [procesando, setProcesando] = useState(false);
+  
+  // Mobile UI State
+  const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
   useEffect(() => {
     cargarCatologo();
@@ -93,6 +96,8 @@ export function PuntoVenta({ onAgregarToast }) {
     );
   };
 
+  const total = calcularTotal();
+
   // Procesar Venta
   const confirmarVenta = async () => {
     if (carrito.length === 0) return;
@@ -111,6 +116,7 @@ export function PuntoVenta({ onAgregarToast }) {
       onAgregarToast("Venta registrada con éxito", "success");
       setCarrito([]);
       setBusqueda("");
+      setMobileCartOpen(false);
       // Recargar el catálogo para ver el nuevo stock
       await cargarCatologo();
     } catch (error) {
@@ -174,17 +180,39 @@ export function PuntoVenta({ onAgregarToast }) {
         </div>
       </div>
 
+      {/* Floating Cart Button (Mobile Only) */}
+      {carrito.length > 0 && (
+        <div className="pos-floating-cart">
+          <button 
+            className="btn btn-primary floating-cart-btn"
+            onClick={() => setMobileCartOpen(true)}
+          >
+            <span className="cart-icon">🛒</span>
+            <span className="cart-count">{carrito.length}</span>
+            <span className="cart-total-float">${total.toLocaleString("es-AR")}</span>
+          </button>
+        </div>
+      )}
+
       {/* Carrito de Compras */}
-      <div className="pos-cart-section">
+      <div className={`pos-cart-section ${mobileCartOpen ? 'mobile-open' : ''}`}>
         <div className="pos-cart-header">
-          <h3 className="pos-cart-title">
-            🛒 Carrito de Venta
-            {carrito.length > 0 && (
-              <span className="badge badge-accent" style={{ marginLeft: "auto", fontSize: "0.8rem" }}>
-                {carrito.length} {carrito.length === 1 ? "ítem" : "ítems"}
-              </span>
-            )}
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 className="pos-cart-title">
+              🛒 Carrito de Venta
+              {carrito.length > 0 && (
+                <span className="badge badge-accent" style={{ marginLeft: "auto", fontSize: "0.8rem" }}>
+                  {carrito.length} {carrito.length === 1 ? "ítem" : "ítems"}
+                </span>
+              )}
+            </h3>
+            <button 
+              className="btn-close-mobile hide-desktop"
+              onClick={() => setMobileCartOpen(false)}
+            >
+              &times;
+            </button>
+          </div>
         </div>
 
         <div className="pos-cart-items">
