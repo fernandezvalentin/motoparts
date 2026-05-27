@@ -1,54 +1,105 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  animation: fadeIn 200ms ease;
+  padding: var(--space-4);
+}
+
 .config-modal {
   max-width: 450px;
   width: 90%;
-  background-color: var(--surface-color);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn 250ms var(--ease-out);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.modal-header h2 {
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  font-size: 1.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--transition-fast);
+}
+
+.modal-close:hover {
+  color: var(--danger);
+}
+
+.modal-body {
+  margin-bottom: var(--space-4);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.modal-footer .btn {
+  flex: 1;
 }
 
 .config-hint {
-  font-size: 0.9rem;
+  font-size: var(--font-sm);
   color: var(--text-secondary);
-  margin-bottom: 20px;
-  line-height: 1.5;
+  margin-bottom: var(--space-6);
+  line-height: 1.6;
 }
 
 .config-error {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--danger-color);
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 15px;
-  font-size: 0.9rem;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background-color: var(--danger-soft);
+  color: var(--danger);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  font-size: var(--font-sm);
+  font-weight: 500;
 }
 
 .config-success {
   text-align: center;
-  padding: 30px 10px;
+  padding: var(--space-6) var(--space-2);
 }
 
 .config-success h3 {
-  color: var(--success-color);
-  margin-bottom: 10px;
+  color: var(--success);
+  font-size: var(--font-xl);
+  margin-bottom: var(--space-3);
 }
 
 .config-success p {
   color: var(--text-secondary);
-  margin-bottom: 15px;
+  margin-bottom: var(--space-4);
 }
 
 .loading-text {
   font-weight: 600;
-  color: var(--primary-color) !important;
+  color: var(--accent) !important;
   animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
 }
 
 .slide-in {
