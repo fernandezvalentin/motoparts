@@ -107,6 +107,23 @@ namespace InventarioApi.Controllers
 
             return Ok(ventas);
         }
+
+        // DELETE: api/ventas/limpiar
+        [HttpDelete("limpiar")]
+        public async Task<IActionResult> LimpiarHistorial()
+        {
+            // Borrar todos los detalles
+            var detalles = await _context.VentaDetalles.ToListAsync();
+            _context.VentaDetalles.RemoveRange(detalles);
+            
+            // Borrar todas las ventas
+            var ventas = await _context.Ventas.ToListAsync();
+            _context.Ventas.RemoveRange(ventas);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Historial de ventas eliminado." });
+        }
     }
 
     public class NuevaVentaDto

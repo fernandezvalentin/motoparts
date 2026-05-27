@@ -113,7 +113,12 @@ function App() {
       case "pos":
         return <PuntoVenta onAgregarToast={agregarToast} />;
       case "historial":
-        return <HistorialVentas />;
+        return (
+          <HistorialVentas 
+            onConfirmar={mostrarConfirm} 
+            onAgregarToast={agregarToast} 
+          />
+        );
       default:
         return <Dashboard onNavegar={handleNavigate} />;
     }

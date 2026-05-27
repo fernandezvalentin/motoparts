@@ -172,3 +172,20 @@ export const obtenerVentas = async () => {
 };
 
 
+
+// DELETE: Limpiar historial de ventas
+export const limpiarVentas = async () => {
+  try {
+    const response = await fetch(${API_URL}/ventas/limpiar, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error("Error al limpiar el historial de ventas");
+    }
+    return true;
+  } catch (error) {
+    console.error("Error en limpiarVentas:", error);
+    return false;
+  }
+};

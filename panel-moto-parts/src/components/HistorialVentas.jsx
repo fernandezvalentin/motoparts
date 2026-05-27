@@ -1,9 +1,9 @@
 // src/components/HistorialVentas.jsx
 import { useState, useEffect } from "react";
-import { obtenerVentas } from "../services/api";
+import { obtenerVentas, limpiarVentas } from "../services/api";
 import "./HistorialVentas.css";
 
-export function HistorialVentas() {
+export function HistorialVentas({ onConfirmar, onAgregarToast }) {
   const [ventas, setVentas] = useState([]);
   const [cargando, setCargando] = useState(true);
 
@@ -16,6 +16,21 @@ export function HistorialVentas() {
     const data = await obtenerVentas();
     setVentas(data);
     setCargando(false);
+  };
+
+  const handleLimpiarHistorial = () => {
+    onConfirmar(
+      "¿Estás seguro de que querés borrar todo el historial de ventas? Esta acción NO se puede deshacer.",
+      async () => {
+        const ok = await limpiarVentas();
+        if (ok) {
+          onAgregarToast("Historial de ventas borrado exitosamente.", "success");
+          cargarHistorial();
+        } else {
+          onAgregarToast("Error al borrar el historial de ventas.", "error");
+        }
+      }
+    );
   };
 
   const formatearFecha = (fechaUtc) => {
@@ -56,9 +71,19 @@ export function HistorialVentas() {
             {ventas.length} {ventas.length === 1 ? "venta registrada" : "ventas registradas"}
           </p>
         </div>
-        <button className="btn btn-secondary" onClick={cargarHistorial}>
-          ↻ Actualizar
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button 
+            className="btn btn-ghost" 
+            style={{ color: "var(--danger)" }}
+            onClick={handleLimpiarHistorial} 
+            disabled={ventas.length === 0}
+          >
+            🗑️ Borrar Todo
+          </button>
+          <button className="btn btn-secondary" onClick={cargarHistorial}>
+            ↻ Actualizar
+          </button>
+        </div>
       </div>
 
       {ventas.length === 0 ? (
