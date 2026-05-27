@@ -55,6 +55,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("moto_parts_token");
     setIsAuthenticated(false);
+    setMostrarConfiguracion(false);
   };
 
   // Navigation helpers

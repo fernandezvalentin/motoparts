@@ -5,6 +5,7 @@ import "./ConfiguracionModal.css";
 export const ConfiguracionModal = ({ onClose, onLogout }) => {
   const [nuevoUsuario, setNuevoUsuario] = useState("");
   const [nuevaContraseña, setNuevaContraseña] = useState("");
+  const [confirmarContraseña, setConfirmarContraseña] = useState("");
   const [error, setError] = useState(null);
   const [exito, setExito] = useState(false);
   const [cargando, setCargando] = useState(false);
@@ -13,6 +14,11 @@ export const ConfiguracionModal = ({ onClose, onLogout }) => {
     e.preventDefault();
     if (!nuevoUsuario && !nuevaContraseña) {
       setError("Por favor, ingresa al menos un nuevo usuario o contraseña.");
+      return;
+    }
+
+    if (nuevaContraseña && nuevaContraseña !== confirmarContraseña) {
+      setError("Las contraseñas no coinciden. Por favor, revisa.");
       return;
     }
 
@@ -78,6 +84,19 @@ export const ConfiguracionModal = ({ onClose, onLogout }) => {
                   className="form-control"
                 />
               </div>
+
+              {nuevaContraseña && (
+                <div className="form-group slide-in">
+                  <label>Repetir Contraseña</label>
+                  <input
+                    type="password"
+                    value={confirmarContraseña}
+                    onChange={(e) => setConfirmarContraseña(e.target.value)}
+                    placeholder="Vuelve a escribir la contraseña"
+                    className="form-control"
+                  />
+                </div>
+              )}
 
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={onClose} disabled={cargando}>
