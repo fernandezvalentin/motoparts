@@ -1,166 +1,59 @@
-# 🏍️ Moto Parts — Sistema de Inventario
+# 🏍️ Moto Parts - Sistema de Inventario y Punto de Venta
 
-![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
-![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=flat-square&logo=sqlite)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+¡Hola! Desarrollé este sistema full-stack como una solución a medida para ayudar a mi papá a administrar el negocio familiar de repuestos de motos. Mi objetivo principal fue crear una herramienta que fuera robusta por detrás, pero extremadamente intuitiva y fácil de usar en el día a día, permitiéndole llevar el control del local sin fricciones tecnológicas.
 
-Sistema de control de inventario diseñado para negocios de repuestos de motos. Permite gestionar el catálogo de productos, controlar niveles de stock, categorizar artículos y visualizar métricas del negocio desde un panel de control moderno.
+![Moto Parts Preview](./panel-moto-parts/public/icon.png)
 
----
+## 🚀 Características Principales
 
-## ✨ Funcionalidades
+Decidí enfocarme en resolver los problemas reales de un mostrador, manteniendo la interfaz lo más limpia posible:
 
-- **📊 Dashboard**: Panel de control con KPIs en tiempo real (total productos, valor de inventario, alertas de stock crítico, distribución por categoría)
-- **📦 Gestión de Inventario**: CRUD completo de productos con búsqueda, filtros por categoría y estado de stock
-- **🔔 Alertas de Stock**: Indicadores visuales de nivel de stock (OK / Bajo / Crítico / Sin stock)
-- **🏷️ Categorías**: Clasificación de productos por tipo (Motor, Frenos, Suspensión, Eléctrico, etc.)
-- **🔍 Búsqueda Avanzada**: Filtrado por nombre, SKU, proveedor y categoría
-- **📱 Diseño Responsive**: Funciona en desktop, tablet y celular
-- **🌙 Dark Mode**: Interfaz oscura profesional con acentos ámbar
+- **📊 Dashboard Estadístico:** Un resumen en tiempo real del valor total del inventario y alertas automáticas cuando un repuesto se está quedando sin stock.
+- **📦 Gestión de Inventario:** ABM (Alta, Baja y Modificación) de productos, con búsqueda rápida por código SKU, nombre o categoría.
+- **🛒 Punto de Venta (POS):** Un módulo de caja con carrito de compras que descuenta automáticamente el stock de la base de datos al confirmar una venta. Evita vender productos agotados.
+- **🧾 Historial de Ventas:** Registro inalterable de cada transacción realizada con su fecha, total y detalle de artículos.
+- **📱 PWA Instalable:** Configuré el frontend como una Progressive Web App. Esto permite que el sistema se instale como una aplicación nativa en el escritorio de Windows o en el celular, abriéndose con un doble clic sin necesidad de escribir URLs.
 
----
+## 🛠️ Tecnologías Utilizadas
 
-## 🛠️ Tecnologías
+Para este proyecto elegí un stack moderno que me permitiera desarrollar rápido y mantener un alto rendimiento:
 
-### Backend
-| Tecnología | Versión | Uso |
-|---|---|---|
-| **ASP.NET Core** | 10.0 | Web API REST |
-| **Entity Framework Core** | 10.0 | ORM + Migraciones |
-| **SQLite** | 3 | Base de datos local |
-| **Swagger** | - | Documentación de API |
+**Backend:**
+- **C# / .NET 8 Web API:** Para construir una API RESTful segura y tipada.
+- **Entity Framework Core:** Como ORM para interactuar con la base de datos.
+- **SQLite:** Elegí SQLite por su portabilidad. No requiere que mi papá instale pesados motores de bases de datos (como SQL Server) en la computadora del local; la base de datos vive en un simple archivo local.
 
-### Frontend
-| Tecnología | Versión | Uso |
-|---|---|---|
-| **React** | 19 | UI Components |
-| **Vite** | 8 | Build tool + Dev server |
-| **CSS3** | - | Design system custom |
+**Frontend:**
+- **React.js + Vite:** Para una experiencia de usuario fluida (Single Page Application) y tiempos de compilación ultrarrápidos.
+- **CSS Vanilla (Custom Properties):** Diseñé toda la interfaz desde cero usando variables CSS y flexbox/grid, creando un modo oscuro elegante sin depender de librerías de componentes pesadas.
 
----
+## ⚙️ Cómo ejecutar el proyecto localmente
 
-## 🚀 Instalación y Ejecución
+Si quieres probar el sistema en tu máquina, sigue estos pasos:
 
-### Requisitos previos
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- [Node.js 18+](https://nodejs.org/)
-- [Git](https://git-scm.com/)
-
-### 1. Clonar el repositorio
+### 1. Iniciar el Backend (.NET)
+Abre una terminal en la carpeta principal del proyecto (`InventarioApi`):
 ```bash
-git clone https://github.com/tu-usuario/moto-parts.git
-cd moto-parts/InventarioApi
-```
-
-### 2. Configurar y ejecutar el Backend
-```bash
-# Restaurar dependencias
-dotnet restore
-
-# Aplicar migraciones a la base de datos
+# Aplica las migraciones a la base de datos SQLite
 dotnet ef database update
 
-# Ejecutar el servidor (puerto 5190)
+# Levanta el servidor backend (se ejecutará por defecto en el puerto 5190)
 dotnet run
 ```
-El API estará disponible en `http://localhost:5190/api/productos`  
-Swagger UI en `http://localhost:5190/swagger`
 
-### 3. Configurar y ejecutar el Frontend
+### 2. Iniciar el Frontend (React)
+Abre otra terminal y navega a la carpeta del panel:
 ```bash
 cd panel-moto-parts
 
-# Instalar dependencias
+# Instala las dependencias
 npm install
 
-# Copiar el archivo de entorno
-cp .env.example .env
-
-# Ejecutar el servidor de desarrollo (puerto 5173)
+# Inicia el entorno de desarrollo de Vite (se ejecutará en el puerto 5173)
 npm run dev
 ```
 
----
-
-## 📡 API Endpoints
-
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/productos` | Listar todos los productos |
-| `GET` | `/api/productos?busqueda=X` | Buscar por nombre, SKU o proveedor |
-| `GET` | `/api/productos?categoria=Motor` | Filtrar por categoría |
-| `GET` | `/api/productos?soloStockBajo=true` | Productos con stock bajo |
-| `GET` | `/api/productos/{id}` | Obtener un producto por ID |
-| `GET` | `/api/productos/estadisticas` | Estadísticas del inventario |
-| `POST` | `/api/productos` | Crear un nuevo producto |
-| `PUT` | `/api/productos/{id}` | Actualizar un producto |
-| `DELETE` | `/api/productos/{id}` | Eliminar un producto |
+Visita `http://localhost:5173` en tu navegador y ya podrás usar el sistema.
 
 ---
-
-## 📁 Estructura del Proyecto
-
-```
-moto-parts/
-└── InventarioApi/                 # Backend .NET
-    ├── Controllers/               # Controladores API
-    │   └── ProductosController.cs
-    ├── Models/                    # Modelos de datos
-    │   └── Producto.cs
-    ├── Data/                      # Contexto de base de datos
-    │   └── ApplicationDbContext.cs
-    ├── Migrations/                # Migraciones EF Core
-    ├── Properties/
-    │   └── launchSettings.json
-    ├── Program.cs                 # Punto de entrada
-    ├── appsettings.json           # Configuración
-    ├── InventarioApi.csproj
-    └── panel-moto-parts/          # Frontend React
-        ├── src/
-        │   ├── components/        # Componentes React
-        │   │   ├── Dashboard.jsx
-        │   │   ├── InventarioList.jsx
-        │   │   ├── ProductoForm.jsx
-        │   │   ├── Toast.jsx
-        │   │   ├── ConfirmModal.jsx
-        │   │   └── StockBadge.jsx
-        │   ├── services/
-        │   │   └── api.js         # Cliente HTTP
-        │   ├── App.jsx            # Layout principal
-        │   ├── App.css            # Estilos del layout
-        │   └── index.css          # Design system
-        ├── index.html
-        ├── vite.config.js
-        └── package.json
-```
-
----
-
-## 📝 Modelo de Datos
-
-```
-Producto
-├── Id              (int, PK, autoincrement)
-├── Sku             (string, required, unique)
-├── Nombre          (string, required)
-├── Categoria       (string, default: "Otros")
-├── Descripcion     (string)
-├── Proveedor       (string)
-├── Precio          (decimal)
-├── StockActual     (int)
-├── StockMinimo     (int)
-├── FechaCreacion   (datetime)
-└── FechaActualizacion (datetime)
-```
-
----
-
-## 📄 Licencia
-
-Este proyecto está bajo la licencia [MIT](LICENSE).
-
----
-
-Desarrollado con 💛 para el negocio de la familia.
+*Desarrollado con dedicación para simplificar el trabajo de todos los días.*
