@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { obtenerProductos, eliminarProducto } from "../services/api";
 import { StockBadge } from "./StockBadge";
+import { ImportadorExcel } from "./ImportadorExcel";
 
 const CATEGORIAS = [
   "Todas",
@@ -23,6 +24,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
   const [busqueda, setBusqueda] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
   const [soloStockBajo, setSoloStockBajo] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     cargarProductos();
@@ -69,13 +71,20 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
 
   return (
     <div className="inventario-list" style={{ animation: "fadeInUp 400ms var(--ease-out)" }}>
-      <div className="page-header">
+      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h2 className="page-title">Inventario</h2>
           <p className="page-subtitle">
             {productosFiltrados.length} de {productos.length} artículos
           </p>
         </div>
+        <button 
+          className="btn btn-secondary" 
+          onClick={() => setShowImportModal(true)}
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          📥 Importar Excel
+        </button>
       </div>
 
       {/* Filter Bar */}
@@ -248,6 +257,17 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
             </tbody>
           </table>
         </div>
+      )}
+
+      {showImportModal && (
+        <ImportadorExcel 
+          onCerrar={() => setShowImportModal(false)} 
+          onCompletado={() => {
+            setShowImportModal(false);
+            cargarProductos();
+          }}
+          onAgregarToast={onAgregarToast}
+        />
       )}
     </div>
   );

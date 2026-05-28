@@ -206,3 +206,19 @@ export const eliminarVenta = async (id) => {
     return false;
   }
 };
+
+// POST: Importar masivamente desde JSON
+export const importarProductosJson = async (productosData) => {
+  try {
+    const response = await fetch(`${API_URL}/productos/importar-json`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(productosData),
+    });
+    if (!response.ok) throw new Error("Error al importar los productos");
+    return await response.json();
+  } catch (error) {
+    console.error("Error en importarProductosJson:", error);
+    throw error;
+  }
+};

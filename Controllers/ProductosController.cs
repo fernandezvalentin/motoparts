@@ -176,5 +176,98 @@ namespace InventarioApi.Controllers
         {
             return _context.Productos.Any(e => e.Id == id);
         }
+
+        // POST: api/productos/importar-json
+        [HttpPost("importar-json")]
+        public async Task<IActionResult> ImportarJson([FromBody] List<ImportarProductoDto> productosData)
+        {
+            if (productosData == null || !productosData.Any())
+            {
+                return BadRequest(new { message = "No se recibieron datos para importar." });
+            }
+
+            int actualizados = 0;
+            int creados = 0;
+
+            foreach (var dto in productosData)
+            {
+                // Buscar por SKU primero (si tiene) o por Nombre exacto
+                Producto existente = null;
+                
+                if (!string.IsNullOrWhiteSpace(dto.Sku))
+                {
+                    existente = await _context.Productos.FirstOrDefaultAsync(p => p.Sku.ToLower() == dto.Sku.ToLower());
+                }
+                
+                if (existente == null && !string.IsNullOrWhiteSpace(dto.Nombre))
+                {
+                    existente = await _context.Productos.FirstOrDefaultAsync(p => p.Nombre.ToLower() == dto.Nombre.ToLower());
+                }
+
+                if (existente != null)
+                {
+                    // Actualizar
+                    existente.Precio = dto.Precio > 0 ? dto.Precio : existente.Precio;
+                    existente.StockActual = dto.Stock >= 0 ? dto.Stock : existente.StockActual;
+                    if (!string.IsNullOrWhiteSpace(dto.Proveedor)) existente.Proveedor = dto.Proveedor;
+                    if (!string.IsNullOrWhiteSpace(dto.Marca)) existente.Marca = dto.Marca;
+                    
+                    existente.FechaActualizacion = DateTime.UtcNow;
+                    _context.Entry(existente).State = EntityState.Modified;
+                    actualizados++;
+                }
+                else
+                {
+                    // Crear nuevo (requiere nombre y precio mínimo)
+                    if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.Precio <= 0)
+                    {
+                        continue; // Saltar si faltan datos esenciales
+                    }
+
+                    var nuevoProducto = new Producto
+                    {
+                        Sku = !string.IsNullOrWhiteSpace(dto.Sku) ? dto.Sku : GenerarSkuAlternativo(dto.Nombre),
+                        Nombre = dto.Nombre,
+                        Precio = dto.Precio,
+                        StockActual = dto.Stock >= 0 ? dto.Stock : 0,
+                        Proveedor = dto.Proveedor ?? "",
+                        Marca = dto.Marca ?? "",
+                        Categoria = "Otros", // Por defecto
+                        FechaCreacion = DateTime.UtcNow,
+                        FechaActualizacion = DateTime.UtcNow
+                    };
+                    
+                    _context.Productos.Add(nuevoProducto);
+                    creados++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = "Importación completada.", 
+                creados = creados, 
+                actualizados = actualizados 
+            });
+        }
+
+        private string GenerarSkuAlternativo(string nombre)
+        {
+            // Generar un SKU básico si no viene en el Excel
+            var cleanName = new string(nombre.Where(char.IsLetterOrDigit).ToArray()).ToUpper();
+            var prefix = cleanName.Length >= 3 ? cleanName.Substring(0, 3) : cleanName.PadRight(3, 'X');
+            var randomStr = new Random().Next(1000, 9999).ToString();
+            return $"{prefix}-{randomStr}";
+        }
+    }
+
+    public class ImportarProductoDto
+    {
+        public string Sku { get; set; }
+        public string Nombre { get; set; }
+        public decimal Precio { get; set; }
+        public int Stock { get; set; }
+        public string Proveedor { get; set; }
+        public string Marca { get; set; }
     }
 }

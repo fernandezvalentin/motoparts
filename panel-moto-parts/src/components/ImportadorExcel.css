@@ -1,0 +1,74 @@
+/* src/components/ImportadorExcel.css */
+.import-modal {
+  max-width: 600px;
+  width: 100%;
+}
+
+.file-drop-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  border: 2px dashed var(--border-secondary);
+  border-radius: var(--radius-lg);
+  background: var(--bg-input);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  text-align: center;
+}
+
+.file-drop-area:hover {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.file-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-3);
+}
+
+.file-msg {
+  font-size: var(--font-base);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mapping-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.mapping-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+  background: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+}
+
+.mapping-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.mapping-select {
+  flex: 1;
+  max-width: 250px;
+}
