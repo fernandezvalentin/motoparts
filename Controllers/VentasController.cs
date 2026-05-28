@@ -125,6 +125,48 @@ namespace InventarioApi.Controllers
 
             return Ok(new { message = "Historial de ventas eliminado." });
         }
+
+        // DELETE: api/ventas/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarVenta(int id)
+        {
+            var venta = await _context.Ventas
+                .Include(v => v.Detalles)
+                .FirstOrDefaultAsync(v => v.Id == id);
+
+            if (venta == null)
+            {
+                return NotFound(new { message = "Venta no encontrada." });
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Restaurar stock
+                foreach (var detalle in venta.Detalles)
+                {
+                    var producto = await _context.Productos.FindAsync(detalle.ProductoId);
+                    if (producto != null)
+                    {
+                        producto.StockActual += detalle.Cantidad;
+                        _context.Entry(producto).State = EntityState.Modified;
+                    }
+                }
+
+                _context.VentaDetalles.RemoveRange(venta.Detalles);
+                _context.Ventas.Remove(venta);
+                
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(new { message = "Venta eliminada y stock restaurado." });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { message = "Error al eliminar la venta.", error = ex.Message });
+            }
+        }
     }
 
     public class NuevaVentaDto

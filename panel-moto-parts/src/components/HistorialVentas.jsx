@@ -1,6 +1,6 @@
 // src/components/HistorialVentas.jsx
 import { useState, useEffect } from "react";
-import { obtenerVentas, limpiarVentas } from "../services/api";
+import { obtenerVentas, limpiarVentas, eliminarVenta } from "../services/api";
 import "./HistorialVentas.css";
 
 export function HistorialVentas({ onConfirmar, onAgregarToast }) {
@@ -28,6 +28,21 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
           cargarHistorial();
         } else {
           onAgregarToast("Error al borrar el historial de ventas.", "error");
+        }
+      }
+    );
+  };
+
+  const handleEliminarVenta = (id) => {
+    onConfirmar(
+      "¿Querés eliminar esta venta? Se devolverá el stock de los repuestos vendidos.",
+      async () => {
+        const ok = await eliminarVenta(id);
+        if (ok) {
+          onAgregarToast("Venta eliminada. Stock restaurado.", "success");
+          cargarHistorial();
+        } else {
+          onAgregarToast("Error al eliminar la venta.", "error");
         }
       }
     );
@@ -111,8 +126,16 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
                     {venta.metodoPago || "Efectivo"}
                   </span>
                 </div>
-                <div className="venta-total">
-                  ${venta.total.toLocaleString("es-AR")}
+                <div className="venta-total" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span>${venta.total.toLocaleString("es-AR")}</span>
+                  <button 
+                    className="btn btn-ghost" 
+                    style={{ padding: '4px', color: 'var(--danger)', border: 'none', background: 'transparent' }}
+                    onClick={() => handleEliminarVenta(venta.id)}
+                    title="Eliminar venta"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
               <div className="venta-detalles">

@@ -189,3 +189,20 @@ export const limpiarVentas = async () => {
     return false;
   }
 };
+
+// DELETE: Eliminar una venta individual
+export const eliminarVenta = async (id) => {
+  try {
+    const response = await fetch(`${API_URL}/ventas/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error("Error al eliminar la venta");
+    }
+    return true;
+  } catch (error) {
+    console.error("Error en eliminarVenta:", error);
+    return false;
+  }
+};
