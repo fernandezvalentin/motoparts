@@ -9,6 +9,7 @@ export function PuntoVenta({ onAgregarToast }) {
   const [busqueda, setBusqueda] = useState("");
   const [carrito, setCarrito] = useState([]);
   const [procesando, setProcesando] = useState(false);
+  const [metodoPago, setMetodoPago] = useState("Efectivo");
   
   // Mobile UI State
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
@@ -105,6 +106,7 @@ export function PuntoVenta({ onAgregarToast }) {
     setProcesando(true);
     try {
       const dto = {
+        metodoPago: metodoPago,
         detalles: carrito.map((item) => ({
           productoId: item.productoId,
           cantidad: item.cantidad,
@@ -116,6 +118,7 @@ export function PuntoVenta({ onAgregarToast }) {
       onAgregarToast("Venta registrada con éxito", "success");
       setCarrito([]);
       setBusqueda("");
+      setMetodoPago("Efectivo");
       setMobileCartOpen(false);
       // Recargar el catálogo para ver el nuevo stock
       await cargarCatologo();
@@ -268,6 +271,20 @@ export function PuntoVenta({ onAgregarToast }) {
             <span className="pos-cart-total-value">
               ${calcularTotal().toLocaleString("es-AR")}
             </span>
+          </div>
+
+          <div style={{ marginBottom: "var(--space-4)" }}>
+            <label style={{ display: "block", marginBottom: "var(--space-2)", fontSize: "var(--font-sm)", color: "var(--text-muted)" }}>Método de Pago</label>
+            <select
+              className="select"
+              value={metodoPago}
+              onChange={(e) => setMetodoPago(e.target.value)}
+            >
+              <option value="Efectivo">💵 Efectivo</option>
+              <option value="Débito">💳 Débito</option>
+              <option value="Crédito">💳 Crédito</option>
+              <option value="Transferencia">📱 Transferencia</option>
+            </select>
           </div>
 
           <div style={{ display: "flex", gap: "var(--space-3)" }}>

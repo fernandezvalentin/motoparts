@@ -106,6 +106,10 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
                 <div className="venta-info">
                   <span className="venta-id">#{venta.id.toString().padStart(4, "0")}</span>
                   <span className="venta-fecha">📅 {formatearFecha(venta.fechaVenta)}</span>
+                  <span className="venta-metodo-pago" style={{ marginLeft: '10px', fontSize: 'var(--font-xs)', background: 'var(--bg-elevated)', padding: '2px 8px', borderRadius: '12px', border: '1px solid var(--border-primary)' }}>
+                    {venta.metodoPago === "Efectivo" ? "💵 " : venta.metodoPago === "Débito" || venta.metodoPago === "Crédito" ? "💳 " : "📱 "}
+                    {venta.metodoPago || "Efectivo"}
+                  </span>
                 </div>
                 <div className="venta-total">
                   ${venta.total.toLocaleString("es-AR")}

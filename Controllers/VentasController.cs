@@ -35,7 +35,8 @@ namespace InventarioApi.Controllers
                 var venta = new Venta
                 {
                     FechaVenta = DateTime.UtcNow,
-                    Total = 0
+                    Total = 0,
+                    MetodoPago = dto.MetodoPago ?? "Efectivo"
                 };
 
                 _context.Ventas.Add(venta);
@@ -129,6 +130,7 @@ namespace InventarioApi.Controllers
     public class NuevaVentaDto
     {
         public List<NuevaVentaDetalleDto> Detalles { get; set; } = new();
+        public string MetodoPago { get; set; } = "Efectivo";
     }
 
     public class NuevaVentaDetalleDto
