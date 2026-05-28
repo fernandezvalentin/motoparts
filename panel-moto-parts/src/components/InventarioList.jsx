@@ -95,7 +95,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
         <select
           id="category-filter"
           className="select"
-          style={{ maxWidth: 180 }}
+          style={{ minWidth: 220, flexShrink: 0 }}
           value={categoriaFiltro}
           onChange={(e) => setCategoriaFiltro(e.target.value)}
         >
