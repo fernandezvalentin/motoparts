@@ -176,7 +176,7 @@ export const obtenerVentas = async () => {
 // DELETE: Limpiar historial de ventas
 export const limpiarVentas = async () => {
   try {
-    const response = await fetch(${API_URL}/ventas/limpiar, {
+    const response = await fetch(`${API_URL}/ventas/limpiar`, {
       method: "DELETE",
       headers: getHeaders(),
     });
