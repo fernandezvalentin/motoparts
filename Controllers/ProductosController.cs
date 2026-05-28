@@ -207,7 +207,8 @@ namespace InventarioApi.Controllers
                 if (existente != null)
                 {
                     // Actualizar
-                    existente.Precio = dto.Precio > 0 ? dto.Precio : existente.Precio;
+                    existente.PrecioLista = dto.PrecioLista > 0 ? dto.PrecioLista : existente.PrecioLista;
+                    existente.Precio = dto.PrecioPublico > 0 ? dto.PrecioPublico : existente.Precio;
                     existente.StockActual = dto.Stock >= 0 ? dto.Stock : existente.StockActual;
                     if (!string.IsNullOrWhiteSpace(dto.Proveedor)) existente.Proveedor = dto.Proveedor;
                     if (!string.IsNullOrWhiteSpace(dto.Marca)) existente.Marca = dto.Marca;
@@ -219,7 +220,7 @@ namespace InventarioApi.Controllers
                 else
                 {
                     // Crear nuevo (requiere nombre y precio mínimo)
-                    if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.Precio <= 0)
+                    if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.PrecioLista <= 0)
                     {
                         continue; // Saltar si faltan datos esenciales
                     }
@@ -228,7 +229,8 @@ namespace InventarioApi.Controllers
                     {
                         Sku = !string.IsNullOrWhiteSpace(dto.Sku) ? dto.Sku : GenerarSkuAlternativo(dto.Nombre),
                         Nombre = dto.Nombre,
-                        Precio = dto.Precio,
+                        PrecioLista = dto.PrecioLista,
+                        Precio = dto.PrecioPublico > 0 ? dto.PrecioPublico : dto.PrecioLista,
                         StockActual = dto.Stock >= 0 ? dto.Stock : 0,
                         Proveedor = dto.Proveedor ?? "",
                         Marca = dto.Marca ?? "",
@@ -265,7 +267,8 @@ namespace InventarioApi.Controllers
     {
         public string Sku { get; set; }
         public string Nombre { get; set; }
-        public decimal Precio { get; set; }
+        public decimal PrecioLista { get; set; }
+        public decimal PrecioPublico { get; set; }
         public int Stock { get; set; }
         public string Proveedor { get; set; }
         public string Marca { get; set; }

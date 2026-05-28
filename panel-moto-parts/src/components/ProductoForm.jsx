@@ -22,6 +22,7 @@ const INITIAL_STATE = {
   descripcion: "",
   proveedor: "",
   marca: "",
+  precioLista: "",
   precio: "",
   stockActual: "",
   stockMinimo: "",
@@ -43,6 +44,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
         descripcion: productoAEditar.descripcion || "",
         proveedor: productoAEditar.proveedor || "",
         marca: productoAEditar.marca || "",
+        precioLista: productoAEditar.precioLista?.toString() || "",
         precio: productoAEditar.precio?.toString() || "",
         stockActual: productoAEditar.stockActual?.toString() || "",
         stockMinimo: productoAEditar.stockMinimo?.toString() || "",
@@ -87,6 +89,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
       descripcion: form.descripcion.trim(),
       proveedor: form.proveedor.trim(),
       marca: form.marca.trim(),
+      precioLista: form.precioLista ? parseFloat(form.precioLista) : 0,
       precio: parseFloat(form.precio),
       stockActual: parseInt(form.stockActual),
       stockMinimo: parseInt(form.stockMinimo),
@@ -221,7 +224,23 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
         {/* Row 3: Precio + Stock Actual + Stock Mínimo */}
         <div className="form-grid-3">
           <div className="form-group">
-            <label className="label" htmlFor="precio">Precio ($) *</label>
+            <label className="label" htmlFor="precioLista">Precio Lista (Costo) $</label>
+            <input
+              id="precioLista"
+              name="precioLista"
+              type="number"
+              step="0.01"
+              min="0"
+              className={`input ${errors.precioLista ? "error" : ""}`}
+              placeholder="0.00"
+              value={form.precioLista}
+              onChange={handleChange}
+            />
+            {errors.precioLista && <span style={{ color: "var(--danger)", fontSize: "var(--font-xs)" }}>{errors.precioLista}</span>}
+          </div>
+
+          <div className="form-group">
+            <label className="label" htmlFor="precio">Precio Público ($) *</label>
             <input
               id="precio"
               name="precio"

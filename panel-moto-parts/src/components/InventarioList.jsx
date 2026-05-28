@@ -189,8 +189,8 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                 <th>SKU</th>
                 <th>Artículo</th>
                 <th className="hide-mobile">Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
+                <th>Precio Pub.</th>
+                <th style={{ textAlign: "center" }}>Stock</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -218,11 +218,20 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                     <span className="badge badge-neutral">{producto.categoria || "Otros"}</span>
                   </td>
                   <td>
-                    <span className="td-precio">
-                      ${producto.precio?.toLocaleString("es-AR", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span className="td-precio" style={{ fontWeight: "bold" }}>
+                        ${producto.precio?.toLocaleString("es-AR", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                      {producto.precioLista > 0 && (
+                        <span style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)" }}>
+                          Costo: ${producto.precioLista.toLocaleString("es-AR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td style={{ textAlign: "center", fontWeight: 600 }}>
                     {producto.stockActual}

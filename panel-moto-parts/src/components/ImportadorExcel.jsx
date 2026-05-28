@@ -11,11 +11,12 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
   const [mapeo, setMapeo] = useState({
     sku: "",
     nombre: "",
-    precio: "",
+    precioLista: "",
     stock: "",
     proveedor: "",
     marca: "",
   });
+  const [porcentajeGanancia, setPorcentajeGanancia] = useState(40);
   const [paso, setPaso] = useState(1); // 1: Subir, 2: Mapear, 3: Procesando
 
   const handleFileUpload = (e) => {
@@ -83,7 +84,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
 
     nuevoMapeo.sku = findMatch(["codigo", "código", "sku", "id", "ref"]);
     nuevoMapeo.nombre = findMatch(["nombre", "descripci", "articulo", "artículo", "producto"]);
-    nuevoMapeo.precio = findMatch(["precio", "costo", "importe", "valor"]);
+    nuevoMapeo.precioLista = findMatch(["precio", "costo", "importe", "valor"]);
     nuevoMapeo.stock = findMatch(["stock", "cant", "disponible"]);
     nuevoMapeo.proveedor = findMatch(["proveedor", "distribuidor"]);
     nuevoMapeo.marca = findMatch(["marca", "fabricante"]);
@@ -96,8 +97,8 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
   };
 
   const handleImportar = async () => {
-    if (!mapeo.nombre || !mapeo.precio) {
-      onAgregarToast("El Nombre y el Precio son obligatorios para importar.", "error");
+    if (!mapeo.nombre || !mapeo.precioLista) {
+      onAgregarToast("El Nombre y el Precio Lista son obligatorios para importar.", "error");
       return;
     }
 
@@ -107,23 +108,27 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
       // Formatear datos al DTO que espera el backend
       const productosAImportar = datosExcel.map(fila => {
         // Limpiar el precio (si viene con $, comas, etc)
-        let precioVal = fila[mapeo.precio];
+        let precioVal = fila[mapeo.precioLista];
         let precioNum = 0;
         if (typeof precioVal === 'number') {
           precioNum = precioVal;
         } else if (precioVal) {
           precioNum = parseFloat(precioVal.toString().replace('$', '').replace(',', '.').trim()) || 0;
         }
+        
+        // Calcular precio al público
+        const precioPublico = precioNum + (precioNum * (porcentajeGanancia / 100));
 
         return {
           sku: mapeo.sku ? (fila[mapeo.sku]?.toString() || "") : "",
           nombre: fila[mapeo.nombre]?.toString() || "",
-          precio: precioNum,
+          precioLista: precioNum,
+          precioPublico: precioPublico,
           stock: mapeo.stock ? (parseInt(fila[mapeo.stock]) || 0) : 0,
           proveedor: mapeo.proveedor ? (fila[mapeo.proveedor]?.toString() || "") : "",
           marca: mapeo.marca ? (fila[mapeo.marca]?.toString() || "") : "",
         };
-      }).filter(p => p.nombre && p.precio > 0);
+      }).filter(p => p.nombre && p.precioLista > 0);
 
       if (productosAImportar.length === 0) {
         onAgregarToast("No se encontraron productos válidos para importar.", "error");
@@ -181,7 +186,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
               <div className="mapping-grid">
                 {[
                   { key: "nombre", label: "Nombre / Descripción *", req: true },
-                  { key: "precio", label: "Precio *", req: true },
+                  { key: "precioLista", label: "Precio de Lista (Costo) *", req: true },
                   { key: "sku", label: "Código / Artículo", req: false },
                   { key: "stock", label: "Stock", req: false },
                   { key: "proveedor", label: "Proveedor", req: false },
@@ -203,6 +208,23 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
                     </select>
                   </div>
                 ))}
+              </div>
+
+              <div className="markup-section" style={{ marginTop: "var(--space-6)", padding: "var(--space-4)", background: "var(--bg-input)", borderRadius: "var(--radius-md)", border: "1px solid var(--border-secondary)" }}>
+                <h4 style={{ margin: "0 0 var(--space-3) 0" }}>Ganancia (Precio Público)</h4>
+                <p style={{ fontSize: "var(--font-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-3)" }}>
+                  ¿Qué porcentaje le sumamos al Precio de Lista para calcular automáticamente el Precio de Venta al público?
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <input 
+                    type="number" 
+                    className="input" 
+                    style={{ width: "100px" }}
+                    value={porcentajeGanancia}
+                    onChange={(e) => setPorcentajeGanancia(parseFloat(e.target.value) || 0)}
+                  />
+                  <span style={{ fontWeight: "bold" }}>%</span>
+                </div>
               </div>
             </div>
           )}

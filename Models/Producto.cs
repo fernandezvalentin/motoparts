@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InventarioApi.Models
 {
@@ -20,6 +21,10 @@ namespace InventarioApi.Models
 
         public string Marca { get; set; } = string.Empty;
 
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal PrecioLista { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Precio { get; set; }
 
         public int StockActual { get; set; }
