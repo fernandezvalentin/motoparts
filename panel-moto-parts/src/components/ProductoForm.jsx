@@ -198,7 +198,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
               name="proveedor"
               type="text"
               className="input"
-              placeholder="Ej: Honda"
+              placeholder="Ej: Tercom"
               value={form.proveedor}
               onChange={handleChange}
             />
@@ -211,7 +211,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
               name="marca"
               type="text"
               className="input"
-              placeholder="Ej: Original"
+              placeholder="Ej: Honda, Bajaj, Motomel"
               value={form.marca}
               onChange={handleChange}
             />
