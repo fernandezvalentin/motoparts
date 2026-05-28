@@ -101,7 +101,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
         >
           {CATEGORIAS.map((cat) => (
             <option key={cat} value={cat}>
-              {cat === "Todas" ? "📂 Todas las categorías" : cat}
+              {cat === "Todas" ? "📂 Categorías" : cat}
             </option>
           ))}
         </select>
