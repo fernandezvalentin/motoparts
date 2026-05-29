@@ -205,19 +205,42 @@ namespace InventarioApi.Controllers
             int actualizados = 0;
             int creados = 0;
 
+            // Obtener todos los SKUs y Nombres del Excel para buscar en bloque
+            var skusExcel = productosData
+                .Where(d => !string.IsNullOrWhiteSpace(d.Sku))
+                .Select(d => d.Sku.ToLower())
+                .Distinct()
+                .ToList();
+                
+            var nombresExcel = productosData
+                .Where(d => !string.IsNullOrWhiteSpace(d.Nombre))
+                .Select(d => d.Nombre.ToLower())
+                .Distinct()
+                .ToList();
+
+            // Traer de la DB todos los productos que coincidan con los SKUs o Nombres
+            var productosExistentes = await _context.Productos
+                .Where(p => skusExcel.Contains(p.Sku.ToLower()) || nombresExcel.Contains(p.Nombre.ToLower()))
+                .ToListAsync();
+
             foreach (var dto in productosData)
             {
-                // Buscar por SKU primero (si tiene) o por Nombre exacto
+                if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.PrecioLista <= 0)
+                {
+                    continue; // Saltar si faltan datos esenciales
+                }
+
+                // Buscar por SKU primero (si tiene) o por Nombre exacto en memoria
                 Producto existente = null;
                 
                 if (!string.IsNullOrWhiteSpace(dto.Sku))
                 {
-                    existente = await _context.Productos.FirstOrDefaultAsync(p => p.Sku.ToLower() == dto.Sku.ToLower());
+                    existente = productosExistentes.FirstOrDefault(p => p.Sku.ToLower() == dto.Sku.ToLower());
                 }
                 
                 if (existente == null && !string.IsNullOrWhiteSpace(dto.Nombre))
                 {
-                    existente = await _context.Productos.FirstOrDefaultAsync(p => p.Nombre.ToLower() == dto.Nombre.ToLower());
+                    existente = productosExistentes.FirstOrDefault(p => p.Nombre.ToLower() == dto.Nombre.ToLower());
                 }
 
                 if (existente != null)
@@ -236,12 +259,6 @@ namespace InventarioApi.Controllers
                 }
                 else
                 {
-                    // Crear nuevo (requiere nombre y precio mínimo)
-                    if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.PrecioLista <= 0)
-                    {
-                        continue; // Saltar si faltan datos esenciales
-                    }
-
                     var nuevoProducto = new Producto
                     {
                         Sku = !string.IsNullOrWhiteSpace(dto.Sku) ? dto.Sku : GenerarSkuAlternativo(dto.Nombre),
@@ -258,6 +275,8 @@ namespace InventarioApi.Controllers
                     };
                     
                     _context.Productos.Add(nuevoProducto);
+                    // Agregarlo a la lista en memoria por si hay duplicados en el mismo Excel
+                    productosExistentes.Add(nuevoProducto);
                     creados++;
                 }
             }
