@@ -37,15 +37,29 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
         const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
         
         if (data.length < 2) {
-          onAgregarToast("El archivo parece estar vacío o no tiene encabezados.", "error");
+          onAgregarToast("El archivo parece estar vacío o no tiene suficientes datos.", "error");
           return;
         }
 
-        const headers = data[0].map(h => h ? h.toString().trim() : "");
+        // Buscar la fila que tenga más columnas de texto (probablemente los encabezados)
+        // Revisamos las primeras 15 filas
+        let headerRowIndex = 0;
+        let maxCols = 0;
+        
+        for (let i = 0; i < Math.min(data.length, 15); i++) {
+          const row = data[i] || [];
+          const colsCount = row.filter(cell => cell && cell.toString().trim() !== "").length;
+          if (colsCount > maxCols) {
+            maxCols = colsCount;
+            headerRowIndex = i;
+          }
+        }
+
+        const headers = (data[headerRowIndex] || []).map(h => h ? h.toString().trim() : "");
         setColumnas(headers.filter(h => h !== ""));
         
         // Convertir filas a objetos usando los headers
-        const rows = data.slice(1).map(row => {
+        const rows = data.slice(headerRowIndex + 1).map(row => {
           let obj = {};
           headers.forEach((h, i) => {
             if (h) obj[h] = row[i];
