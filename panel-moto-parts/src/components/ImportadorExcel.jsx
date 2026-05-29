@@ -15,6 +15,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
     stock: "",
     proveedor: "",
     marca: "",
+    modelo: "",
   });
   const [porcentajeGanancia, setPorcentajeGanancia] = useState(40);
   const [paso, setPaso] = useState(1); // 1: Subir, 2: Mapear, 3: Procesando
@@ -102,6 +103,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
     nuevoMapeo.stock = findMatch(["stock", "cant", "disponible"]);
     nuevoMapeo.proveedor = findMatch(["proveedor", "distribuidor"]);
     nuevoMapeo.marca = findMatch(["marca", "fabricante"]);
+    nuevoMapeo.modelo = findMatch(["modelo", "aplicacion", "para moto"]);
 
     setMapeo(nuevoMapeo);
   };
@@ -141,6 +143,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
           stock: mapeo.stock ? (parseInt(fila[mapeo.stock]) || 0) : 0,
           proveedor: mapeo.proveedor ? (fila[mapeo.proveedor]?.toString() || "") : "",
           marca: mapeo.marca ? (fila[mapeo.marca]?.toString() || "") : "",
+          modelo: mapeo.modelo ? (fila[mapeo.modelo]?.toString() || "") : "",
         };
       }).filter(p => p.nombre && p.precioLista > 0);
 
@@ -205,6 +208,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
                   { key: "stock", label: "Stock", req: false },
                   { key: "proveedor", label: "Proveedor", req: false },
                   { key: "marca", label: "Marca", req: false },
+                  { key: "modelo", label: "Modelo / Aplicación", req: false },
                 ].map(campo => (
                   <div key={campo.key} className="mapping-row">
                     <label className="mapping-label">

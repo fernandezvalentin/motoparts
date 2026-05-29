@@ -32,7 +32,8 @@ export function PuntoVenta({ onAgregarToast }) {
     return productos.filter(
       (p) =>
         p.nombre.toLowerCase().includes(term) ||
-        p.sku.toLowerCase().includes(term)
+        p.sku.toLowerCase().includes(term) ||
+        (p.modelo && p.modelo.toLowerCase().includes(term))
     );
   }, [productos, busqueda]);
 
@@ -169,6 +170,11 @@ export function PuntoVenta({ onAgregarToast }) {
                 >
                   <div className="pos-product-sku">{producto.sku}</div>
                   <div className="pos-product-name" title={producto.nombre}>{producto.nombre}</div>
+                  {producto.modelo && (
+                    <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={producto.modelo}>
+                      {producto.modelo}
+                    </div>
+                  )}
                   <div className="pos-product-footer">
                     <span className={`pos-product-stock ${stockStatus}`}>
                       Stock: {producto.stockActual}

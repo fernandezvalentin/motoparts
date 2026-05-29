@@ -17,6 +17,8 @@ namespace InventarioApi.Models
 
         public string Descripcion { get; set; } = string.Empty;
 
+        public string Modelo { get; set; } = string.Empty;
+
         public string Proveedor { get; set; } = string.Empty;
 
         public string Marca { get; set; } = string.Empty;

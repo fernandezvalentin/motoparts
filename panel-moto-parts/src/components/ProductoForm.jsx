@@ -22,6 +22,7 @@ const INITIAL_STATE = {
   descripcion: "",
   proveedor: "",
   marca: "",
+  modelo: "",
   precioLista: "",
   precio: "",
   stockActual: "",
@@ -44,6 +45,7 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
         descripcion: productoAEditar.descripcion || "",
         proveedor: productoAEditar.proveedor || "",
         marca: productoAEditar.marca || "",
+        modelo: productoAEditar.modelo || "",
         precioLista: productoAEditar.precioLista?.toString() || "",
         precio: productoAEditar.precio?.toString() || "",
         stockActual: productoAEditar.stockActual?.toString() || "",
@@ -216,6 +218,19 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
               className="input"
               placeholder="Ej: Honda, Bajaj, Motomel"
               value={form.marca}
+              onChange={handleChange}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label className="label" htmlFor="modelo">Modelo / Aplicación</label>
+            <input
+              id="modelo"
+              name="modelo"
+              type="text"
+              className="input"
+              placeholder="Ej: CG 150 Titan"
+              value={form.modelo}
               onChange={handleChange}
             />
           </div>

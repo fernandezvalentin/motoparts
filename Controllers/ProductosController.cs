@@ -228,6 +228,7 @@ namespace InventarioApi.Controllers
                     existente.StockActual = dto.Stock >= 0 ? dto.Stock : existente.StockActual;
                     if (!string.IsNullOrWhiteSpace(dto.Proveedor)) existente.Proveedor = dto.Proveedor;
                     if (!string.IsNullOrWhiteSpace(dto.Marca)) existente.Marca = dto.Marca;
+                    if (!string.IsNullOrWhiteSpace(dto.Modelo)) existente.Modelo = dto.Modelo;
                     
                     existente.FechaActualizacion = DateTime.UtcNow;
                     _context.Entry(existente).State = EntityState.Modified;
@@ -250,6 +251,7 @@ namespace InventarioApi.Controllers
                         StockActual = dto.Stock >= 0 ? dto.Stock : 0,
                         Proveedor = dto.Proveedor ?? "",
                         Marca = dto.Marca ?? "",
+                        Modelo = dto.Modelo ?? "",
                         Categoria = "Otros", // Por defecto
                         FechaCreacion = DateTime.UtcNow,
                         FechaActualizacion = DateTime.UtcNow
@@ -288,5 +290,6 @@ namespace InventarioApi.Controllers
         public int Stock { get; set; }
         public string Proveedor { get; set; }
         public string Marca { get; set; }
+        public string Modelo { get; set; }
     }
 }
