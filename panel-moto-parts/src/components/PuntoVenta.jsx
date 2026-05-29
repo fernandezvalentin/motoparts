@@ -155,7 +155,8 @@ export function PuntoVenta({ onAgregarToast }) {
               No se encontraron repuestos.
             </div>
           ) : (
-            productosFiltrados.map((producto) => {
+            <>
+              {productosFiltrados.slice(0, 50).map((producto) => {
               const sinStock = producto.stockActual <= 0;
               const stockStatus =
                 sinStock ? "stock-out" : producto.stockActual <= producto.stockMinimo ? "stock-low" : "stock-ok";
@@ -178,7 +179,13 @@ export function PuntoVenta({ onAgregarToast }) {
                   </div>
                 </div>
               );
-            })
+            })}
+            {productosFiltrados.length > 50 && (
+                <div style={{ padding: "var(--space-4)", textAlign: "center", gridColumn: "1 / -1", color: "var(--text-secondary)", fontSize: "var(--font-sm)" }}>
+                  Mostrando 50 de {productosFiltrados.length} resultados. Usá el buscador para ser más específico.
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

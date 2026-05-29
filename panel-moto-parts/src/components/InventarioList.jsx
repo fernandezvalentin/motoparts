@@ -25,6 +25,8 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
   const [soloStockBajo, setSoloStockBajo] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [paginaActual, setPaginaActual] = useState(1);
+  const ITEMS_POR_PAGINA = 50;
 
   useEffect(() => {
     cargarProductos();
@@ -68,6 +70,17 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
 
     return coincideBusqueda && coincideCategoria && coincideStock;
   });
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busqueda, categoriaFiltro, soloStockBajo]);
+
+  const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA);
+  const productosPaginados = productosFiltrados.slice(
+    (paginaActual - 1) * ITEMS_POR_PAGINA,
+    paginaActual * ITEMS_POR_PAGINA
+  );
 
   return (
     <div className="inventario-list" style={{ animation: "fadeInUp 400ms var(--ease-out)" }}>
@@ -196,11 +209,11 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
               </tr>
             </thead>
             <tbody>
-              {productosFiltrados.map((producto, index) => (
+              {productosPaginados.map((producto, index) => (
                 <tr
                   key={producto.id}
                   style={{
-                    animation: `fadeInUp 300ms var(--ease-out) ${index * 30}ms backwards`,
+                    animation: `fadeInUp 300ms var(--ease-out) backwards`,
                   }}
                 >
                   <td>
@@ -265,6 +278,29 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
               ))}
             </tbody>
           </table>
+
+          {/* Controles de paginación */}
+          {totalPaginas > 1 && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "var(--space-4)", borderTop: "1px solid var(--border-secondary)", background: "var(--bg-card)", borderBottomLeftRadius: "var(--radius-lg)", borderBottomRightRadius: "var(--radius-lg)" }}>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                disabled={paginaActual === 1}
+                onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
+              >
+                ← Anterior
+              </button>
+              <span style={{ fontSize: "var(--font-sm)", color: "var(--text-muted)" }}>
+                Página {paginaActual} de {totalPaginas}
+              </span>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                disabled={paginaActual === totalPaginas}
+                onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
+              >
+                Siguiente →
+              </button>
+            </div>
+          )}
         </div>
       )}
 
