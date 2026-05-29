@@ -126,9 +126,9 @@ export function Dashboard({ onNavegar }) {
           <div className="section-header">
             <h3 className="section-title">
               🔔 Alertas de Stock
-              {stats.alertasStock?.length > 0 && (
+              {stats.productosStockCritico > 0 && (
                 <span className="badge badge-danger" style={{ marginLeft: 8 }}>
-                  {stats.alertasStock.length}
+                  {stats.productosStockCritico}
                 </span>
               )}
             </h3>
@@ -158,6 +158,12 @@ export function Dashboard({ onNavegar }) {
                   </div>
                 </div>
               ))}
+              
+              {stats.productosStockCritico > stats.alertasStock.length && (
+                <div style={{ padding: "var(--space-3)", textAlign: "center", color: "var(--text-muted)", fontSize: "var(--font-sm)" }}>
+                  Y {stats.productosStockCritico - stats.alertasStock.length} repuestos más con stock bajo.
+                </div>
+              )}
             </div>
           ) : (
             <div className="section-empty">

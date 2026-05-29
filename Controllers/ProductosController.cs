@@ -53,30 +53,46 @@ namespace InventarioApi.Controllers
         [HttpGet("estadisticas")]
         public async Task<ActionResult> GetEstadisticas()
         {
-            var productos = await _context.Productos.ToListAsync();
+            var totalProductos = await _context.Productos.CountAsync();
+            
+            // Handle empty table to avoid SumAsync throwing error
+            var valorInventario = totalProductos > 0 
+                ? await _context.Productos.SumAsync(p => p.Precio * p.StockActual)
+                : 0;
+                
+            var productosStockCritico = await _context.Productos.CountAsync(p => p.StockActual <= p.StockMinimo);
+            
+            var categoriasData = await _context.Productos
+                .GroupBy(p => p.Categoria)
+                .Select(g => new { Categoria = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var productosPorCategoria = categoriasData.ToDictionary(c => c.Categoria, c => c.Count);
+            var totalCategorias = categoriasData.Count;
+
+            var alertasStock = await _context.Productos
+                .Where(p => p.StockActual <= p.StockMinimo)
+                .OrderBy(p => p.StockActual)
+                .Take(50)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Nombre,
+                    p.Sku,
+                    p.Categoria,
+                    p.StockActual,
+                    p.StockMinimo
+                })
+                .ToListAsync();
 
             var estadisticas = new
             {
-                totalProductos = productos.Count,
-                valorInventario = productos.Sum(p => p.Precio * p.StockActual),
-                productosStockCritico = productos.Count(p => p.StockActual <= p.StockMinimo),
-                totalCategorias = productos.Select(p => p.Categoria).Distinct().Count(),
-                productosPorCategoria = productos
-                    .GroupBy(p => p.Categoria)
-                    .ToDictionary(g => g.Key, g => g.Count()),
-                alertasStock = productos
-                    .Where(p => p.StockActual <= p.StockMinimo)
-                    .OrderBy(p => p.StockActual)
-                    .Select(p => new
-                    {
-                        p.Id,
-                        p.Nombre,
-                        p.Sku,
-                        p.Categoria,
-                        p.StockActual,
-                        p.StockMinimo
-                    })
-                    .ToList()
+                totalProductos,
+                valorInventario,
+                productosStockCritico,
+                totalCategorias,
+                productosPorCategoria,
+                alertasStock
             };
 
             return Ok(estadisticas);
