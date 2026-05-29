@@ -129,7 +129,11 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
         if (typeof precioVal === 'number') {
           precioNum = precioVal;
         } else if (precioVal) {
-          precioNum = parseFloat(precioVal.toString().replace('$', '').replace(',', '.').trim()) || 0;
+          // Limpiar formato argentino: 1.500,00 -> 1500.00
+          const precioStr = precioVal.toString().replace('$', '').trim();
+          // Remover puntos de miles y cambiar coma por punto decimal
+          const precioClean = precioStr.replace(/\./g, '').replace(',', '.');
+          precioNum = parseFloat(precioClean) || 0;
         }
         
         // Calcular precio al público
