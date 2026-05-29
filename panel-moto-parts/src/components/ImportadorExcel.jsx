@@ -17,6 +17,10 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
     marca: "",
     modelo: "",
   });
+  const [valoresPorDefecto, setValoresPorDefecto] = useState({
+    proveedor: "",
+    marca: ""
+  });
   const [porcentajeGanancia, setPorcentajeGanancia] = useState(40);
   const [paso, setPaso] = useState(1); // 1: Subir, 2: Mapear, 3: Procesando
 
@@ -145,8 +149,8 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
           precioLista: precioNum,
           precioPublico: precioPublico,
           stock: mapeo.stock ? (parseInt(fila[mapeo.stock]) || 0) : 0,
-          proveedor: mapeo.proveedor ? (fila[mapeo.proveedor]?.toString() || "") : "",
-          marca: mapeo.marca ? (fila[mapeo.marca]?.toString() || "") : "",
+          proveedor: mapeo.proveedor ? (fila[mapeo.proveedor]?.toString() || "") : valoresPorDefecto.proveedor,
+          marca: mapeo.marca ? (fila[mapeo.marca]?.toString() || "") : valoresPorDefecto.marca,
           modelo: mapeo.modelo ? (fila[mapeo.modelo]?.toString() || "") : "",
         };
       }).filter(p => p.nombre && p.precioLista > 0);
@@ -246,6 +250,29 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
                     onChange={(e) => setPorcentajeGanancia(parseFloat(e.target.value) || 0)}
                   />
                   <span style={{ fontWeight: "bold" }}>%</span>
+                </div>
+              </div>
+
+              <div className="markup-section" style={{ marginTop: "var(--space-4)", padding: "var(--space-4)", background: "var(--bg-input)", borderRadius: "var(--radius-md)", border: "1px dashed var(--border-secondary)" }}>
+                <h4 style={{ margin: "0 0 var(--space-3) 0" }}>Valores Manuales (Opcional)</h4>
+                <p style={{ fontSize: "var(--font-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-3)" }}>
+                  Si el Excel no tiene columna de Proveedor o Marca, podés ingresarlos acá y se aplicarán a toda la lista.
+                </p>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <input 
+                    type="text" 
+                    className="input" 
+                    placeholder="Proveedor (ej: Tercom)" 
+                    value={valoresPorDefecto.proveedor}
+                    onChange={(e) => setValoresPorDefecto(prev => ({ ...prev, proveedor: e.target.value }))}
+                  />
+                  <input 
+                    type="text" 
+                    className="input" 
+                    placeholder="Marca" 
+                    value={valoresPorDefecto.marca}
+                    onChange={(e) => setValoresPorDefecto(prev => ({ ...prev, marca: e.target.value }))}
+                  />
                 </div>
               </div>
             </div>
