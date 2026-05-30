@@ -223,6 +223,8 @@ namespace InventarioApi.Controllers
                 .Where(p => skusExcel.Contains(p.Sku.ToLower()) || nombresExcel.Contains(p.Nombre.ToLower()))
                 .ToListAsync();
 
+            int contadorBatch = 0;
+
             foreach (var dto in productosData)
             {
                 if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.PrecioLista <= 0)
@@ -280,9 +282,20 @@ namespace InventarioApi.Controllers
                     productosExistentes.Add(nuevoProducto);
                     creados++;
                 }
+                }
+                
+                contadorBatch++;
+                if (contadorBatch >= 500)
+                {
+                    await _context.SaveChangesAsync();
+                    contadorBatch = 0;
+                }
             }
 
-            await _context.SaveChangesAsync();
+            if (contadorBatch > 0)
+            {
+                await _context.SaveChangesAsync();
+            }
 
             return Ok(new { 
                 message = "Importación completada.", 
