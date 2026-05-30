@@ -193,11 +193,10 @@ export function Dashboard({ onNavegar }) {
         {/* Sidebar Derecha */}
         <div className="dashboard-sidebar" style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
           {/* Top 5 Más Vendidos */}
-          <div className="dashboard-card">
-            <div className="card-header">
+          <div className="dashboard-section">
+            <div className="section-header">
               <h3 className="section-title">🏆 Top 5 Más Vendidos</h3>
             </div>
-            <div className="card-content">
               {stats.topVendidos?.length > 0 ? (
                 <div className="table-container" style={{ margin: "var(--space-2)", border: "none" }}>
                   <table className="table" style={{ margin: 0 }}>
@@ -232,15 +231,13 @@ export function Dashboard({ onNavegar }) {
                   <p>Aún no hay ventas registradas.</p>
                 </div>
               )}
-            </div>
           </div>
 
           {/* Distribución por Proveedor */}
-          <div className="dashboard-card">
-            <div className="card-header">
-            <h3 className="section-title">📊 Productos por Proveedor</h3>
-          </div>
-          <div className="card-content">
+          <div className="dashboard-section">
+            <div className="section-header">
+              <h3 className="section-title">📊 Productos por Proveedor</h3>
+            </div>
           {Object.keys(proveedores).length > 0 ? (
             <div className="category-list">
               {Object.entries(proveedores)
@@ -265,7 +262,6 @@ export function Dashboard({ onNavegar }) {
               <p>No hay proveedores registrados aún.</p>
             </div>
           )}
-          </div>
           </div>
         </div>
       </div>
