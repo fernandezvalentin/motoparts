@@ -205,23 +205,25 @@ namespace InventarioApi.Controllers
             int actualizados = 0;
             int creados = 0;
 
-            // Obtener todos los SKUs y Nombres del Excel para buscar en bloque
-            var skusExcel = productosData
-                .Where(d => !string.IsNullOrWhiteSpace(d.Sku))
-                .Select(d => d.Sku.ToLower())
-                .Distinct()
-                .ToList();
-                
-            var nombresExcel = productosData
-                .Where(d => !string.IsNullOrWhiteSpace(d.Nombre))
-                .Select(d => d.Nombre.ToLower())
-                .Distinct()
-                .ToList();
+            // Traer todos los productos a la memoria (es mucho más rápido que hacer un IN masivo en la base de datos)
+            var todosLosProductos = await _context.Productos.ToListAsync();
 
-            // Traer de la DB todos los productos que coincidan con los SKUs o Nombres
-            var productosExistentes = await _context.Productos
-                .Where(p => skusExcel.Contains(p.Sku.ToLower()) || nombresExcel.Contains(p.Nombre.ToLower()))
-                .ToListAsync();
+            // Construir diccionarios para búsqueda O(1) ignorando mayúsculas/minúsculas
+            var dictSku = new Dictionary<string, Producto>(StringComparer.OrdinalIgnoreCase);
+            var dictNombre = new Dictionary<string, Producto>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var p in todosLosProductos)
+            {
+                if (!string.IsNullOrWhiteSpace(p.Sku) && !dictSku.ContainsKey(p.Sku))
+                {
+                    dictSku[p.Sku] = p;
+                }
+                
+                if (!string.IsNullOrWhiteSpace(p.Nombre) && !dictNombre.ContainsKey(p.Nombre))
+                {
+                    dictNombre[p.Nombre] = p;
+                }
+            }
 
             int contadorBatch = 0;
 
@@ -235,14 +237,14 @@ namespace InventarioApi.Controllers
                 // Buscar por SKU primero (si tiene) o por Nombre exacto en memoria
                 Producto existente = null;
                 
-                if (!string.IsNullOrWhiteSpace(dto.Sku))
+                if (!string.IsNullOrWhiteSpace(dto.Sku) && dictSku.TryGetValue(dto.Sku, out var pSku))
                 {
-                    existente = productosExistentes.FirstOrDefault(p => p.Sku.ToLower() == dto.Sku.ToLower());
+                    existente = pSku;
                 }
                 
-                if (existente == null && !string.IsNullOrWhiteSpace(dto.Nombre))
+                if (existente == null && !string.IsNullOrWhiteSpace(dto.Nombre) && dictNombre.TryGetValue(dto.Nombre, out var pNombre))
                 {
-                    existente = productosExistentes.FirstOrDefault(p => p.Nombre.ToLower() == dto.Nombre.ToLower());
+                    existente = pNombre;
                 }
 
                 if (existente != null)
@@ -278,8 +280,11 @@ namespace InventarioApi.Controllers
                     };
                     
                     _context.Productos.Add(nuevoProducto);
-                    // Agregarlo a la lista en memoria por si hay duplicados en el mismo Excel
-                    productosExistentes.Add(nuevoProducto);
+                    
+                    // Agregarlo a los diccionarios por si hay duplicados en el mismo Excel
+                    if (!string.IsNullOrWhiteSpace(nuevoProducto.Sku)) dictSku[nuevoProducto.Sku] = nuevoProducto;
+                    if (!string.IsNullOrWhiteSpace(nuevoProducto.Nombre)) dictNombre[nuevoProducto.Nombre] = nuevoProducto;
+                    
                     creados++;
                 }
                 }
