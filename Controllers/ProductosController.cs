@@ -195,117 +195,120 @@ namespace InventarioApi.Controllers
 
         // POST: api/productos/importar-json
         [HttpPost("importar-json")]
-        public async Task<IActionResult> ImportarJson([FromBody] List<ImportarProductoDto> productosData)
+        public async Task<IActionResult> ImportarJson([FromBody] IEnumerable<ImportarProductoDto> productosData)
         {
-            if (productosData == null || !productosData.Any())
+            try
             {
-                return BadRequest(new { message = "No se recibieron datos para importar." });
-            }
-
-            int actualizados = 0;
-            int creados = 0;
-
-            // Traer todos los productos a la memoria (es mucho más rápido que hacer un IN masivo en la base de datos)
-            var todosLosProductos = await _context.Productos.ToListAsync();
-
-            // Construir diccionarios para búsqueda O(1) ignorando mayúsculas/minúsculas
-            var dictSku = new Dictionary<string, Producto>(StringComparer.OrdinalIgnoreCase);
-            var dictNombre = new Dictionary<string, Producto>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var p in todosLosProductos)
-            {
-                if (!string.IsNullOrWhiteSpace(p.Sku) && !dictSku.ContainsKey(p.Sku))
+                if (productosData == null || !productosData.Any())
                 {
-                    dictSku[p.Sku] = p;
-                }
-                
-                if (!string.IsNullOrWhiteSpace(p.Nombre) && !dictNombre.ContainsKey(p.Nombre))
-                {
-                    dictNombre[p.Nombre] = p;
-                }
-            }
-
-            int contadorBatch = 0;
-
-            foreach (var dto in productosData)
-            {
-                if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.PrecioLista <= 0)
-                {
-                    continue; // Saltar si faltan datos esenciales
+                    return BadRequest(new { message = "No se recibieron datos para importar." });
                 }
 
-                // Buscar por SKU primero (si tiene) o por Nombre exacto en memoria
-                Producto existente = null;
-                
-                if (!string.IsNullOrWhiteSpace(dto.Sku) && dictSku.TryGetValue(dto.Sku, out var pSku))
-                {
-                    existente = pSku;
-                }
-                
-                if (existente == null && !string.IsNullOrWhiteSpace(dto.Nombre) && dictNombre.TryGetValue(dto.Nombre, out var pNombre))
-                {
-                    existente = pNombre;
-                }
+                int actualizados = 0;
+                int creados = 0;
 
-                if (existente != null)
+                // Traer todos los productos a la memoria (es mucho más rápido que hacer un IN masivo en la base de datos)
+                var todosLosProductos = await _context.Productos.ToListAsync();
+
+                // Construir diccionarios para búsqueda O(1) ignorando mayúsculas/minúsculas
+                var dictSku = new Dictionary<string, Producto>(StringComparer.OrdinalIgnoreCase);
+                var dictNombre = new Dictionary<string, Producto>(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var p in todosLosProductos)
                 {
-                    // Actualizar
-                    if (!string.IsNullOrWhiteSpace(dto.Nombre)) existente.Nombre = dto.Nombre;
-                    existente.PrecioLista = dto.PrecioLista > 0 ? dto.PrecioLista : existente.PrecioLista;
-                    existente.Precio = dto.PrecioPublico > 0 ? dto.PrecioPublico : existente.Precio;
-                    existente.StockActual = dto.Stock >= 0 ? dto.Stock : existente.StockActual;
-                    if (!string.IsNullOrWhiteSpace(dto.Proveedor)) existente.Proveedor = dto.Proveedor;
-                    if (!string.IsNullOrWhiteSpace(dto.Marca)) existente.Marca = dto.Marca;
-                    if (!string.IsNullOrWhiteSpace(dto.Modelo)) existente.Modelo = dto.Modelo;
-                    
-                    existente.FechaActualizacion = DateTime.UtcNow;
-                    _context.Entry(existente).State = EntityState.Modified;
-                    actualizados++;
-                }
-                else
-                {
-                    var nuevoProducto = new Producto
+                    if (!string.IsNullOrWhiteSpace(p.Sku) && !dictSku.ContainsKey(p.Sku))
                     {
-                        Sku = !string.IsNullOrWhiteSpace(dto.Sku) ? dto.Sku : GenerarSkuAlternativo(dto.Nombre),
-                        Nombre = dto.Nombre,
-                        PrecioLista = dto.PrecioLista,
-                        Precio = dto.PrecioPublico > 0 ? dto.PrecioPublico : dto.PrecioLista,
-                        StockActual = dto.Stock >= 0 ? dto.Stock : 0,
-                        Proveedor = dto.Proveedor ?? "",
-                        Marca = dto.Marca ?? "",
-                        Modelo = dto.Modelo ?? "",
-                        Categoria = "Otros", // Por defecto
-                        FechaCreacion = DateTime.UtcNow,
-                        FechaActualizacion = DateTime.UtcNow
-                    };
+                        dictSku[p.Sku] = p;
+                    }
                     
-                    _context.Productos.Add(nuevoProducto);
-                    
-                    // Agregarlo a los diccionarios por si hay duplicados en el mismo Excel
-                    if (!string.IsNullOrWhiteSpace(nuevoProducto.Sku)) dictSku[nuevoProducto.Sku] = nuevoProducto;
-                    if (!string.IsNullOrWhiteSpace(nuevoProducto.Nombre)) dictNombre[nuevoProducto.Nombre] = nuevoProducto;
-                    
-                    creados++;
+                    if (!string.IsNullOrWhiteSpace(p.Nombre) && !dictNombre.ContainsKey(p.Nombre))
+                    {
+                        dictNombre[p.Nombre] = p;
+                    }
                 }
-                
-                contadorBatch++;
-                if (contadorBatch >= 500)
+
+                int contadorBatch = 0;
+
+                foreach (var dto in productosData)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.Nombre) || dto.PrecioLista <= 0)
+                    {
+                        continue; // Saltar si faltan datos esenciales
+                    }
+
+                    // Buscar por SKU primero (si tiene) o por Nombre exacto en memoria
+                    Producto existente = null;
+                    
+                    if (!string.IsNullOrWhiteSpace(dto.Sku) && dictSku.TryGetValue(dto.Sku, out var pSku))
+                    {
+                        existente = pSku;
+                    }
+                    
+                    if (existente == null && !string.IsNullOrWhiteSpace(dto.Nombre) && dictNombre.TryGetValue(dto.Nombre, out var pNombre))
+                    {
+                        existente = pNombre;
+                    }
+
+                    if (existente != null)
+                    {
+                        // Actualizar
+                        if (!string.IsNullOrWhiteSpace(dto.Nombre)) existente.Nombre = dto.Nombre;
+                        existente.PrecioLista = dto.PrecioLista > 0 ? dto.PrecioLista : existente.PrecioLista;
+                        existente.Precio = dto.PrecioPublico > 0 ? dto.PrecioPublico : existente.Precio;
+                        existente.StockActual = dto.Stock >= 0 ? dto.Stock : existente.StockActual;
+                        if (!string.IsNullOrWhiteSpace(dto.Proveedor)) existente.Proveedor = dto.Proveedor;
+                        if (!string.IsNullOrWhiteSpace(dto.Marca)) existente.Marca = dto.Marca;
+                        if (!string.IsNullOrWhiteSpace(dto.Modelo)) existente.Modelo = dto.Modelo;
+                        
+                        existente.FechaActualizacion = DateTime.UtcNow;
+                        _context.Entry(existente).State = EntityState.Modified;
+                        actualizados++;
+                    }
+                    else
+                    {
+                        var nuevoProducto = new Producto
+                        {
+                            Sku = !string.IsNullOrWhiteSpace(dto.Sku) ? dto.Sku : GenerarSkuAlternativo(dto.Nombre),
+                            Nombre = dto.Nombre,
+                            PrecioLista = dto.PrecioLista,
+                            Precio = dto.PrecioPublico > 0 ? dto.PrecioPublico : dto.PrecioLista,
+                            StockActual = dto.Stock >= 0 ? dto.Stock : 0,
+                            Proveedor = dto.Proveedor ?? "",
+                            Marca = dto.Marca ?? "",
+                            Modelo = dto.Modelo ?? "",
+                            Categoria = "Otros", // Por defecto
+                            FechaCreacion = DateTime.UtcNow,
+                            FechaActualizacion = DateTime.UtcNow
+                        };
+                        
+                        _context.Productos.Add(nuevoProducto);
+                        
+                        // Agregarlo a los diccionarios por si hay duplicados en el mismo Excel
+                        if (!string.IsNullOrWhiteSpace(nuevoProducto.Sku)) dictSku[nuevoProducto.Sku] = nuevoProducto;
+                        if (!string.IsNullOrWhiteSpace(nuevoProducto.Nombre)) dictNombre[nuevoProducto.Nombre] = nuevoProducto;
+                        
+                        creados++;
+                    }
+                    
+                    contadorBatch++;
+                    if (contadorBatch >= 500)
+                    {
+                        await _context.SaveChangesAsync();
+                        contadorBatch = 0;
+                    }
+                }
+
+                if (contadorBatch > 0)
                 {
                     await _context.SaveChangesAsync();
-                    contadorBatch = 0;
                 }
-            }
 
-            if (contadorBatch > 0)
+                return Ok(new { message = "Importación completada", actualizados, creados });
+            }
+            catch (Exception ex)
             {
-                await _context.SaveChangesAsync();
+                return StatusCode(500, new { message = "Error interno al importar los productos", error = ex.Message + (ex.InnerException != null ? " - " + ex.InnerException.Message : "") });
             }
-
-            return Ok(new { 
-                message = "Importación completada.", 
-                creados = creados, 
-                actualizados = actualizados 
-            });
         }
 
         private string GenerarSkuAlternativo(string nombre)
