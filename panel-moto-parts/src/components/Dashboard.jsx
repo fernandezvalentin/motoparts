@@ -239,16 +239,16 @@ export function Dashboard({ onNavegar }) {
               <h3 className="section-title">📊 Productos por Proveedor</h3>
             </div>
           {Object.keys(proveedores).length > 0 ? (
-            <div className="category-list">
+            <div className="category-chart">
               {Object.entries(proveedores)
                 .sort((a, b) => b[1] - a[1]) // Ordenar por cantidad descendente
                 .map(([prov, count]) => (
-                  <div key={prov} className="category-item">
-                    <div className="category-info">
-                      <span className="category-name">{prov || "Sin Proveedor"}</span>
-                      <span className="category-count">{count} {count === 1 ? 'producto' : 'productos'}</span>
+                  <div key={prov} className="category-bar-item">
+                    <div className="category-bar-header">
+                      <span className="category-bar-label">{prov || "Sin Proveedor"}</span>
+                      <span className="category-bar-value">{count} {count === 1 ? 'producto' : 'productos'}</span>
                     </div>
-                    <div className="category-bar-bg">
+                    <div className="category-bar-track">
                       <div 
                         className="category-bar-fill" 
                         style={{ width: `${(count / maxProveedor) * 100}%` }}
