@@ -149,22 +149,24 @@ export function Dashboard({ onNavegar }) {
                 <tbody>
                   {stats.alertasStock.map((item, index) => (
                     <tr key={item.id} style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}>
-                      <td className="td-sku">{item.sku}</td>
+                      <td>
+                        <span className="td-sku">{item.sku}</span>
+                      </td>
                       <td>
                         <span className="alert-item-name" style={{ display: "block", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {item.nombre}
                         </span>
                       </td>
                       <td className="hide-mobile">
-                        <span className="badge badge-neutral">{item.proveedor || "Sin Proveedor"}</span>
+                        <span className="badge badge-neutral" style={{ whiteSpace: "nowrap" }}>{item.proveedor || "Sin Proveedor"}</span>
                       </td>
-                      <td style={{ textAlign: "center" }}>
+                      <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>
                         <StockBadge
                           stockActual={item.stockActual}
                           stockMinimo={item.stockMinimo}
                         />
                       </td>
-                      <td style={{ textAlign: "center" }}>
+                      <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>
                         <span className="alert-item-numbers">
                           {item.stockActual} / {item.stockMinimo}
                         </span>
