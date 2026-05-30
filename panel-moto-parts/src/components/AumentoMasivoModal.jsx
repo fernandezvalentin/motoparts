@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { aumentoMasivo } from '../services/api';
 import './AumentoMasivoModal.css';
 
 export function AumentoMasivoModal({ onCerrar, onCompletado, onAgregarToast }) {
   const [form, setForm] = useState({
     porcentaje: "",
-    proveedor: "",
-    marca: "",
-    categoria: ""
+    proveedor: "Todos",
+    marca: ""
   });
   const [procesando, setProcesando] = useState(false);
 
-  const CATEGORIAS = ["Motor", "Transmisión", "Frenos", "Eléctrico", "Suspensión", "Accesorios", "Otros", "Todas"];
+  const [proveedores, setProveedores] = useState([]);
+
+  useEffect(() => {
+    // Populate providers from backend
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5190/api"}/productos/estadisticas`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.productosPorProveedor) {
+          setProveedores(Object.keys(data.productosPorProveedor).sort());
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -31,9 +42,8 @@ export function AumentoMasivoModal({ onCerrar, onCompletado, onAgregarToast }) {
     try {
       const dto = {
         porcentaje: parseFloat(form.porcentaje),
-        proveedor: form.proveedor,
-        marca: form.marca,
-        categoria: form.categoria === "Todas" ? "" : form.categoria
+        proveedor: form.proveedor === "Todos" ? "" : form.proveedor,
+        marca: form.marca
       };
 
       const res = await aumentoMasivo(dto);
@@ -80,18 +90,6 @@ export function AumentoMasivoModal({ onCerrar, onCompletado, onAgregarToast }) {
             <p style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginBottom: "var(--space-3)" }}>Si dejás todo vacío, el aumento se aplicará a TODOS los productos del sistema.</p>
 
             <div className="form-group" style={{ marginBottom: "var(--space-3)" }}>
-              <label className="label">Proveedor</label>
-              <input
-                name="proveedor"
-                type="text"
-                className="input"
-                placeholder="Ej: Tercom"
-                value={form.proveedor}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group" style={{ marginBottom: "var(--space-3)" }}>
               <label className="label">Marca</label>
               <input
                 name="marca"
@@ -103,20 +101,22 @@ export function AumentoMasivoModal({ onCerrar, onCompletado, onAgregarToast }) {
               />
             </div>
 
-            <div className="form-group" style={{ marginBottom: "0" }}>
-              <label className="label">Categoría</label>
+            <div className="form-group">
+            <label className="label">Proveedor</label>
+            <div className="select-wrapper">
               <select
-                name="categoria"
                 className="select"
-                value={form.categoria}
+                name="proveedor"
+                value={form.proveedor}
                 onChange={handleChange}
               >
-                <option value="">Todas</option>
-                {CATEGORIAS.filter(c => c !== "Todas").map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                <option value="Todos">-- Todos los proveedores --</option>
+                {proveedores.map(prov => (
+                  <option key={prov} value={prov}>{prov || "Sin Proveedor"}</option>
                 ))}
               </select>
             </div>
+          </div>
           </div>
         </div>
 

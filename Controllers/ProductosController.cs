@@ -22,7 +22,7 @@ namespace InventarioApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Producto>>> GetProductos(
             [FromQuery] string? busqueda = null,
-            [FromQuery] string? categoria = null,
+            [FromQuery] string? proveedor = null,
             [FromQuery] bool soloStockBajo = false)
         {
             var query = _context.Productos.AsQueryable();
@@ -36,9 +36,9 @@ namespace InventarioApi.Controllers
                     p.Proveedor.ToLower().Contains(term));
             }
 
-            if (!string.IsNullOrWhiteSpace(categoria) && categoria != "Todas")
+            if (!string.IsNullOrWhiteSpace(proveedor) && proveedor != "Todos")
             {
-                query = query.Where(p => p.Categoria == categoria);
+                query = query.Where(p => p.Proveedor == proveedor);
             }
 
             if (soloStockBajo)
@@ -62,13 +62,15 @@ namespace InventarioApi.Controllers
                 
             var productosStockCritico = await _context.Productos.CountAsync(p => p.StockActual <= p.StockMinimo);
             
-            var categoriasData = await _context.Productos
-                .GroupBy(p => p.Categoria)
-                .Select(g => new { Categoria = g.Key, Count = g.Count() })
+            // Agrupar por Proveedor para no saturar la memoria
+            var proveedoresData = await _context.Productos
+                .Where(p => !string.IsNullOrEmpty(p.Proveedor))
+                .GroupBy(p => p.Proveedor)
+                .Select(g => new { Proveedor = g.Key, Count = g.Count() })
                 .ToListAsync();
 
-            var productosPorCategoria = categoriasData.ToDictionary(c => c.Categoria, c => c.Count);
-            var totalCategorias = categoriasData.Count;
+            var productosPorProveedor = proveedoresData.ToDictionary(c => c.Proveedor, c => c.Count);
+            var totalProveedores = proveedoresData.Count;
 
             var alertasStock = await _context.Productos
                 .Where(p => p.StockActual <= p.StockMinimo)
@@ -79,7 +81,7 @@ namespace InventarioApi.Controllers
                     p.Id,
                     p.Nombre,
                     p.Sku,
-                    p.Categoria,
+                    p.Proveedor,
                     p.StockActual,
                     p.StockMinimo
                 })
@@ -90,8 +92,8 @@ namespace InventarioApi.Controllers
                 totalProductos,
                 valorInventario,
                 productosStockCritico,
-                totalCategorias,
-                productosPorCategoria,
+                totalProveedores,
+                productosPorProveedor,
                 alertasStock
             };
 
@@ -345,11 +347,6 @@ namespace InventarioApi.Controllers
                 query = query.Where(p => p.Marca.ToLower() == dto.Marca.ToLower());
             }
 
-            if (!string.IsNullOrWhiteSpace(dto.Categoria))
-            {
-                query = query.Where(p => p.Categoria.ToLower() == dto.Categoria.ToLower());
-            }
-
             var productos = await query.ToListAsync();
 
             if (productos.Count == 0)
@@ -388,8 +385,7 @@ namespace InventarioApi.Controllers
     public class AumentoMasivoDto
     {
         public decimal Porcentaje { get; set; }
-        public string Proveedor { get; set; }
-        public string Marca { get; set; }
-        public string Categoria { get; set; }
+        public string? Proveedor { get; set; }
+        public string? Marca { get; set; }
     }
 }

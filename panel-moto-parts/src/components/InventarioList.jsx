@@ -5,25 +5,11 @@ import { StockBadge } from "./StockBadge";
 import { ImportadorExcel } from "./ImportadorExcel";
 import { AumentoMasivoModal } from "./AumentoMasivoModal";
 
-const CATEGORIAS = [
-  "Todas",
-  "Motor",
-  "Frenos",
-  "Suspensión",
-  "Eléctrico",
-  "Transmisión",
-  "Carrocería",
-  "Filtros",
-  "Lubricantes",
-  "Accesorios",
-  "Otros",
-];
-
 export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar }) {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState("");
-  const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
+  const [proveedorFiltro, setProveedorFiltro] = useState("Todos");
   const [soloStockBajo, setSoloStockBajo] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showAumentoMasivo, setShowAumentoMasivo] = useState(false);
@@ -66,20 +52,21 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
       (p.marca && p.marca.toLowerCase().includes(busqueda.toLowerCase())) ||
       (p.modelo && p.modelo.toLowerCase().includes(busqueda.toLowerCase()));
 
-    const coincideCategoria =
-      categoriaFiltro === "Todas" || p.categoria === categoriaFiltro;
+    const coincideProveedor =
+      proveedorFiltro === "Todos" || p.proveedor === proveedorFiltro;
 
     const coincideStock = !soloStockBajo || p.stockActual <= p.stockMinimo;
 
-    return coincideBusqueda && coincideCategoria && coincideStock;
+    return coincideBusqueda && coincideProveedor && coincideStock;
   });
 
   // Reset page when filters change
   useEffect(() => {
     setPaginaActual(1);
-  }, [busqueda, categoriaFiltro, soloStockBajo]);
+  }, [busqueda, proveedorFiltro, soloStockBajo]);
 
   const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA);
+  const proveedoresUnicos = [...new Set(productos.map(p => p.proveedor))].filter(Boolean).sort();
   const productosPaginados = productosFiltrados.slice(
     (paginaActual - 1) * ITEMS_POR_PAGINA,
     paginaActual * ITEMS_POR_PAGINA
@@ -127,15 +114,16 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
         </div>
 
         <select
-          id="category-filter"
+          id="provider-filter"
           className="select"
           style={{ minWidth: 220, flexShrink: 0 }}
-          value={categoriaFiltro}
-          onChange={(e) => setCategoriaFiltro(e.target.value)}
+          value={proveedorFiltro}
+          onChange={(e) => setProveedorFiltro(e.target.value)}
         >
-          {CATEGORIAS.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat === "Todas" ? "📂 Categorías" : cat}
+          <option value="Todos">📂 Todos los proveedores</option>
+          {proveedoresUnicos.map((p) => (
+            <option key={p} value={p}>
+              {p}
             </option>
           ))}
         </select>
@@ -162,7 +150,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
               <tr>
                 <th>SKU</th>
                 <th>Artículo</th>
-                <th>Categoría</th>
+                <th>Proveedor</th>
                 <th>Precio</th>
                 <th>Stock</th>
                 <th>Estado</th>
@@ -190,15 +178,15 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
       {!cargando && productosFiltrados.length === 0 && (
         <div className="empty-state">
           <div className="empty-state-icon">
-            {busqueda || categoriaFiltro !== "Todas" || soloStockBajo ? "🔍" : "📦"}
+            {busqueda || proveedorFiltro !== "Todos" || soloStockBajo ? "🔍" : "📦"}
           </div>
           <p className="empty-state-title">
-            {busqueda || categoriaFiltro !== "Todas" || soloStockBajo
+            {busqueda || proveedorFiltro !== "Todos" || soloStockBajo
               ? "No se encontraron resultados"
               : "El inventario está vacío"}
           </p>
           <p className="empty-state-text">
-            {busqueda || categoriaFiltro !== "Todas" || soloStockBajo
+            {busqueda || proveedorFiltro !== "Todos" || soloStockBajo
               ? "Probá con otros filtros o términos de búsqueda."
               : "Empezá cargando tu primer producto."}
           </p>
@@ -213,7 +201,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
               <tr>
                 <th>SKU</th>
                 <th>Artículo</th>
-                <th className="hide-mobile">Categoría</th>
+                <th className="hide-mobile">Proveedor</th>
                 <th>Precio Pub.</th>
                 <th style={{ textAlign: "center" }}>Stock</th>
                 <th>Estado</th>
@@ -240,7 +228,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                     )}
                   </td>
                   <td className="hide-mobile">
-                    <span className="badge badge-neutral">{producto.categoria || "Otros"}</span>
+                    <span className="badge badge-neutral">{producto.proveedor || "Sin Proveedor"}</span>
                   </td>
                   <td>
                     <div style={{ display: "flex", flexDirection: "column" }}>

@@ -56,8 +56,8 @@ export function Dashboard({ onNavegar }) {
     );
   }
 
-  const categorias = stats.productosPorCategoria || {};
-  const maxCategoria = Math.max(...Object.values(categorias), 1);
+  const proveedores = stats.productosPorProveedor || {};
+  const maxProveedor = Math.max(...Object.values(proveedores), 1);
 
   return (
     <div className="dashboard">
@@ -112,11 +112,11 @@ export function Dashboard({ onNavegar }) {
 
         <div className="kpi-card">
           <div className="kpi-header">
-            <span className="kpi-label">Categorías</span>
-            <span className="kpi-icon kpi-icon-accent">🏷️</span>
+            <span className="kpi-icon">🏢</span>
+            <span className="kpi-label">Proveedores</span>
           </div>
-          <div className="kpi-value">{stats.totalCategorias}</div>
-          <p className="kpi-footer">categorías activas</p>
+          <div className="kpi-value">{stats.totalProveedores}</div>
+          <p className="kpi-footer">proveedores activos</p>
         </div>
       </div>
 
@@ -145,7 +145,7 @@ export function Dashboard({ onNavegar }) {
                   <div className="alert-item-info">
                     <span className="td-sku">{item.sku}</span>
                     <span className="alert-item-name">{item.nombre}</span>
-                    <span className="badge badge-neutral">{item.categoria}</span>
+                    <span className="badge badge-neutral">{item.proveedor}</span>
                   </div>
                   <div className="alert-item-stock">
                     <StockBadge
@@ -173,41 +173,37 @@ export function Dashboard({ onNavegar }) {
           )}
         </div>
 
-        {/* Distribución por Categoría */}
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h3 className="section-title">📊 Productos por Categoría</h3>
+        {/* Distribución por Proveedor */}
+        <div className="dashboard-card" style={{ gridColumn: "1 / -1" }}>
+          <div className="card-header">
+            <h3 className="section-title">📊 Productos por Proveedor</h3>
           </div>
-
-          {Object.keys(categorias).length > 0 ? (
-            <div className="category-chart">
-              {Object.entries(categorias)
-                .sort(([, a], [, b]) => b - a)
-                .map(([cat, count], index) => (
-                  <div
-                    key={cat}
-                    className="category-bar-item"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="category-bar-header">
-                      <span className="category-bar-label">{cat}</span>
-                      <span className="category-bar-value">{count}</span>
+          <div className="card-content">
+          {Object.keys(proveedores).length > 0 ? (
+            <div className="category-list">
+              {Object.entries(proveedores)
+                .sort((a, b) => b[1] - a[1]) // Ordenar por cantidad descendente
+                .map(([prov, count]) => (
+                  <div key={prov} className="category-item">
+                    <div className="category-info">
+                      <span className="category-name">{prov || "Sin Proveedor"}</span>
+                      <span className="category-count">{count} {count === 1 ? 'producto' : 'productos'}</span>
                     </div>
-                    <div className="category-bar-track">
-                      <div
-                        className="category-bar-fill"
-                        style={{ width: `${(count / maxCategoria) * 100}%` }}
-                      />
+                    <div className="category-bar-bg">
+                      <div 
+                        className="category-bar-fill" 
+                        style={{ width: `${(count / maxProveedor) * 100}%` }}
+                      ></div>
                     </div>
                   </div>
-                ))}
+              ))}
             </div>
           ) : (
-            <div className="section-empty">
-              <span>📂</span>
-              <p>No hay categorías registradas aún.</p>
+            <div className="empty-state">
+              <p>No hay proveedores registrados aún.</p>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

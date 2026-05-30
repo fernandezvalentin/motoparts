@@ -2,23 +2,10 @@
 import { useState, useEffect } from "react";
 import { crearProducto, actualizarProducto } from "../services/api";
 
-const CATEGORIAS = [
-  "Motor",
-  "Frenos",
-  "Suspensión",
-  "Eléctrico",
-  "Transmisión",
-  "Carrocería",
-  "Filtros",
-  "Lubricantes",
-  "Accesorios",
-  "Otros",
-];
 
 const INITIAL_STATE = {
   sku: "",
   nombre: "",
-  categoria: "Otros",
   descripcion: "",
   proveedor: "",
   marca: "",
@@ -41,7 +28,6 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
       setForm({
         sku: productoAEditar.sku || "",
         nombre: productoAEditar.nombre || "",
-        categoria: productoAEditar.categoria || "Otros",
         descripcion: productoAEditar.descripcion || "",
         proveedor: productoAEditar.proveedor || "",
         marca: productoAEditar.marca || "",
@@ -87,10 +73,10 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
     const productoData = {
       sku: form.sku.trim().toUpperCase(),
       nombre: form.nombre.trim(),
-      categoria: form.categoria,
       descripcion: form.descripcion.trim(),
       proveedor: form.proveedor.trim(),
       marca: form.marca.trim(),
+      modelo: form.modelo.trim(),
       precioLista: form.precioLista ? parseFloat(form.precioLista) : 0,
       precio: parseFloat(form.precio),
       stockActual: parseInt(form.stockActual),
@@ -179,23 +165,8 @@ export function ProductoForm({ productoAEditar, setProductoAEditar, onOperacionE
           </div>
         </div>
 
-        {/* Row 2: Categoría + Proveedor + Marca */}
+        {/* Row 2: Proveedor + Marca + Modelo */}
         <div className="form-grid-3">
-          <div className="form-group">
-            <label className="label" htmlFor="categoria">Categoría</label>
-            <select
-              id="categoria"
-              name="categoria"
-              className="select"
-              value={form.categoria}
-              onChange={handleChange}
-            >
-              {CATEGORIAS.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-
           <div className="form-group">
             <label className="label" htmlFor="proveedor">Proveedor</label>
             <input

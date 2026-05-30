@@ -42,7 +42,7 @@ export const obtenerProductos = async (params = {}) => {
   try {
     const searchParams = new URLSearchParams();
     if (params.busqueda) searchParams.append("busqueda", params.busqueda);
-    if (params.categoria) searchParams.append("categoria", params.categoria);
+    if (params.proveedor) searchParams.append("proveedor", params.proveedor);
     if (params.soloStockBajo) searchParams.append("soloStockBajo", "true");
 
     const queryString = searchParams.toString();
