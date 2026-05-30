@@ -112,8 +112,8 @@ export function Dashboard({ onNavegar }) {
 
         <div className="kpi-card">
           <div className="kpi-header">
-            <span className="kpi-icon">🏢</span>
             <span className="kpi-label">Proveedores</span>
+            <span className="kpi-icon kpi-icon-accent">🏢</span>
           </div>
           <div className="kpi-value">{stats.totalProveedores}</div>
           <p className="kpi-footer">proveedores activos</p>
