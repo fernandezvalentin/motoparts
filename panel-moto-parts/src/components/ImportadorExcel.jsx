@@ -170,7 +170,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
       onAgregarToast(`¡Importación exitosa! Se actualizaron ${res.actualizados} y se crearon ${res.creados} productos.`, "success");
       onCompletado();
     } catch (error) {
-      onAgregarToast("Hubo un error al guardar los productos en la base de datos.", "error");
+      onAgregarToast(error.message || "Hubo un error al guardar los productos en la base de datos.", "error");
       setPaso(2);
     }
   };

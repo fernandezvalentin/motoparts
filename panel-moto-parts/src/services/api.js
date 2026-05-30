@@ -215,7 +215,10 @@ export const importarProductosJson = async (productosData) => {
       headers: getHeaders(),
       body: JSON.stringify(productosData),
     });
-    if (!response.ok) throw new Error("Error al importar los productos");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.message || "Error al importar los productos");
+    }
     return await response.json();
   } catch (error) {
     console.error("Error en importarProductosJson:", error);
