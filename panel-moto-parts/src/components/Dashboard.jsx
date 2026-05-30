@@ -199,18 +199,33 @@ export function Dashboard({ onNavegar }) {
             </div>
             <div className="card-content">
               {stats.topVendidos?.length > 0 ? (
-                <div className="category-list">
-                  {stats.topVendidos.map((prod, index) => (
-                    <div key={prod.id} className="category-item" style={{ animationDelay: `${index * 50}ms` }}>
-                      <div className="category-info">
-                        <span className="category-name">{prod.nombre}</span>
-                        <span className="category-count">{prod.cantidadVendida} unid.</span>
-                      </div>
-                      <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginTop: "4px" }}>
-                        <span className="td-sku">{prod.sku}</span> • {prod.proveedor || "Sin prov"}
-                      </div>
-                    </div>
-                  ))}
+                <div className="table-container" style={{ margin: "var(--space-2)", border: "none" }}>
+                  <table className="table" style={{ margin: 0 }}>
+                    <thead>
+                      <tr>
+                        <th>CÓDIGO</th>
+                        <th>REPUESTO</th>
+                        <th style={{ textAlign: "center" }}>VENDIDOS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stats.topVendidos.map((prod, index) => (
+                        <tr key={prod.id} style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}>
+                          <td style={{ whiteSpace: "nowrap", width: "1%" }}>
+                            <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{prod.sku}</span>
+                          </td>
+                          <td style={{ width: "99%", maxWidth: "100px" }}>
+                            <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={prod.nombre}>
+                              {prod.nombre}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "1%" }}>
+                            <span className="badge badge-success" style={{ fontWeight: "bold" }}>{prod.cantidadVendida}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               ) : (
                 <div className="empty-state" style={{ padding: "var(--space-3) 0" }}>
