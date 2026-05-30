@@ -12,6 +12,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
     sku: "",
     nombre: "",
     precioLista: "",
+    precioListaDolar: "",
     stock: "",
     proveedor: "",
     marca: "",
@@ -21,6 +22,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
     proveedor: "",
     marca: ""
   });
+  const [cotizacionDolar, setCotizacionDolar] = useState(1000);
   const [porcentajeGanancia, setPorcentajeGanancia] = useState(40);
   const [paso, setPaso] = useState(1); // 1: Subir, 2: Mapear, 3: Procesando
 
@@ -127,19 +129,22 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
     try {
       // Formatear datos al DTO que espera el backend
       const productosAImportar = datosExcel.map(fila => {
-        // Limpiar el precio (si viene con $, comas, etc)
-        let precioVal = fila[mapeo.precioLista];
-        let precioNum = 0;
-        if (typeof precioVal === 'number') {
-          precioNum = precioVal;
-        } else if (precioVal) {
-          // Limpiar formato argentino: 1.500,00 -> 1500.00
-          const precioStr = precioVal.toString().replace('$', '').trim();
-          // Remover puntos de miles y cambiar coma por punto decimal
-          const precioClean = precioStr.replace(/\./g, '').replace(',', '.');
-          precioNum = parseFloat(precioClean) || 0;
-        }
         
+        // Helper para limpiar números
+        const parsearPrecio = (valor) => {
+          if (typeof valor === 'number') return valor;
+          if (!valor) return 0;
+          const str = valor.toString().replace('$', '').trim();
+          const clean = str.replace(/\./g, '').replace(',', '.');
+          return parseFloat(clean) || 0;
+        };
+
+        let precioPesos = parsearPrecio(fila[mapeo.precioLista]);
+        let precioDolares = mapeo.precioListaDolar ? parsearPrecio(fila[mapeo.precioListaDolar]) : 0;
+        
+        // Si hay precio en dólares, lo usamos convirtiéndolo a pesos
+        let precioNum = precioDolares > 0 ? (precioDolares * cotizacionDolar) : precioPesos;
+
         // Calcular precio al público
         const precioPublico = precioNum + (precioNum * (porcentajeGanancia / 100));
 
@@ -211,7 +216,8 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
               <div className="mapping-grid">
                 {[
                   { key: "nombre", label: "Nombre / Descripción *", req: true },
-                  { key: "precioLista", label: "Precio de Lista (Costo) *", req: true },
+                  { key: "precioLista", label: "Precio de Lista (en Pesos) *", req: true },
+                  { key: "precioListaDolar", label: "Precio de Lista (en Dólares) - Opcional", req: false },
                   { key: "sku", label: "Código / Artículo", req: false },
                   { key: "stock", label: "Stock", req: false },
                   { key: "proveedor", label: "Proveedor", req: false },
@@ -237,9 +243,28 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
               </div>
 
               <div className="markup-section" style={{ marginTop: "var(--space-6)", padding: "var(--space-4)", background: "var(--bg-input)", borderRadius: "var(--radius-md)", border: "1px solid var(--border-secondary)" }}>
-                <h4 style={{ margin: "0 0 var(--space-3) 0" }}>Ganancia (Precio Público)</h4>
+                <h4 style={{ margin: "0 0 var(--space-3) 0" }}>Variables de Precio</h4>
+                
+                {mapeo.precioListaDolar && (
+                  <div style={{ marginBottom: "var(--space-4)", paddingBottom: "var(--space-4)", borderBottom: "1px solid var(--border-primary)" }}>
+                    <p style={{ fontSize: "var(--font-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-2)" }}>
+                      Cotización del Dólar (para convertir la columna importada)
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span style={{ fontWeight: "bold" }}>$</span>
+                      <input 
+                        type="number" 
+                        className="input" 
+                        style={{ width: "120px" }}
+                        value={cotizacionDolar}
+                        onChange={(e) => setCotizacionDolar(parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <p style={{ fontSize: "var(--font-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-3)" }}>
-                  ¿Qué porcentaje le sumamos al Precio de Lista para calcular automáticamente el Precio de Venta al público?
+                  Ganancia: ¿Qué porcentaje le sumamos al Costo para calcular el Precio al Público?
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <input 
