@@ -74,14 +74,14 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
 
   return (
     <div className="inventario-list" style={{ animation: "fadeInUp 400ms var(--ease-out)" }}>
-      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="page-header">
         <div>
           <h2 className="page-title">Inventario</h2>
           <p className="page-subtitle">
             {productosFiltrados.length} de {productos.length} artículos
           </p>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <button 
             className="btn btn-secondary" 
             onClick={() => setShowAumentoMasivo(true)}
