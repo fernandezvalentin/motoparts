@@ -298,6 +298,53 @@ namespace InventarioApi.Controllers
             var randomStr = new Random().Next(1000, 9999).ToString();
             return $"{prefix}-{randomStr}";
         }
+
+        [HttpPut("aumento-masivo")]
+        public async Task<ActionResult> AumentoMasivo([FromBody] AumentoMasivoDto dto)
+        {
+            if (dto.Porcentaje == 0)
+            {
+                return BadRequest(new { message = "El porcentaje de aumento no puede ser 0." });
+            }
+
+            var query = _context.Productos.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(dto.Proveedor))
+            {
+                query = query.Where(p => p.Proveedor.ToLower() == dto.Proveedor.ToLower());
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Marca))
+            {
+                query = query.Where(p => p.Marca.ToLower() == dto.Marca.ToLower());
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Categoria))
+            {
+                query = query.Where(p => p.Categoria.ToLower() == dto.Categoria.ToLower());
+            }
+
+            var productos = await query.ToListAsync();
+
+            if (productos.Count == 0)
+            {
+                return NotFound(new { message = "No se encontraron productos que coincidan con los filtros." });
+            }
+
+            decimal multiplicador = 1 + (dto.Porcentaje / 100m);
+
+            foreach (var p in productos)
+            {
+                p.PrecioLista = Math.Round(p.PrecioLista * multiplicador, 2);
+                p.Precio = Math.Round(p.Precio * multiplicador, 2);
+                p.FechaActualizacion = DateTime.UtcNow;
+                _context.Entry(p).State = EntityState.Modified;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = $"Se actualizaron los precios de {productos.Count} productos.", actualizados = productos.Count });
+        }
     }
 
     public class ImportarProductoDto
@@ -310,5 +357,13 @@ namespace InventarioApi.Controllers
         public string Proveedor { get; set; }
         public string Marca { get; set; }
         public string Modelo { get; set; }
+    }
+
+    public class AumentoMasivoDto
+    {
+        public decimal Porcentaje { get; set; }
+        public string Proveedor { get; set; }
+        public string Marca { get; set; }
+        public string Categoria { get; set; }
     }
 }

@@ -222,3 +222,23 @@ export const importarProductosJson = async (productosData) => {
     throw error;
   }
 };
+export const aumentoMasivo = async (dto) => {
+  try {
+    const response = await fetch(`${API_URL}/productos/aumento-masivo`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(dto),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al aplicar aumento masivo");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error en aumentoMasivo:", error);
+    throw error;
+  }
+};

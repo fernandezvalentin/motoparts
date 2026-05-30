@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { obtenerProductos, eliminarProducto } from "../services/api";
 import { StockBadge } from "./StockBadge";
 import { ImportadorExcel } from "./ImportadorExcel";
+import { AumentoMasivoModal } from "./AumentoMasivoModal";
 
 const CATEGORIAS = [
   "Todas",
@@ -25,6 +26,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
   const [soloStockBajo, setSoloStockBajo] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showAumentoMasivo, setShowAumentoMasivo] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const ITEMS_POR_PAGINA = 50;
 
@@ -92,13 +94,22 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
             {productosFiltrados.length} de {productos.length} artículos
           </p>
         </div>
-        <button 
-          className="btn btn-secondary" 
-          onClick={() => setShowImportModal(true)}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          📥 Importar Excel
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setShowAumentoMasivo(true)}
+            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+          >
+            📈 Aumento Masivo
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setShowImportModal(true)}
+            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+          >
+            📥 Importar Excel
+          </button>
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -310,6 +321,17 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
           onCerrar={() => setShowImportModal(false)} 
           onCompletado={() => {
             setShowImportModal(false);
+            cargarProductos();
+          }}
+          onAgregarToast={onAgregarToast}
+        />
+      )}
+
+      {showAumentoMasivo && (
+        <AumentoMasivoModal 
+          onCerrar={() => setShowAumentoMasivo(false)} 
+          onCompletado={() => {
+            setShowAumentoMasivo(false);
             cargarProductos();
           }}
           onAgregarToast={onAgregarToast}
