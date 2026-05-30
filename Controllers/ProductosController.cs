@@ -246,6 +246,7 @@ namespace InventarioApi.Controllers
                 if (existente != null)
                 {
                     // Actualizar
+                    if (!string.IsNullOrWhiteSpace(dto.Nombre)) existente.Nombre = dto.Nombre;
                     existente.PrecioLista = dto.PrecioLista > 0 ? dto.PrecioLista : existente.PrecioLista;
                     existente.Precio = dto.PrecioPublico > 0 ? dto.PrecioPublico : existente.Precio;
                     existente.StockActual = dto.Stock >= 0 ? dto.Stock : existente.StockActual;
