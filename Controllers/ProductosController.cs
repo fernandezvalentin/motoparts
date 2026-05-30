@@ -287,7 +287,6 @@ namespace InventarioApi.Controllers
                     
                     creados++;
                 }
-                }
                 
                 contadorBatch++;
                 if (contadorBatch >= 500)
