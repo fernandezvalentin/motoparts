@@ -98,9 +98,39 @@ namespace InventarioApi.Controllers
 
         // GET: api/ventas
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Venta>>> GetVentas()
+        public async Task<ActionResult<IEnumerable<Venta>>> GetVentas([FromQuery] string? filtro = "todas")
         {
-            var ventas = await _context.Ventas
+            var query = _context.Ventas.AsQueryable();
+            var hoyUtc = DateTime.UtcNow;
+
+            switch (filtro?.ToLower())
+            {
+                case "hoy":
+                    // Como el sistema guarda en UTC, para 'hoy' comparamos desde el inicio del día UTC
+                    // idealmente esto se adaptaría al timezone, pero usaremos el mismo día UTC.
+                    // o podemos restar 3 horas para ARS (UTC-3).
+                    var hoyArs = hoyUtc.AddHours(-3).Date;
+                    query = query.Where(v => v.FechaVenta.AddHours(-3) >= hoyArs);
+                    break;
+                case "semana":
+                    var inicioSemana = hoyUtc.AddHours(-3).Date.AddDays(-7);
+                    query = query.Where(v => v.FechaVenta.AddHours(-3) >= inicioSemana);
+                    break;
+                case "mes":
+                    var hoyArsMes = hoyUtc.AddHours(-3);
+                    var inicioMes = new DateTime(hoyArsMes.Year, hoyArsMes.Month, 1);
+                    query = query.Where(v => v.FechaVenta.AddHours(-3) >= inicioMes);
+                    break;
+                case "año":
+                    var hoyArsAnio = hoyUtc.AddHours(-3);
+                    var inicioAnio = new DateTime(hoyArsAnio.Year, 1, 1);
+                    query = query.Where(v => v.FechaVenta.AddHours(-3) >= inicioAnio);
+                    break;
+                default:
+                    break;
+            }
+
+            var ventas = await query
                 .Include(v => v.Detalles)
                 .ThenInclude(d => d.Producto)
                 .OrderByDescending(v => v.FechaVenta)

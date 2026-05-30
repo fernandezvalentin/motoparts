@@ -158,9 +158,9 @@ export const registrarVenta = async (venta) => {
 };
 
 // GET: Obtener historial de ventas
-export const obtenerVentas = async () => {
+export const obtenerVentas = async (filtro = "todas") => {
   try {
-    const response = await fetch(`${API_URL}/ventas`, { headers: getHeaders() });
+    const response = await fetch(`${API_URL}/ventas?filtro=${filtro}`, { headers: getHeaders() });
     if (!response.ok) {
       throw new Error("Error al obtener el historial de ventas");
     }

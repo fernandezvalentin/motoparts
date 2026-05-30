@@ -6,14 +6,15 @@ import "./HistorialVentas.css";
 export function HistorialVentas({ onConfirmar, onAgregarToast }) {
   const [ventas, setVentas] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [filtro, setFiltro] = useState("todas");
 
   useEffect(() => {
     cargarHistorial();
-  }, []);
+  }, [filtro]);
 
   const cargarHistorial = async () => {
     setCargando(true);
-    const data = await obtenerVentas();
+    const data = await obtenerVentas(filtro);
     setVentas(data);
     setCargando(false);
   };
@@ -86,7 +87,19 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
             {ventas.length} {ventas.length === 1 ? "venta registrada" : "ventas registradas"}
           </p>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <select 
+            className="select" 
+            value={filtro} 
+            onChange={(e) => setFiltro(e.target.value)}
+            style={{ width: 'auto', minWidth: '150px' }}
+          >
+            <option value="todas">Todas las ventas</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta Semana</option>
+            <option value="mes">Este Mes</option>
+            <option value="año">Este Año</option>
+          </select>
           <button 
             className="btn btn-ghost" 
             style={{ color: "var(--danger)" }}
