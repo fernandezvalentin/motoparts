@@ -261,7 +261,12 @@ namespace InventarioApi.Controllers
                         if (!string.IsNullOrWhiteSpace(dto.Modelo)) existente.Modelo = dto.Modelo;
                         
                         existente.FechaActualizacion = DateTime.UtcNow;
-                        _context.Entry(existente).State = EntityState.Modified;
+                        
+                        if (_context.Entry(existente).State == EntityState.Unchanged)
+                        {
+                            _context.Entry(existente).State = EntityState.Modified;
+                        }
+                        
                         actualizados++;
                     }
                     else
