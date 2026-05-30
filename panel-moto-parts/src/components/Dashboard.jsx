@@ -149,15 +149,15 @@ export function Dashboard({ onNavegar }) {
                 <tbody>
                   {stats.alertasStock.map((item, index) => (
                     <tr key={item.id} style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}>
-                      <td>
-                        <span className="td-sku">{item.sku}</span>
+                      <td style={{ whiteSpace: "nowrap", width: "1%" }}>
+                        <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{item.sku}</span>
                       </td>
-                      <td>
-                        <span className="alert-item-name" style={{ display: "block", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td style={{ width: "99%", maxWidth: "150px" }}>
+                        <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {item.nombre}
                         </span>
                       </td>
-                      <td className="hide-mobile">
+                      <td className="hide-mobile" style={{ whiteSpace: "nowrap", width: "1%" }}>
                         <span className="badge badge-neutral" style={{ whiteSpace: "nowrap" }}>{item.proveedor || "Sin Proveedor"}</span>
                       </td>
                       <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>
