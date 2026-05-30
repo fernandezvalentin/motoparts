@@ -87,6 +87,27 @@ namespace InventarioApi.Controllers
                 })
                 .ToListAsync();
 
+            var topVendidos = await _context.VentaDetalles
+                .GroupBy(vd => vd.ProductoId)
+                .Select(g => new
+                {
+                    ProductoId = g.Key,
+                    CantidadVendida = g.Sum(vd => vd.Cantidad)
+                })
+                .OrderByDescending(x => x.CantidadVendida)
+                .Take(5)
+                .Join(_context.Productos, 
+                      vd => vd.ProductoId, 
+                      p => p.Id, 
+                      (vd, p) => new { 
+                          p.Id, 
+                          p.Nombre, 
+                          p.Sku, 
+                          p.Proveedor,
+                          vd.CantidadVendida 
+                      })
+                .ToListAsync();
+
             var estadisticas = new
             {
                 totalProductos,
@@ -94,7 +115,8 @@ namespace InventarioApi.Controllers
                 productosStockCritico,
                 totalProveedores,
                 productosPorProveedor,
-                alertasStock
+                alertasStock,
+                topVendidos
             };
 
             return Ok(estadisticas);

@@ -190,9 +190,39 @@ export function Dashboard({ onNavegar }) {
           )}
         </div>
 
-        {/* Distribución por Proveedor */}
-        <div className="dashboard-card" style={{ gridColumn: "1 / -1" }}>
-          <div className="card-header">
+        {/* Sidebar Derecha */}
+        <div className="dashboard-sidebar" style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+          {/* Top 5 Más Vendidos */}
+          <div className="dashboard-card">
+            <div className="card-header">
+              <h3 className="section-title">🏆 Top 5 Más Vendidos</h3>
+            </div>
+            <div className="card-content">
+              {stats.topVendidos?.length > 0 ? (
+                <div className="category-list">
+                  {stats.topVendidos.map((prod, index) => (
+                    <div key={prod.id} className="category-item" style={{ animationDelay: `${index * 50}ms` }}>
+                      <div className="category-info">
+                        <span className="category-name">{prod.nombre}</span>
+                        <span className="category-count">{prod.cantidadVendida} unid.</span>
+                      </div>
+                      <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginTop: "4px" }}>
+                        <span className="td-sku">{prod.sku}</span> • {prod.proveedor || "Sin prov"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-state" style={{ padding: "var(--space-3) 0" }}>
+                  <p>Aún no hay ventas registradas.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Distribución por Proveedor */}
+          <div className="dashboard-card">
+            <div className="card-header">
             <h3 className="section-title">📊 Productos por Proveedor</h3>
           </div>
           <div className="card-content">
@@ -220,6 +250,7 @@ export function Dashboard({ onNavegar }) {
               <p>No hay proveedores registrados aún.</p>
             </div>
           )}
+          </div>
           </div>
         </div>
       </div>
