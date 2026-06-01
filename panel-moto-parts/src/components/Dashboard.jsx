@@ -149,24 +149,24 @@ export function Dashboard({ onNavegar }) {
                 <tbody>
                   {stats.alertasStock.map((item, index) => (
                     <tr key={item.id} style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}>
-                      <td style={{ whiteSpace: "nowrap", width: "1%" }}>
+                      <td style={{ whiteSpace: "nowrap", width: "1%" }} data-label="SKU">
                         <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{item.sku}</span>
                       </td>
-                      <td style={{ width: "99%", maxWidth: "150px" }}>
+                      <td style={{ width: "99%", maxWidth: "150px" }} data-label="REPUESTO">
                         <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {item.nombre}
                         </span>
                       </td>
-                      <td className="hide-mobile" style={{ whiteSpace: "nowrap", width: "1%" }}>
+                      <td className="hide-mobile" style={{ whiteSpace: "nowrap", width: "1%" }} data-label="PROVEEDOR">
                         <span className="badge badge-neutral" style={{ whiteSpace: "nowrap" }}>{item.proveedor || "Sin Proveedor"}</span>
                       </td>
-                      <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>
+                      <td style={{ textAlign: "center", whiteSpace: "nowrap" }} data-label="ESTADO">
                         <StockBadge
                           stockActual={item.stockActual}
                           stockMinimo={item.stockMinimo}
                         />
                       </td>
-                      <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>
+                      <td style={{ textAlign: "center", whiteSpace: "nowrap" }} data-label="STOCK">
                         <span className="alert-item-numbers">
                           {item.stockActual} / {item.stockMinimo}
                         </span>
@@ -210,15 +210,15 @@ export function Dashboard({ onNavegar }) {
                     <tbody>
                       {stats.topVendidos.map((prod, index) => (
                         <tr key={prod.id} style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}>
-                          <td style={{ whiteSpace: "nowrap", width: "1%" }}>
+                          <td style={{ whiteSpace: "nowrap", width: "1%" }} data-label="CÓDIGO">
                             <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{prod.sku}</span>
                           </td>
-                          <td style={{ width: "99%", maxWidth: "100px" }}>
+                          <td style={{ width: "99%", maxWidth: "100px" }} data-label="REPUESTO">
                             <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={prod.nombre}>
                               {prod.nombre}
                             </span>
                           </td>
-                          <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "1%" }}>
+                          <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "1%" }} data-label="VENDIDOS">
                             <span className="badge badge-success" style={{ fontWeight: "bold" }}>{prod.cantidadVendida}</span>
                           </td>
                         </tr>

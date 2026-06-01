@@ -305,7 +305,7 @@
   }
   
   .pos-search-section {
-    height: 65vh; /* Slightly smaller to leave room */
+    height: calc(100vh - 56px - 70px - 2rem); /* Fits perfectly between header and bottom nav */
   }
   
   .pos-cart-section {

@@ -191,7 +191,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
       )}
 
       {/* Empty State */}
-      {!cargando && productosFiltrados.length === 0 && (
+      {!cargando && productos.length === 0 && (
         <div className="empty-state">
           <div className="empty-state-icon">
             {busqueda || proveedorFiltro !== "Todos" || soloStockBajo ? "🔍" : "📦"}
@@ -210,7 +210,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
       )}
 
       {/* Data Table */}
-      {!cargando && productosFiltrados.length > 0 && (
+      {!cargando && productos.length > 0 && (
         <div className="table-container">
           <table className="table" id="inventory-table">
             <thead>
