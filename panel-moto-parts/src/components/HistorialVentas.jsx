@@ -69,11 +69,28 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
             <p className="page-subtitle">Cargando transacciones...</p>
           </div>
         </div>
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="venta-card">
-            <div className="skeleton" style={{ height: 60 }} />
-          </div>
-        ))}
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Venta</th>
+                <th>Método</th>
+                <th>Detalle</th>
+                <th>Total</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3].map((i) => (
+                <tr key={i}>
+                  <td colSpan="5">
+                    <div className="skeleton" style={{ height: 40 }} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
@@ -123,51 +140,64 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
           </p>
         </div>
       ) : (
-        <div className="ventas-list">
-          {ventas.map((venta, index) => (
-            <div
-              key={venta.id}
-              className="venta-card"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="venta-header">
-                <div className="venta-info">
-                  <span className="venta-id">#{venta.id.toString().padStart(4, "0")}</span>
-                  <span className="venta-fecha">📅 {formatearFecha(venta.fechaVenta)}</span>
-                  <span className="venta-metodo-pago" style={{ marginLeft: '10px', fontSize: 'var(--font-xs)', background: 'var(--bg-elevated)', padding: '2px 8px', borderRadius: '12px', border: '1px solid var(--border-primary)' }}>
-                    {venta.metodoPago === "Efectivo" ? "💵 " : venta.metodoPago === "Débito" || venta.metodoPago === "Crédito" ? "💳 " : "📱 "}
-                    {venta.metodoPago || "Efectivo"}
-                  </span>
-                </div>
-                <div className="venta-total" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span>${venta.total.toLocaleString("es-AR")}</span>
-                  <button 
-                    className="btn btn-ghost" 
-                    style={{ padding: '4px', color: 'var(--danger)', border: 'none', background: 'transparent' }}
-                    onClick={() => handleEliminarVenta(venta.id)}
-                    title="Eliminar venta"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </div>
-              <div className="venta-detalles">
-                {venta.detalles.map((detalle) => (
-                  <div key={detalle.id} className="detalle-item">
-                    <div className="detalle-producto">
-                      <span className="detalle-qty">{detalle.cantidad}x</span>
-                      <span className="detalle-nombre">
-                        {detalle.producto?.nombre || "Producto eliminado"}
-                      </span>
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>VENTA</th>
+                <th>MÉTODO</th>
+                <th>DETALLE</th>
+                <th style={{ textAlign: 'center' }}>TOTAL</th>
+                <th style={{ textAlign: 'center' }}>ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ventas.map((venta, index) => (
+                <tr
+                  key={venta.id}
+                  style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}
+                >
+                  <td data-label="VENTA">
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: 'bold' }}>#{venta.id.toString().padStart(4, "0")}</span>
+                      <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{formatearFecha(venta.fechaVenta)}</span>
                     </div>
-                    <span className="detalle-precio">
-                      ${(detalle.cantidad * detalle.precioUnitario).toLocaleString("es-AR")}
+                  </td>
+                  <td data-label="MÉTODO">
+                    <span className="badge badge-neutral">
+                      {venta.metodoPago === "Efectivo" ? "💵 " : venta.metodoPago === "Débito" || venta.metodoPago === "Crédito" ? "💳 " : "📱 "}
+                      {venta.metodoPago || "Efectivo"}
                     </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+                  </td>
+                  <td data-label="DETALLE">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {venta.detalles.map((detalle) => (
+                        <div key={detalle.id} style={{ fontSize: 'var(--font-sm)', color: 'var(--text-secondary)' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--text-primary)', marginRight: '4px' }}>{detalle.cantidad}x</span> 
+                          {detalle.producto?.nombre || "Producto eliminado"}
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td data-label="TOTAL" style={{ textAlign: 'center' }}>
+                    <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>
+                      ${venta.total.toLocaleString("es-AR")}
+                    </span>
+                  </td>
+                  <td data-label="ACCIONES" style={{ textAlign: 'center' }}>
+                    <button 
+                      className="btn btn-ghost btn-sm" 
+                      style={{ color: 'var(--danger)' }}
+                      onClick={() => handleEliminarVenta(venta.id)}
+                      title="Eliminar venta"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
