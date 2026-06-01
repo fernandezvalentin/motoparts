@@ -11,6 +11,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
   const [busqueda, setBusqueda] = useState("");
   const [proveedorFiltro, setProveedorFiltro] = useState("Todos");
   const [soloStockBajo, setSoloStockBajo] = useState(false);
+  const [soloConStock, setSoloConStock] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showAumentoMasivo, setShowAumentoMasivo] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -55,7 +56,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
     const coincideProveedor =
       proveedorFiltro === "Todos" || p.proveedor === proveedorFiltro;
 
-    const coincideStock = !soloStockBajo || p.stockActual <= p.stockMinimo;
+    const coincideStock = (!soloStockBajo || p.stockActual <= p.stockMinimo) && (!soloConStock || p.stockActual > 0);
 
     return coincideBusqueda && coincideProveedor && coincideStock;
   });
@@ -63,7 +64,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
   // Reset page when filters change
   useEffect(() => {
     setPaginaActual(1);
-  }, [busqueda, proveedorFiltro, soloStockBajo]);
+  }, [busqueda, proveedorFiltro, soloStockBajo, soloConStock]);
 
   const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA);
   const proveedoresUnicos = [...new Set(productos.map(p => p.proveedor))].filter(Boolean).sort();
@@ -139,6 +140,19 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
             style={{ display: "none" }}
           />
           ⚠️ Solo stock bajo
+        </label>
+
+        <label
+          className={`filter-chip ${soloConStock ? "active" : ""}`}
+          style={{ cursor: "pointer" }}
+        >
+          <input
+            type="checkbox"
+            checked={soloConStock}
+            onChange={(e) => setSoloConStock(e.target.checked)}
+            style={{ display: "none" }}
+          />
+          ✅ Solo con stock
         </label>
       </div>
 
