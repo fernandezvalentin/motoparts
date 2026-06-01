@@ -70,18 +70,44 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
       return;
     }
 
-    // Buscar la fila que tenga más columnas de texto (probablemente los encabezados)
-    // Revisamos las primeras 15 filas
+    // Buscar la fila de encabezados usando palabras clave (scoring)
     let headerRowIndex = 0;
+    let maxScore = -1;
+    let fallbackRowIndex = 0;
     let maxCols = 0;
     
-    for (let i = 0; i < Math.min(data.length, 15); i++) {
+    const keywords = ["codigo", "código", "sku", "articulo", "artículo", "descripcion", "descripción", "producto", "nombre", "precio", "costo", "importe", "stock", "marca", "modelo", "proveedor"];
+
+    for (let i = 0; i < Math.min(data.length, 25); i++) {
       const row = data[i] || [];
       const colsCount = row.filter(cell => cell && cell.toString().trim() !== "").length;
+      
+      // Guardar por si falla el scoring
       if (colsCount > maxCols) {
         maxCols = colsCount;
+        fallbackRowIndex = i;
+      }
+
+      let score = 0;
+      row.forEach(cell => {
+        if (cell) {
+          const str = cell.toString().toLowerCase();
+          if (keywords.some(kw => str === kw || str.includes(kw))) {
+            score++;
+          }
+        }
+      });
+
+      // Preferir filas más arriba si hay empate en score
+      if (score > maxScore) {
+        maxScore = score;
         headerRowIndex = i;
       }
+    }
+
+    // Si no encontramos al menos 2 palabras clave claras, usamos la fila con más columnas
+    if (maxScore < 2) {
+      headerRowIndex = fallbackRowIndex;
     }
 
     const headers = (data[headerRowIndex] || []).map(h => h ? h.toString().trim() : "");
