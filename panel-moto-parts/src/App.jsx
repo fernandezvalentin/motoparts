@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import "./App.css";
 import { Dashboard } from "./components/Dashboard";
 import { InventarioList } from "./components/InventarioList";
@@ -13,11 +13,25 @@ import { ConfiguracionModal } from "./components/ConfiguracionModal";
 
 function App() {
   // Navigation
-  const [paginaActual, setPaginaActual] = useState("dashboard");
+  const getHashPage = () => {
+    const hash = window.location.hash.replace("#", "");
+    const validPages = ["dashboard", "inventario", "nuevo", "ventas", "historial"];
+    return validPages.includes(hash) ? hash : "dashboard";
+  };
+
+  const [paginaActual, setPaginaActual] = useState(getHashPage());
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("moto_parts_token")
   );
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setPaginaActual(getHashPage());
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   // Data
   const [productoAEditar, setProductoAEditar] = useState(null);
@@ -60,7 +74,7 @@ function App() {
 
   // Navigation helpers
   const handleNavigate = (path) => {
-    setPaginaActual(path);
+    window.location.hash = path;
     if (sidebarAbierto) {
       setSidebarAbierto(false);
     }
@@ -68,13 +82,13 @@ function App() {
 
   const handleEditar = (producto) => {
     setProductoAEditar(producto);
-    setPaginaActual("nuevo");
+    window.location.hash = "nuevo";
     if (sidebarAbierto) setSidebarAbierto(false);
   };
 
   const handleNuevo = () => {
     setProductoAEditar(null);
-    setPaginaActual("nuevo");
+    window.location.hash = "nuevo";
     if (sidebarAbierto) setSidebarAbierto(false);
   };
 
