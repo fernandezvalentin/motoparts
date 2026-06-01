@@ -814,3 +814,48 @@ ul, ol {
     padding: var(--space-2);
   }
 }
+
+
+/* Responsive Tables (Card Layout for Mobile) */
+@media (max-width: 768px) {
+  table.table, table.table thead, table.table tbody, table.table th, table.table td, table.table tr {
+    display: block;
+  }
+  table.table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  table.table tr {
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+    background: var(--bg-card);
+    padding: var(--space-2);
+  }
+  table.table td {
+    border: none;
+    position: relative;
+    padding-left: 45%;
+    text-align: right;
+    border-bottom: 1px solid var(--border-primary);
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  table.table td:last-child {
+    border-bottom: 0;
+  }
+  table.table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: var(--space-3);
+    width: 40%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+}

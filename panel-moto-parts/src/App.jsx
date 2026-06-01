@@ -247,6 +247,38 @@ function App() {
           onLogout={handleLogout}
         />
       )}
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="mobile-bottom-nav hide-desktop">
+        <button
+          className={`bottom-nav-item ${paginaActual === "dashboard" ? "active" : ""}`}
+          onClick={() => handleNavigate("dashboard")}
+        >
+          <span className="bottom-nav-icon">📊</span>
+          <span className="bottom-nav-label">Inicio</span>
+        </button>
+        <button
+          className={`bottom-nav-item ${paginaActual === "inventario" ? "active" : ""}`}
+          onClick={() => handleNavigate("inventario")}
+        >
+          <span className="bottom-nav-icon">📦</span>
+          <span className="bottom-nav-label">Inventario</span>
+        </button>
+        <button
+          className={`bottom-nav-item ${paginaActual === "pos" ? "active" : ""}`}
+          onClick={() => handleNavigate("pos")}
+        >
+          <span className="bottom-nav-icon">🛒</span>
+          <span className="bottom-nav-label">Ventas</span>
+        </button>
+        <button
+          className={`bottom-nav-item ${paginaActual === "historial" ? "active" : ""}`}
+          onClick={() => handleNavigate("historial")}
+        >
+          <span className="bottom-nav-icon">🧾</span>
+          <span className="bottom-nav-label">Historial</span>
+        </button>
+      </nav>
     </div>
   );
 }

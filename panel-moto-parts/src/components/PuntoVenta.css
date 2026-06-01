@@ -244,12 +244,12 @@
   background: transparent;
   border: none;
   color: var(--text-primary);
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  font-size: 1.2rem;
   transition: background var(--transition-fast);
 }
 
@@ -263,12 +263,13 @@
 }
 
 .qty-display {
-  width: 32px;
+  width: 36px;
   text-align: center;
-  font-weight: 600;
   font-size: var(--font-sm);
+  font-weight: 600;
   border-left: 1px solid var(--border-primary);
   border-right: 1px solid var(--border-primary);
+  padding: 4px 0;
 }
 
 .cart-item-subtotal {
@@ -314,12 +315,20 @@
   .pos-cart-section.mobile-open {
     display: flex;
     position: fixed;
-    inset: 0;
+    top: 56px; /* Below mobile header */
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 9999;
-    border-radius: 0;
-    height: 100vh;
-    animation: slideInDown 0.3s ease-out;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    height: auto;
+    animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 @media (max-width: 768px) {

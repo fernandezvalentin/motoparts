@@ -232,10 +232,10 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                     animation: `fadeInUp 300ms var(--ease-out) backwards`,
                   }}
                 >
-                  <td>
+                  <td data-label="SKU">
                     <span className="td-sku">{producto.sku}</span>
                   </td>
-                  <td>
+                  <td data-label="Artículo">
                     <div className="td-name">{producto.nombre}</div>
                     {(producto.proveedor || producto.marca || producto.modelo) && (
                       <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginTop: 2 }}>
@@ -243,10 +243,10 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                       </div>
                     )}
                   </td>
-                  <td className="hide-mobile">
+                  <td className="hide-mobile" data-label="Proveedor">
                     <span className="badge badge-neutral">{producto.proveedor || "Sin Proveedor"}</span>
                   </td>
-                  <td>
+                  <td data-label="Precio Pub.">
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <span className="td-precio" style={{ fontWeight: "bold" }}>
                         ${producto.precio?.toLocaleString("es-AR", {
@@ -262,16 +262,23 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                       )}
                     </div>
                   </td>
-                  <td style={{ textAlign: "center", fontWeight: 600 }}>
-                    {producto.stockActual}
+                  <td data-label="Stock" style={{ textAlign: "center" }}>
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        color: producto.stockActual <= 0 ? "var(--danger)" : "inherit",
+                      }}
+                    >
+                      {producto.stockActual}
+                    </span>
                   </td>
-                  <td>
+                  <td data-label="Estado">
                     <StockBadge
                       stockActual={producto.stockActual}
                       stockMinimo={producto.stockMinimo}
                     />
                   </td>
-                  <td>
+                  <td data-label="Acciones">
                     <div className="td-actions">
                       <button
                         className="btn btn-ghost btn-sm"
