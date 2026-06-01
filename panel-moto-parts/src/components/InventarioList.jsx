@@ -236,7 +236,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                     <span className="td-sku">{producto.sku}</span>
                   </td>
                   <td data-label="Artículo">
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
                       <div className="td-name">{producto.nombre}</div>
                       {(producto.proveedor || producto.marca || producto.modelo) && (
                         <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginTop: 2 }}>
