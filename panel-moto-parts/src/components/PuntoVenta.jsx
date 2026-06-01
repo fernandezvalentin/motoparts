@@ -15,27 +15,21 @@ export function PuntoVenta({ onAgregarToast }) {
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
   useEffect(() => {
-    cargarCatologo();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      cargarCatologo();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [busqueda]);
 
   const cargarCatologo = async () => {
     setCargando(true);
-    const data = await obtenerProductos();
-    setProductos(data);
+    const data = await obtenerProductos({ busqueda, page: 1, pageSize: 20 });
+    setProductos(data.items || []);
     setCargando(false);
   };
 
-  // Filtrado de catálogo
-  const productosFiltrados = useMemo(() => {
-    if (!busqueda) return productos;
-    const term = busqueda.toLowerCase();
-    return productos.filter(
-      (p) =>
-        p.nombre.toLowerCase().includes(term) ||
-        p.sku.toLowerCase().includes(term) ||
-        (p.modelo && p.modelo.toLowerCase().includes(term))
-    );
-  }, [productos, busqueda]);
+  const productosFiltrados = productos;
 
   // Manejo del Carrito
   const agregarAlCarrito = (producto) => {

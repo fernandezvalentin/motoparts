@@ -22,7 +22,15 @@ builder.Services.AddCors(options =>
 });
 
 // 3. Configuración de JWT
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "ClaveSuperSecretaParaDesarrolloQueTieneMasDe32Caracteres!";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_KEY");
+if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
+{
+    if (builder.Environment.IsProduction())
+    {
+        throw new Exception("CRITICAL ERROR: JWT Key is missing or too short. Set 'JWT_KEY' environment variable.");
+    }
+    jwtKey = "ClaveSuperSecretaParaDesarrolloQueTieneMasDe32Caracteres!";
+}
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -44,6 +52,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Manejo Global de Errores (debe ser el primer middleware)
+app.UseMiddleware<InventarioApi.Middleware.ErrorHandlingMiddleware>();
 
 // Configuración de Swagger
 if (app.Environment.IsDevelopment())

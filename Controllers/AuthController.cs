@@ -40,10 +40,14 @@ namespace InventarioApi.Controllers
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var keyStr = _configuration["Jwt:Key"];
+            var keyStr = _configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_KEY");
             if (string.IsNullOrEmpty(keyStr) || keyStr.Length < 32)
             {
-                throw new Exception("JWT Key is missing or too short (needs at least 32 chars) in appsettings.json");
+                var isProd = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production";
+                if (isProd) 
+                    throw new Exception("CRITICAL ERROR: JWT Key is missing or too short.");
+                
+                keyStr = "ClaveSuperSecretaParaDesarrolloQueTieneMasDe32Caracteres!";
             }
             
             var key = Encoding.UTF8.GetBytes(keyStr);

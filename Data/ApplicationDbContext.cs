@@ -25,6 +25,11 @@ namespace InventarioApi.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Unique index for Sku to prevent duplicates
+            modelBuilder.Entity<Producto>()
+                .HasIndex(p => p.Sku)
+                .IsUnique();
+
             // Default Admin user (password: "admin123")
             modelBuilder.Entity<Usuario>().HasData(new Usuario
             {

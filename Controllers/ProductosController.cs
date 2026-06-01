@@ -18,12 +18,14 @@ namespace InventarioApi.Controllers
             _context = context;
         }
 
-        // GET: api/productos?busqueda=X&categoria=X&soloStockBajo=true
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Producto>>> GetProductos(
+        public async Task<IActionResult> GetProductos(
             [FromQuery] string? busqueda = null,
             [FromQuery] string? proveedor = null,
-            [FromQuery] bool soloStockBajo = false)
+            [FromQuery] bool soloStockBajo = false,
+            [FromQuery] bool soloConStock = false,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 50)
         {
             var query = _context.Productos.AsQueryable();
 
@@ -45,8 +47,43 @@ namespace InventarioApi.Controllers
             {
                 query = query.Where(p => p.StockActual <= p.StockMinimo);
             }
+            
+            if (soloConStock)
+            {
+                query = query.Where(p => p.StockActual > 0);
+            }
 
-            return await query.OrderBy(p => p.Nombre).ToListAsync();
+            var total = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(total / (double)pageSize);
+
+            var items = await query
+                .OrderBy(p => p.Nombre)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(new 
+            { 
+                items, 
+                total, 
+                page, 
+                pageSize, 
+                totalPages 
+            });
+        }
+
+        // GET: api/productos/proveedores
+        [HttpGet("proveedores")]
+        public async Task<ActionResult<IEnumerable<string>>> GetProveedores()
+        {
+            var proveedores = await _context.Productos
+                .Where(p => !string.IsNullOrWhiteSpace(p.Proveedor))
+                .Select(p => p.Proveedor)
+                .Distinct()
+                .OrderBy(p => p)
+                .ToListAsync();
+                
+            return Ok(proveedores);
         }
 
         // GET: api/productos/estadisticas

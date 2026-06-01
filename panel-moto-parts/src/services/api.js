@@ -42,19 +42,35 @@ export const obtenerProductos = async (params = {}) => {
   try {
     const searchParams = new URLSearchParams();
     if (params.busqueda) searchParams.append("busqueda", params.busqueda);
-    if (params.proveedor) searchParams.append("proveedor", params.proveedor);
+    if (params.proveedor && params.proveedor !== "Todos") searchParams.append("proveedor", params.proveedor);
     if (params.soloStockBajo) searchParams.append("soloStockBajo", "true");
+    if (params.soloConStock) searchParams.append("soloConStock", "true");
+    if (params.page) searchParams.append("page", params.page);
+    if (params.pageSize) searchParams.append("pageSize", params.pageSize);
 
-    const queryString = searchParams.toString();
-    const url = `${API_URL}/productos${queryString ? `?${queryString}` : ""}`;
-
-    const response = await fetch(url, { headers: getHeaders() });
+    const response = await fetch(`${API_URL}/productos?${searchParams.toString()}`, {
+      headers: getHeaders(),
+    });
     if (!response.ok) {
-      throw new Error("Error al conectar con el servidor");
+      throw new Error("Error fetching products");
     }
     return await response.json();
   } catch (error) {
     console.error("Error en obtenerProductos:", error);
+    // Return a default paginated structure to prevent breaking the UI
+    return { items: [], total: 0, page: 1, pageSize: 50, totalPages: 0 };
+  }
+};
+
+export const obtenerProveedores = async () => {
+  try {
+    const response = await fetch(`${API_URL}/productos/proveedores`, {
+      headers: getHeaders(),
+    });
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    console.error("Error en obtenerProveedores:", error);
     return [];
   }
 };

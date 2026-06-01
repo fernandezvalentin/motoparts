@@ -1,6 +1,6 @@
 // src/components/InventarioList.jsx
 import { useState, useEffect } from "react";
-import { obtenerProductos, eliminarProducto } from "../services/api";
+import { obtenerProductos, eliminarProducto, obtenerProveedores } from "../services/api";
 import { StockBadge } from "./StockBadge";
 import { ImportadorExcel } from "./ImportadorExcel";
 import { AumentoMasivoModal } from "./AumentoMasivoModal";
@@ -8,6 +8,7 @@ import { AumentoMasivoModal } from "./AumentoMasivoModal";
 export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar }) {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [proveedoresUnicos, setProveedoresUnicos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [proveedorFiltro, setProveedorFiltro] = useState("Todos");
   const [soloStockBajo, setSoloStockBajo] = useState(false);
@@ -15,16 +16,40 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
   const [showImportModal, setShowImportModal] = useState(false);
   const [showAumentoMasivo, setShowAumentoMasivo] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
+  const [totalProductos, setTotalProductos] = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(1);
   const ITEMS_POR_PAGINA = 50;
 
   useEffect(() => {
-    cargarProductos();
-  }, [recargar]);
+    cargarProveedores();
+  }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      cargarProductos();
+    }, 300); // 300ms delay to avoid spamming backend on search
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [recargar, paginaActual, busqueda, proveedorFiltro, soloStockBajo, soloConStock]);
+
+  const cargarProveedores = async () => {
+    const data = await obtenerProveedores();
+    setProveedoresUnicos(data);
+  };
 
   const cargarProductos = async () => {
     setCargando(true);
-    const data = await obtenerProductos();
-    setProductos(data);
+    const data = await obtenerProductos({
+      busqueda,
+      proveedor: proveedorFiltro,
+      soloStockBajo,
+      soloConStock,
+      page: paginaActual,
+      pageSize: ITEMS_POR_PAGINA
+    });
+    setProductos(data.items || []);
+    setTotalProductos(data.total || 0);
+    setTotalPaginas(data.totalPages || 1);
     setCargando(false);
   };
 
@@ -43,35 +68,12 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
     );
   };
 
-  // Filter products locally
-  const productosFiltrados = productos.filter((p) => {
-    const coincideBusqueda =
-      busqueda === "" ||
-      p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      p.sku.toLowerCase().includes(busqueda.toLowerCase()) ||
-      (p.proveedor && p.proveedor.toLowerCase().includes(busqueda.toLowerCase())) ||
-      (p.marca && p.marca.toLowerCase().includes(busqueda.toLowerCase())) ||
-      (p.modelo && p.modelo.toLowerCase().includes(busqueda.toLowerCase()));
-
-    const coincideProveedor =
-      proveedorFiltro === "Todos" || p.proveedor === proveedorFiltro;
-
-    const coincideStock = (!soloStockBajo || p.stockActual <= p.stockMinimo) && (!soloConStock || p.stockActual > 0);
-
-    return coincideBusqueda && coincideProveedor && coincideStock;
-  });
-
   // Reset page when filters change
   useEffect(() => {
     setPaginaActual(1);
   }, [busqueda, proveedorFiltro, soloStockBajo, soloConStock]);
 
-  const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA);
-  const proveedoresUnicos = [...new Set(productos.map(p => p.proveedor))].filter(Boolean).sort();
-  const productosPaginados = productosFiltrados.slice(
-    (paginaActual - 1) * ITEMS_POR_PAGINA,
-    paginaActual * ITEMS_POR_PAGINA
-  );
+  const productosPaginados = productos; // Already paginated from server
 
   return (
     <div className="inventario-list" style={{ animation: "fadeInUp 400ms var(--ease-out)" }}>
@@ -79,7 +81,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
         <div>
           <h2 className="page-title">Inventario</h2>
           <p className="page-subtitle">
-            {productosFiltrados.length} de {productos.length} artículos
+            {totalProductos} artículos en total
           </p>
         </div>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
