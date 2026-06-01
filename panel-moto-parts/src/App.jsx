@@ -15,7 +15,7 @@ function App() {
   // Navigation
   const getHashPage = () => {
     const hash = window.location.hash.replace("#", "");
-    const validPages = ["dashboard", "inventario", "nuevo", "ventas", "historial"];
+    const validPages = ["dashboard", "inventario", "nuevo", "pos", "historial"];
     return validPages.includes(hash) ? hash : "dashboard";
   };
 
