@@ -149,11 +149,11 @@ export function Dashboard({ onNavegar }) {
                 <tbody>
                   {stats.alertasStock.map((item, index) => (
                     <tr key={item.id} style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}>
-                      <td style={{ whiteSpace: "nowrap", width: "1%" }} data-label="SKU">
+                      <td data-label="SKU">
                         <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{item.sku}</span>
                       </td>
-                      <td style={{ width: "99%", maxWidth: "150px" }} data-label="REPUESTO">
-                        <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <td data-label="REPUESTO">
+                        <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {item.nombre}
                         </span>
                       </td>
@@ -210,11 +210,11 @@ export function Dashboard({ onNavegar }) {
                     <tbody>
                       {stats.topVendidos.map((prod, index) => (
                         <tr key={prod.id} style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}>
-                          <td style={{ whiteSpace: "nowrap", width: "1%" }} data-label="CÓDIGO">
+                          <td data-label="CÓDIGO">
                             <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{prod.sku}</span>
                           </td>
-                          <td style={{ width: "99%", maxWidth: "100px" }} data-label="REPUESTO">
-                            <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={prod.nombre}>
+                          <td data-label="REPUESTO">
+                            <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }} title={prod.nombre}>
                               {prod.nombre}
                             </span>
                           </td>

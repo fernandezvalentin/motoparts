@@ -236,12 +236,14 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                     <span className="td-sku">{producto.sku}</span>
                   </td>
                   <td data-label="Artículo">
-                    <div className="td-name">{producto.nombre}</div>
-                    {(producto.proveedor || producto.marca || producto.modelo) && (
-                      <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginTop: 2 }}>
-                        {[producto.proveedor, producto.marca, producto.modelo].filter(Boolean).join(" - ")}
-                      </div>
-                    )}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                      <div className="td-name">{producto.nombre}</div>
+                      {(producto.proveedor || producto.marca || producto.modelo) && (
+                        <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginTop: 2 }}>
+                          {[producto.proveedor, producto.marca, producto.modelo].filter(Boolean).join(" - ")}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="hide-mobile" data-label="Proveedor">
                     <span className="badge badge-neutral">{producto.proveedor || "Sin Proveedor"}</span>

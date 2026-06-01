@@ -821,6 +821,11 @@ ul, ol {
   table.table, table.table thead, table.table tbody, table.table th, table.table td, table.table tr {
     display: block;
   }
+  table.table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
   table.table thead tr {
     position: absolute;
     top: -9999px;
@@ -829,7 +834,6 @@ ul, ol {
   table.table tr {
     border: 1px solid var(--border-secondary);
     border-radius: var(--radius-md);
-    margin-bottom: var(--space-4);
     background: var(--bg-card);
     padding: var(--space-2);
   }
