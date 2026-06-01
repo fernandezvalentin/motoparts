@@ -8,6 +8,9 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
   const [archivo, setArchivo] = useState(null);
   const [datosExcel, setDatosExcel] = useState([]);
   const [columnas, setColumnas] = useState([]);
+  const [workbook, setWorkbook] = useState(null);
+  const [hojas, setHojas] = useState([]);
+  const [hojaSeleccionada, setHojaSeleccionada] = useState("");
   const [mapeo, setMapeo] = useState({
     sku: "",
     nombre: "",
@@ -37,50 +40,13 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
       try {
         const bstr = evt.target.result;
         const wb = XLSX.read(bstr, { type: "binary" });
+        setWorkbook(wb);
+        setHojas(wb.SheetNames);
+        
         const wsname = wb.SheetNames[0];
-        const ws = wb.Sheets[wsname];
+        setHojaSeleccionada(wsname);
         
-        // Convertir a JSON
-        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        
-        if (data.length < 2) {
-          onAgregarToast("El archivo parece estar vacío o no tiene suficientes datos.", "error");
-          return;
-        }
-
-        // Buscar la fila que tenga más columnas de texto (probablemente los encabezados)
-        // Revisamos las primeras 15 filas
-        let headerRowIndex = 0;
-        let maxCols = 0;
-        
-        for (let i = 0; i < Math.min(data.length, 15); i++) {
-          const row = data[i] || [];
-          const colsCount = row.filter(cell => cell && cell.toString().trim() !== "").length;
-          if (colsCount > maxCols) {
-            maxCols = colsCount;
-            headerRowIndex = i;
-          }
-        }
-
-        const headers = (data[headerRowIndex] || []).map(h => h ? h.toString().trim() : "");
-        setColumnas(headers.filter(h => h !== ""));
-        
-        // Convertir filas a objetos usando los headers
-        const rows = data.slice(headerRowIndex + 1).map(row => {
-          let obj = {};
-          headers.forEach((h, i) => {
-            if (h) obj[h] = row[i];
-          });
-          return obj;
-        });
-
-        // Filtrar filas vacías
-        const validRows = rows.filter(r => Object.keys(r).length > 0);
-        
-        setDatosExcel(validRows);
-        
-        // Intentar autodetectar columnas comunes
-        autoMapearColumnas(headers);
+        procesarHoja(wb, wsname);
         
         setPaso(2);
       } catch (error) {
@@ -89,6 +55,55 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
       }
     };
     reader.readAsBinaryString(file);
+  };
+
+  const procesarHoja = (wb, wsname) => {
+    const ws = wb.Sheets[wsname];
+    
+    // Convertir a JSON
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    
+    if (data.length < 2) {
+      onAgregarToast(`La hoja "${wsname}" parece estar vacía o no tiene suficientes datos.`, "warning");
+      setDatosExcel([]);
+      setColumnas([]);
+      return;
+    }
+
+    // Buscar la fila que tenga más columnas de texto (probablemente los encabezados)
+    // Revisamos las primeras 15 filas
+    let headerRowIndex = 0;
+    let maxCols = 0;
+    
+    for (let i = 0; i < Math.min(data.length, 15); i++) {
+      const row = data[i] || [];
+      const colsCount = row.filter(cell => cell && cell.toString().trim() !== "").length;
+      if (colsCount > maxCols) {
+        maxCols = colsCount;
+        headerRowIndex = i;
+      }
+    }
+
+    const headers = (data[headerRowIndex] || []).map(h => h ? h.toString().trim() : "");
+    const cleanHeaders = headers.filter(h => h !== "");
+    setColumnas(cleanHeaders);
+    
+    // Convertir filas a objetos usando los headers
+    const rows = data.slice(headerRowIndex + 1).map(row => {
+      let obj = {};
+      headers.forEach((h, i) => {
+        if (h) obj[h] = row[i];
+      });
+      return obj;
+    });
+
+    // Filtrar filas vacías
+    const validRows = rows.filter(r => Object.keys(r).length > 0);
+    
+    setDatosExcel(validRows);
+    
+    // Intentar autodetectar columnas comunes
+    autoMapearColumnas(cleanHeaders);
   };
 
   const autoMapearColumnas = (headers) => {
@@ -212,6 +227,23 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
                   Revisá que cada campo de Moto Parts coincida con la columna correcta de tu Excel.
                 </p>
               </div>
+
+              {hojas.length > 1 && (
+                <div className="form-group sheet-selector" style={{ marginBottom: 'var(--space-6)', padding: 'var(--space-4)', background: 'var(--bg-input)', borderRadius: 'var(--radius-md)' }}>
+                  <label style={{ fontWeight: '500', color: 'var(--text-primary)', display: 'block', marginBottom: '8px' }}>📄 Pestaña del Excel a importar</label>
+                  <p style={{ fontSize: 'var(--font-sm)', color: 'var(--text-secondary)', margin: '0 0 var(--space-3) 0' }}>El archivo tiene varias hojas. Seleccioná la que contiene la lista de repuestos de esta marca/proveedor.</p>
+                  <select
+                    className="select"
+                    value={hojaSeleccionada}
+                    onChange={(e) => {
+                      setHojaSeleccionada(e.target.value);
+                      procesarHoja(workbook, e.target.value);
+                    }}
+                  >
+                    {hojas.map(h => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                </div>
+              )}
 
               <div className="mapping-grid">
                 {[
