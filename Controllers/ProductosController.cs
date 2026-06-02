@@ -427,6 +427,34 @@ namespace InventarioApi.Controllers
 
             return Ok(new { message = $"Se actualizaron los precios de {productos.Count} productos.", actualizados = productos.Count });
         }
+
+        [HttpPut("renombrar-proveedor")]
+        public async Task<ActionResult> RenombrarProveedor([FromBody] RenombrarProveedorDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Viejo) || string.IsNullOrWhiteSpace(dto.Nuevo))
+            {
+                return BadRequest(new { message = "Ambos nombres de proveedor son obligatorios." });
+            }
+
+            var query = _context.Productos.Where(p => p.Proveedor.ToLower() == dto.Viejo.ToLower());
+            var productos = await query.ToListAsync();
+
+            if (productos.Count == 0)
+            {
+                return NotFound(new { message = $"No se encontraron repuestos con el proveedor '{dto.Viejo}'." });
+            }
+
+            foreach (var p in productos)
+            {
+                p.Proveedor = dto.Nuevo;
+                p.FechaActualizacion = DateTime.UtcNow;
+                _context.Entry(p).State = EntityState.Modified;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = $"Se renombraron {productos.Count} repuestos a '{dto.Nuevo}' exitosamente." });
+        }
     }
 
     public class ImportarProductoDto
@@ -439,6 +467,12 @@ namespace InventarioApi.Controllers
         public string Proveedor { get; set; }
         public string Marca { get; set; }
         public string Modelo { get; set; }
+    }
+
+    public class RenombrarProveedorDto
+    {
+        public string Viejo { get; set; }
+        public string Nuevo { get; set; }
     }
 
     public class AumentoMasivoDto

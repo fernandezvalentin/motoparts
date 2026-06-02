@@ -4,6 +4,7 @@ import { obtenerProductos, eliminarProducto, obtenerProveedores } from "../servi
 import { StockBadge } from "./StockBadge";
 import { ImportadorExcel } from "./ImportadorExcel";
 import { AumentoMasivoModal } from "./AumentoMasivoModal";
+import { RenombrarProveedorModal } from "./RenombrarProveedorModal";
 
 export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar }) {
   const [productos, setProductos] = useState([]);
@@ -15,6 +16,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
   const [soloConStock, setSoloConStock] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showAumentoMasivo, setShowAumentoMasivo] = useState(false);
+  const [showRenombrarProveedor, setShowRenombrarProveedor] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [totalProductos, setTotalProductos] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(1);
@@ -91,6 +93,13 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
             style={{ display: "flex", alignItems: "center", gap: "8px" }}
           >
             📈 Aumento Masivo
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setShowRenombrarProveedor(true)}
+            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+          >
+            ✏️ Renombrar Proveedor
           </button>
           <button 
             className="btn btn-secondary" 
@@ -348,6 +357,18 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
             cargarProductos();
           }}
           onAgregarToast={onAgregarToast}
+        />
+      )}
+
+      {showRenombrarProveedor && (
+        <RenombrarProveedorModal 
+          onCerrar={() => setShowRenombrarProveedor(false)}
+          onAgregarToast={onAgregarToast}
+          onCompletado={() => {
+            setShowRenombrarProveedor(false);
+            cargarProveedores();
+            cargarProductos();
+          }}
         />
       )}
     </div>

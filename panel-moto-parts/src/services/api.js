@@ -153,6 +153,30 @@ export const eliminarProducto = async (id) => {
   }
 };
 
+// PUT: Aumento masivo de precios
+export const aumentoMasivo = async (dto) => {
+  const response = await fetch(`${API_URL}/productos/aumento-masivo`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(dto),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Error al aplicar el aumento masivo.");
+  return data;
+};
+
+// PUT: Renombrar Proveedor
+export const renombrarProveedor = async (viejo, nuevo) => {
+  const response = await fetch(`${API_URL}/productos/renombrar-proveedor`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify({ viejo, nuevo }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Error al renombrar el proveedor.");
+  return data;
+};
+
 // POST: Registrar una nueva venta
 export const registrarVenta = async (venta) => {
   try {
@@ -238,26 +262,6 @@ export const importarProductosJson = async (productosData) => {
     return await response.json();
   } catch (error) {
     console.error("Error en importarProductosJson:", error);
-    throw error;
-  }
-};
-export const aumentoMasivo = async (dto) => {
-  try {
-    const response = await fetch(`${API_URL}/productos/aumento-masivo`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders()
-      },
-      body: JSON.stringify(dto),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error al aplicar aumento masivo");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Error en aumentoMasivo:", error);
     throw error;
   }
 };
