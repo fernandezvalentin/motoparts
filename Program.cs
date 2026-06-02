@@ -73,6 +73,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/api/ping", () => Results.Ok(new { status = "awake", timestamp = DateTime.UtcNow }));
 
 using (var scope = app.Services.CreateScope())
 {
