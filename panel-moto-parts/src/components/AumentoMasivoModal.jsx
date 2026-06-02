@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { aumentoMasivo } from '../services/api';
+import { aumentoMasivo, obtenerProveedores } from '../services/api';
 import './AumentoMasivoModal.css';
 
 export function AumentoMasivoModal({ onCerrar, onCompletado, onAgregarToast }) {
@@ -13,12 +13,10 @@ export function AumentoMasivoModal({ onCerrar, onCompletado, onAgregarToast }) {
   const [proveedores, setProveedores] = useState([]);
 
   useEffect(() => {
-    // Populate providers from backend
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5190/api"}/productos/estadisticas`)
-      .then(res => res.json())
+    obtenerProveedores()
       .then(data => {
-        if (data.productosPorProveedor) {
-          setProveedores(Object.keys(data.productosPorProveedor).sort());
+        if (data && Array.isArray(data)) {
+          setProveedores(data);
         }
       })
       .catch(console.error);
