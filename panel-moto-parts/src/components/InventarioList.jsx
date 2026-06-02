@@ -92,7 +92,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
             onClick={() => setShowAumentoMasivo(true)}
             style={{ display: "flex", alignItems: "center", gap: "8px" }}
           >
-            📈 Aumento Masivo
+            📈 Gestión de Precios
           </button>
           <button 
             className="btn btn-secondary" 

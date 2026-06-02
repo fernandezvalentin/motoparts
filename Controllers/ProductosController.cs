@@ -389,11 +389,6 @@ namespace InventarioApi.Controllers
         [HttpPut("aumento-masivo")]
         public async Task<ActionResult> AumentoMasivo([FromBody] AumentoMasivoDto dto)
         {
-            if (dto.Porcentaje == 0)
-            {
-                return BadRequest(new { message = "El porcentaje de aumento no puede ser 0." });
-            }
-
             var query = _context.Productos.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(dto.Proveedor))
@@ -417,8 +412,24 @@ namespace InventarioApi.Controllers
 
             foreach (var p in productos)
             {
-                p.PrecioLista = Math.Round(p.PrecioLista * multiplicador, 2);
-                p.Precio = Math.Round(p.Precio * multiplicador, 2);
+                if (dto.TipoOperacion == "Ambos" || string.IsNullOrWhiteSpace(dto.TipoOperacion))
+                {
+                    p.PrecioLista = Math.Round(p.PrecioLista * multiplicador, 2);
+                    p.Precio = Math.Round(p.Precio * multiplicador, 2);
+                }
+                else if (dto.TipoOperacion == "Costo")
+                {
+                    p.PrecioLista = Math.Round(p.PrecioLista * multiplicador, 2);
+                }
+                else if (dto.TipoOperacion == "Publico")
+                {
+                    p.Precio = Math.Round(p.Precio * multiplicador, 2);
+                }
+                else if (dto.TipoOperacion == "FijarMargen")
+                {
+                    p.Precio = Math.Round(p.PrecioLista * multiplicador, 2);
+                }
+
                 p.FechaActualizacion = DateTime.UtcNow;
                 _context.Entry(p).State = EntityState.Modified;
             }
@@ -480,5 +491,6 @@ namespace InventarioApi.Controllers
         public decimal Porcentaje { get; set; }
         public string? Proveedor { get; set; }
         public string? Marca { get; set; }
+        public string? TipoOperacion { get; set; } // "Ambos", "Costo", "Publico", "FijarMargen"
     }
 }
