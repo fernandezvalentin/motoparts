@@ -67,8 +67,9 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
     texto += `--------------------------------\n`;
     venta.detalles.forEach(d => {
       const nombre = d.producto?.nombre || "Producto eliminado";
+      const sku = d.producto?.sku ? ` (SKU: ${d.producto.sku})` : "";
       const subtotal = d.cantidad * d.precioUnitario;
-      texto += `${d.cantidad}x ${nombre}\n   $ ${subtotal.toLocaleString("es-AR")}\n`;
+      texto += `${d.cantidad}x ${nombre}${sku}\n   $ ${subtotal.toLocaleString("es-AR")}\n`;
     });
     texto += `--------------------------------\n`;
     texto += `TOTAL: $ ${venta.total.toLocaleString("es-AR")}\n`;
@@ -138,11 +139,12 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
 
     venta.detalles.forEach(d => {
       const nombre = d.producto?.nombre || "Producto eliminado";
+      const sku = d.producto?.sku ? `<br><span style="font-size: 11px; color: #555;">SKU: ${d.producto.sku}</span>` : "";
       const subtotal = d.cantidad * d.precioUnitario;
       html += `
         <tr>
           <td>${d.cantidad}</td>
-          <td>${nombre}</td>
+          <td>${nombre}${sku}</td>
           <td style="text-align: right">$ ${subtotal.toLocaleString("es-AR")}</td>
         </tr>
       `;
