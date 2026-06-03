@@ -227,13 +227,13 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
           <table className="table" id="inventory-table">
             <thead>
               <tr>
-                <th>SKU</th>
+                <th style={{ width: "1%", whiteSpace: "nowrap" }}>SKU</th>
                 <th>Artículo</th>
-                <th className="hide-mobile">Proveedor</th>
-                <th>Precio Pub.</th>
-                <th style={{ textAlign: "center" }}>Stock</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th className="hide-mobile" style={{ width: "15%", whiteSpace: "nowrap" }}>Proveedor</th>
+                <th style={{ width: "1%", whiteSpace: "nowrap" }}>Precio Pub.</th>
+                <th style={{ textAlign: "center", width: "1%", whiteSpace: "nowrap" }}>Stock</th>
+                <th style={{ width: "1%", whiteSpace: "nowrap", textAlign: "center" }}>Estado</th>
+                <th style={{ width: "1%", whiteSpace: "nowrap", textAlign: "right" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -299,14 +299,14 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                       {producto.stockActual}
                     </span>
                   </td>
-                  <td data-label="Estado">
+                  <td data-label="Estado" style={{ textAlign: "center" }}>
                     <StockBadge
                       stockActual={producto.stockActual}
                       stockMinimo={producto.stockMinimo}
                     />
                   </td>
-                  <td data-label="Acciones">
-                    <div className="td-actions">
+                  <td data-label="Acciones" style={{ textAlign: "right" }}>
+                    <div className="td-actions" style={{ justifyContent: "flex-end" }}>
                       <button
                         className="btn btn-ghost btn-sm"
                         onClick={() => onEditar(producto)}
