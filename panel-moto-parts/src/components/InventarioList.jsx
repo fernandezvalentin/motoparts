@@ -227,13 +227,13 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
           <table className="table" id="inventory-table">
             <thead>
               <tr>
-                <th style={{ width: "1%", whiteSpace: "nowrap" }}>SKU</th>
+                <th>SKU</th>
                 <th>Artículo</th>
-                <th className="hide-mobile" style={{ width: "15%", whiteSpace: "nowrap" }}>Proveedor</th>
-                <th style={{ width: "1%", whiteSpace: "nowrap" }}>Precio Pub.</th>
-                <th style={{ textAlign: "center", width: "1%", whiteSpace: "nowrap" }}>Stock</th>
-                <th style={{ width: "1%", whiteSpace: "nowrap", textAlign: "center" }}>Estado</th>
-                <th style={{ width: "1%", whiteSpace: "nowrap", textAlign: "right" }}>Acciones</th>
+                <th className="hide-mobile">Proveedor</th>
+                <th>Precio Pub.</th>
+                <th style={{ textAlign: "center" }}>Stock</th>
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -245,7 +245,20 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                   }}
                 >
                   <td data-label="SKU">
-                    <span className="td-sku">{producto.sku}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className="td-sku">{producto.sku}</span>
+                      <button 
+                        className="btn btn-ghost btn-icon" 
+                        style={{ width: '28px', height: '28px', minHeight: '28px', padding: 0 }}
+                        onClick={() => {
+                          navigator.clipboard.writeText(producto.sku);
+                          onAgregarToast("SKU copiado", "success");
+                        }}
+                        title="Copiar SKU"
+                      >
+                        <span style={{ fontSize: '14px' }}>📋</span>
+                      </button>
+                    </div>
                   </td>
                   <td data-label="Artículo">
                     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -286,24 +299,14 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                       {producto.stockActual}
                     </span>
                   </td>
-                  <td data-label="Estado" style={{ textAlign: "center" }}>
+                  <td data-label="Estado">
                     <StockBadge
                       stockActual={producto.stockActual}
                       stockMinimo={producto.stockMinimo}
                     />
                   </td>
-                  <td data-label="Acciones" style={{ textAlign: "right" }}>
-                    <div className="td-actions" style={{ justifyContent: "flex-end" }}>
-                      <button 
-                        className="btn btn-ghost btn-sm" 
-                        onClick={() => {
-                          navigator.clipboard.writeText(producto.sku);
-                          onAgregarToast("SKU copiado", "success");
-                        }}
-                        title="Copiar SKU"
-                      >
-                        📋
-                      </button>
+                  <td data-label="Acciones">
+                    <div className="td-actions">
                       <button
                         className="btn btn-ghost btn-sm"
                         onClick={() => onEditar(producto)}
