@@ -135,29 +135,50 @@ export function Dashboard({ onNavegar }) {
           </div>
 
           {stats.alertasStock?.length > 0 ? (
-            <div className="horizontal-scroll-container">
-              {stats.alertasStock.map((item, index) => (
-                <div className="alert-card" key={item.id} style={{ animationDelay: `${index * 50}ms` }}>
-                  <div className="alert-card-header">
-                    <span className="td-sku">{item.sku}</span>
-                    <StockBadge stockActual={item.stockActual} stockMinimo={item.stockMinimo} />
-                  </div>
-                  <div className="alert-card-body">
-                    <h4 className="alert-item-name" title={item.nombre}>{item.nombre}</h4>
-                    <span className="badge badge-neutral" style={{ fontSize: "10px" }}>{item.proveedor || "Sin Proveedor"}</span>
-                  </div>
-                  <div className="alert-card-footer">
-                    <span className="alert-item-numbers" style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                      Stock: <strong style={{ color: "var(--text-primary)" }}>{item.stockActual}</strong> / {item.stockMinimo}
-                    </span>
-                  </div>
-                </div>
-              ))}
+            <div className="table-container" style={{ margin: "var(--space-2)", border: "none", maxHeight: "400px", overflowY: "auto" }}>
+              <table className="table" style={{ margin: 0 }}>
+                <thead style={{ position: "sticky", top: 0, background: "var(--bg-card)", zIndex: 1 }}>
+                  <tr>
+                    <th>CÓDIGO</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th className="hide-mobile">PROVEEDOR</th>
+                    <th style={{ textAlign: "center" }}>ESTADO</th>
+                    <th style={{ textAlign: "center" }}>STOCK</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.alertasStock.map((item, index) => (
+                    <tr key={item.id} style={{ animationDelay: `${index * 50}ms`, animation: "fadeInUp 300ms var(--ease-out) backwards" }}>
+                      <td data-label="SKU">
+                        <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{item.sku}</span>
+                      </td>
+                      <td data-label="REPUESTO" style={{ maxWidth: 0, width: "100%" }}>
+                        <span className="alert-item-name" title={item.nombre} style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {item.nombre}
+                        </span>
+                      </td>
+                      <td className="hide-mobile" style={{ whiteSpace: "nowrap", width: "1%" }} data-label="PROVEEDOR">
+                        <span className="badge badge-neutral" style={{ whiteSpace: "nowrap" }}>{item.proveedor || "Sin Proveedor"}</span>
+                      </td>
+                      <td style={{ textAlign: "center", whiteSpace: "nowrap" }} data-label="ESTADO">
+                        <StockBadge
+                          stockActual={item.stockActual}
+                          stockMinimo={item.stockMinimo}
+                        />
+                      </td>
+                      <td style={{ textAlign: "center", whiteSpace: "nowrap" }} data-label="STOCK">
+                        <span className="alert-item-numbers">
+                          {item.stockActual} / {item.stockMinimo}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
               {stats.productosStockCritico > stats.alertasStock.length && (
-                <div className="alert-card" style={{ display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", background: "transparent", borderStyle: "dashed" }}>
-                  <span style={{ color: "var(--text-muted)", fontSize: "var(--font-sm)" }}>
-                    Y {stats.productosStockCritico - stats.alertasStock.length} más...
-                  </span>
+                <div style={{ padding: "var(--space-3)", textAlign: "center", color: "var(--text-muted)", fontSize: "var(--font-sm)", borderTop: "1px solid var(--border-primary)" }}>
+                  Y {stats.productosStockCritico - stats.alertasStock.length} repuestos más con stock bajo.
                 </div>
               )}
             </div>
