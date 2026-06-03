@@ -135,7 +135,7 @@ export function Dashboard({ onNavegar }) {
           </div>
 
           {stats.alertasStock?.length > 0 ? (
-            <div className="table-container" style={{ margin: "var(--space-2)", border: "none", maxHeight: "400px", overflowY: "auto" }}>
+            <div className="table-container" style={{ margin: "var(--space-2)", border: "none", maxHeight: "315px", overflowY: "auto" }}>
               <table className="table" style={{ margin: 0 }}>
                 <thead style={{ position: "sticky", top: 0, background: "var(--bg-card)", zIndex: 1 }}>
                   <tr>
