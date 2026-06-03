@@ -45,7 +45,7 @@ namespace InventarioApi.Controllers
 
             if (soloStockBajo)
             {
-                query = query.Where(p => p.StockActual <= p.StockMinimo);
+                query = query.Where(p => p.StockMinimo > 0 && p.StockActual <= p.StockMinimo);
             }
             
             if (soloConStock)
@@ -96,8 +96,8 @@ namespace InventarioApi.Controllers
             var valorInventario = totalProductos > 0 
                 ? await _context.Productos.SumAsync(p => p.Precio * p.StockActual)
                 : 0;
-                
-            var productosStockCritico = await _context.Productos.CountAsync(p => p.StockActual <= p.StockMinimo);
+        
+            var productosStockCritico = await _context.Productos.CountAsync(p => p.StockMinimo > 0 && p.StockActual <= p.StockMinimo);
             
             // Agrupar por Proveedor para no saturar la memoria
             var proveedoresData = await _context.Productos
@@ -110,7 +110,7 @@ namespace InventarioApi.Controllers
             var totalProveedores = proveedoresData.Count;
 
             var alertasStock = await _context.Productos
-                .Where(p => p.StockActual <= p.StockMinimo)
+                .Where(p => p.StockMinimo > 0 && p.StockActual <= p.StockMinimo)
                 .OrderBy(p => p.StockActual)
                 .Take(50)
                 .Select(p => new
