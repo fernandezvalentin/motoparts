@@ -227,13 +227,13 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
           <table className="table" id="inventory-table">
             <thead>
               <tr>
-                <th>SKU</th>
+                <th style={{ width: "1%" }}>SKU</th>
                 <th>Artículo</th>
                 <th className="hide-mobile">Proveedor</th>
-                <th>Precio Pub.</th>
-                <th style={{ textAlign: "center" }}>Stock</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th style={{ width: "1%" }}>Precio Pub.</th>
+                <th style={{ textAlign: "center", width: "1%" }}>Stock</th>
+                <th style={{ width: "1%" }}>Estado</th>
+                <th style={{ width: "1%", textAlign: "right" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -245,7 +245,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                   }}
                 >
                   <td data-label="SKU">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', minWidth: '130px' }}>
                       <span className="td-sku">{producto.sku}</span>
                       <button 
                         className="btn btn-ghost btn-icon" 
@@ -299,14 +299,14 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                       {producto.stockActual}
                     </span>
                   </td>
-                  <td data-label="Estado">
+                  <td data-label="Estado" style={{ textAlign: "center" }}>
                     <StockBadge
                       stockActual={producto.stockActual}
                       stockMinimo={producto.stockMinimo}
                     />
                   </td>
-                  <td data-label="Acciones">
-                    <div className="td-actions">
+                  <td data-label="Acciones" style={{ textAlign: "right" }}>
+                    <div className="td-actions" style={{ justifyContent: "flex-end" }}>
                       <button
                         className="btn btn-ghost btn-sm"
                         onClick={() => onEditar(producto)}
