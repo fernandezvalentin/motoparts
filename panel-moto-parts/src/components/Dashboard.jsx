@@ -152,8 +152,8 @@ export function Dashboard({ onNavegar }) {
                       <td data-label="SKU">
                         <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{item.sku}</span>
                       </td>
-                      <td data-label="REPUESTO">
-                        <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <td data-label="REPUESTO" style={{ maxWidth: 0, width: "100%" }}>
+                        <span className="alert-item-name" title={item.nombre} style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {item.nombre}
                         </span>
                       </td>
@@ -213,8 +213,8 @@ export function Dashboard({ onNavegar }) {
                           <td data-label="CÓDIGO">
                             <span className="td-sku" style={{ whiteSpace: "nowrap" }}>{prod.sku}</span>
                           </td>
-                          <td data-label="REPUESTO">
-                            <span className="alert-item-name" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }} title={prod.nombre}>
+                          <td data-label="REPUESTO" style={{ maxWidth: 0, width: "100%" }}>
+                            <span className="alert-item-name" title={prod.nombre} style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                               {prod.nombre}
                             </span>
                           </td>
