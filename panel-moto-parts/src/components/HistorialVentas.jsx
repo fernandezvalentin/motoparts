@@ -228,7 +228,7 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
             <option value="año">Este Año</option>
           </select>
           <button 
-            className="btn btn-ghost" 
+            className="btn btn-secondary" 
             style={{ color: "var(--danger)" }}
             onClick={handleLimpiarHistorial} 
             disabled={ventas.length === 0}
@@ -313,7 +313,7 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
                         <span>📄</span> Ticket
                       </button>
                       <button 
-                        className="btn btn-ghost btn-sm" 
+                        className="btn btn-secondary btn-sm" 
                         style={{ color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '4px' }}
                         onClick={() => handleEliminarVenta(venta.id)}
                         title="Eliminar venta"
