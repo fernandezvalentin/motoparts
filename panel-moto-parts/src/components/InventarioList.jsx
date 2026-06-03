@@ -228,7 +228,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
             <thead>
               <tr>
                 <th style={{ width: "1%", whiteSpace: "nowrap" }}>SKU</th>
-                <th>Artículo</th>
+                <th style={{ width: "100%" }}>Artículo</th>
                 <th className="hide-mobile" style={{ width: "1%", whiteSpace: "nowrap" }}>Proveedor</th>
                 <th style={{ width: "1%", whiteSpace: "nowrap" }}>Precio Pub.</th>
                 <th style={{ textAlign: "center", width: "1%", whiteSpace: "nowrap" }}>Stock</th>
