@@ -67,7 +67,8 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
     texto += `--------------------------------\n`;
     venta.detalles.forEach(d => {
       const nombre = d.producto?.nombre || "Producto eliminado";
-      texto += `${d.cantidad}x ${nombre}\n   $ ${d.subtotal.toLocaleString("es-AR")}\n`;
+      const subtotal = d.cantidad * d.precioUnitario;
+      texto += `${d.cantidad}x ${nombre}\n   $ ${subtotal.toLocaleString("es-AR")}\n`;
     });
     texto += `--------------------------------\n`;
     texto += `TOTAL: $ ${venta.total.toLocaleString("es-AR")}\n`;
@@ -137,11 +138,12 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
 
     venta.detalles.forEach(d => {
       const nombre = d.producto?.nombre || "Producto eliminado";
+      const subtotal = d.cantidad * d.precioUnitario;
       html += `
         <tr>
           <td>${d.cantidad}</td>
           <td>${nombre}</td>
-          <td style="text-align: right">$ ${d.subtotal.toLocaleString("es-AR")}</td>
+          <td style="text-align: right">$ ${subtotal.toLocaleString("es-AR")}</td>
         </tr>
       `;
     });
