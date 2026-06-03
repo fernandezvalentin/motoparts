@@ -60,6 +60,112 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
     }).format(fecha);
   };
 
+  const generarTextoTicket = (venta) => {
+    let texto = `*FERNANDEZ MOTO PARTS*\nVenta de repuestos y accesorios de motos\nBelgrano, 998. Bragado, Prov. de Buenos Aires\n2342-413823\n\n`;
+    texto += `Fecha: ${formatearFecha(venta.fechaVenta)}\n`;
+    texto += `Comprobante Nº: #${venta.id.toString().padStart(4, "0")}\n`;
+    texto += `--------------------------------\n`;
+    venta.detalles.forEach(d => {
+      const nombre = d.producto?.nombre || "Producto eliminado";
+      texto += `${d.cantidad}x ${nombre}\n   $ ${d.subtotal.toLocaleString("es-AR")}\n`;
+    });
+    texto += `--------------------------------\n`;
+    texto += `TOTAL: $ ${venta.total.toLocaleString("es-AR")}\n`;
+    texto += `Método de Pago: ${venta.metodoPago || "Efectivo"}\n\n`;
+    texto += `¡Gracias por su compra!`;
+    return texto;
+  };
+
+  const handleCopiarTicket = (venta) => {
+    const texto = generarTextoTicket(venta);
+    navigator.clipboard.writeText(texto).then(() => {
+      onAgregarToast("Ticket copiado al portapapeles", "success");
+    }).catch(err => {
+      onAgregarToast("Error al copiar el ticket", "error");
+    });
+  };
+
+  const handleImprimirTicket = (venta) => {
+    const ventana = window.open('', '_blank');
+    if (!ventana) {
+      onAgregarToast("El navegador bloqueó la ventana emergente.", "error");
+      return;
+    }
+    
+    let html = `
+      <html>
+        <head>
+          <title>Ticket de Venta #${venta.id}</title>
+          <style>
+            body { font-family: 'Courier New', Courier, monospace; padding: 20px; color: #000; font-size: 14px; max-width: 800px; margin: 0 auto; }
+            .header { text-align: center; margin-bottom: 20px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+            .header h1 { margin: 0 0 5px 0; font-size: 24px; }
+            .header p { margin: 2px 0; }
+            .details { margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th { border-bottom: 1px dashed #000; text-align: left; padding: 5px 0; }
+            td { padding: 5px 0; vertical-align: top; }
+            .total-section { border-top: 1px dashed #000; padding-top: 10px; text-align: right; font-size: 18px; font-weight: bold; }
+            .footer { text-align: center; margin-top: 30px; border-top: 1px dashed #000; padding-top: 10px; font-size: 12px; }
+            @media print {
+              body { margin: 0; padding: 10px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>FERNANDEZ MOTO PARTS</h1>
+            <p>Venta de repuestos y accesorios de motos</p>
+            <p>Belgrano, 998. Bragado, Prov. de Buenos Aires</p>
+            <p>Tel: 2342-413823</p>
+          </div>
+          <div class="details">
+            <p><strong>Fecha:</strong> ${formatearFecha(venta.fechaVenta)}</p>
+            <p><strong>Comprobante Nº:</strong> #${venta.id.toString().padStart(4, "0")}</p>
+            <p><strong>Método de Pago:</strong> ${venta.metodoPago || "Efectivo"}</p>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>CANT</th>
+                <th>DESCRIPCIÓN</th>
+                <th style="text-align: right">SUBTOTAL</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    venta.detalles.forEach(d => {
+      const nombre = d.producto?.nombre || "Producto eliminado";
+      html += `
+        <tr>
+          <td>${d.cantidad}</td>
+          <td>${nombre}</td>
+          <td style="text-align: right">$ ${d.subtotal.toLocaleString("es-AR")}</td>
+        </tr>
+      `;
+    });
+
+    html += `
+            </tbody>
+          </table>
+          <div class="total-section">
+            TOTAL: $ ${venta.total.toLocaleString("es-AR")}
+          </div>
+          <div class="footer">
+            <p>¡Gracias por su compra!</p>
+          </div>
+          <script>
+            window.onload = function() { window.print(); window.close(); }
+          </script>
+        </body>
+      </html>
+    `;
+    
+    ventana.document.write(html);
+    ventana.document.close();
+  };
+
   if (cargando) {
     return (
       <div className="historial-container">
@@ -185,14 +291,30 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
                     </span>
                   </td>
                   <td data-label="ACCIONES" style={{ textAlign: 'center' }}>
-                    <button 
-                      className="btn btn-ghost btn-sm" 
-                      style={{ color: 'var(--danger)' }}
-                      onClick={() => handleEliminarVenta(venta.id)}
-                      title="Eliminar venta"
-                    >
-                      🗑️
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      <button 
+                        className="btn btn-ghost btn-sm" 
+                        onClick={() => handleCopiarTicket(venta)}
+                        title="Copiar Ticket"
+                      >
+                        📋
+                      </button>
+                      <button 
+                        className="btn btn-ghost btn-sm" 
+                        onClick={() => handleImprimirTicket(venta)}
+                        title="Imprimir / Guardar PDF"
+                      >
+                        📄
+                      </button>
+                      <button 
+                        className="btn btn-ghost btn-sm" 
+                        style={{ color: 'var(--danger)' }}
+                        onClick={() => handleEliminarVenta(venta.id)}
+                        title="Eliminar venta"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
