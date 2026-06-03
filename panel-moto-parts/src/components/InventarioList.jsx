@@ -12,7 +12,10 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
   const [proveedoresUnicos, setProveedoresUnicos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [proveedorFiltro, setProveedorFiltro] = useState("Todos");
-  const [soloStockBajo, setSoloStockBajo] = useState(false);
+  const [soloStockBajo, setSoloStockBajo] = useState(() => {
+    const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
+    return params.get("stockBajo") === "true";
+  });
   const [soloConStock, setSoloConStock] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showAumentoMasivo, setShowAumentoMasivo] = useState(false);

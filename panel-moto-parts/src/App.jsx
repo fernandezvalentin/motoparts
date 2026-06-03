@@ -14,9 +14,10 @@ import { ConfiguracionModal } from "./components/ConfiguracionModal";
 function App() {
   // Navigation
   const getHashPage = () => {
-    const hash = window.location.hash.replace("#", "");
+    const hashStr = window.location.hash.replace("#", "");
+    const page = hashStr.split("?")[0];
     const validPages = ["dashboard", "inventario", "nuevo", "pos", "historial"];
-    return validPages.includes(hash) ? hash : "dashboard";
+    return validPages.includes(page) ? page : "dashboard";
   };
 
   const [paginaActual, setPaginaActual] = useState(getHashPage());

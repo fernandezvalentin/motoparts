@@ -98,7 +98,7 @@ export function Dashboard({ onNavegar }) {
 
         <div
           className={`kpi-card ${stats.productosStockCritico > 0 ? "kpi-card-alert" : ""}`}
-          onClick={() => onNavegar("inventario")}
+          onClick={() => onNavegar("inventario?stockBajo=true")}
         >
           <div className="kpi-header">
             <span className="kpi-label">Stock Crítico</span>
