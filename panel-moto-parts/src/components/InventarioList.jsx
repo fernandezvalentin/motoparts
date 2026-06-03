@@ -227,13 +227,13 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
           <table className="table" id="inventory-table">
             <thead>
               <tr>
-                <th>SKU</th>
-                <th style={{ width: "40%" }}>Artículo</th>
-                <th className="hide-mobile">Proveedor</th>
-                <th>Precio Pub.</th>
-                <th style={{ textAlign: "center" }}>Stock</th>
-                <th>Estado</th>
-                <th style={{ textAlign: "right" }}>Acciones</th>
+                <th style={{ width: "120px", minWidth: "120px" }}>SKU</th>
+                <th>Artículo</th>
+                <th className="hide-mobile" style={{ width: "12%" }}>Proveedor</th>
+                <th style={{ width: "15%" }}>Precio Pub.</th>
+                <th style={{ textAlign: "center", width: "8%" }}>Stock</th>
+                <th style={{ width: "12%" }}>Estado</th>
+                <th style={{ textAlign: "right", width: "100px" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
