@@ -227,13 +227,13 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
           <table className="table" id="inventory-table">
             <thead>
               <tr>
-                <th style={{ width: "1%" }}>SKU</th>
-                <th>Artículo</th>
+                <th>SKU</th>
+                <th style={{ width: "40%" }}>Artículo</th>
                 <th className="hide-mobile">Proveedor</th>
-                <th style={{ width: "1%" }}>Precio Pub.</th>
-                <th style={{ textAlign: "center", width: "1%" }}>Stock</th>
-                <th style={{ width: "1%" }}>Estado</th>
-                <th style={{ width: "1%", textAlign: "right" }}>Acciones</th>
+                <th>Precio Pub.</th>
+                <th style={{ textAlign: "center" }}>Stock</th>
+                <th>Estado</th>
+                <th style={{ textAlign: "right" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -245,7 +245,7 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                   }}
                 >
                   <td data-label="SKU">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', minWidth: '130px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                       <span className="td-sku">{producto.sku}</span>
                       <button 
                         className="btn btn-ghost btn-icon" 
