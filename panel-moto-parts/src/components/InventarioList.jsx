@@ -245,7 +245,20 @@ export function InventarioList({ onEditar, onAgregarToast, onConfirmar, recargar
                   }}
                 >
                   <td data-label="SKU">
-                    <span className="td-sku">{producto.sku}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className="td-sku">{producto.sku}</span>
+                      <button 
+                        className="btn btn-ghost btn-icon" 
+                        style={{ width: '28px', height: '28px', minHeight: '28px', padding: 0 }}
+                        onClick={() => {
+                          navigator.clipboard.writeText(producto.sku);
+                          onAgregarToast("SKU copiado", "success");
+                        }}
+                        title="Copiar SKU"
+                      >
+                        <span style={{ fontSize: '14px' }}>📋</span>
+                      </button>
+                    </div>
                   </td>
                   <td data-label="Artículo">
                     <div style={{ display: "flex", flexDirection: "column" }}>
