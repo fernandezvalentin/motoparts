@@ -297,26 +297,28 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
                   <td data-label="ACCIONES" style={{ textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                       <button 
-                        className="btn btn-ghost btn-sm" 
+                        className="btn btn-secondary btn-sm" 
                         onClick={() => handleCopiarTicket(venta)}
                         title="Copiar Ticket"
+                        style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                       >
-                        📋
+                        <span>📋</span> Copiar
                       </button>
                       <button 
-                        className="btn btn-ghost btn-sm" 
+                        className="btn btn-secondary btn-sm" 
                         onClick={() => handleImprimirTicket(venta)}
                         title="Imprimir / Guardar PDF"
+                        style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                       >
-                        📄
+                        <span>📄</span> Ticket
                       </button>
                       <button 
                         className="btn btn-ghost btn-sm" 
-                        style={{ color: 'var(--danger)' }}
+                        style={{ color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '4px' }}
                         onClick={() => handleEliminarVenta(venta.id)}
                         title="Eliminar venta"
                       >
-                        🗑️
+                        <span>🗑️</span> Borrar
                       </button>
                     </div>
                   </td>
