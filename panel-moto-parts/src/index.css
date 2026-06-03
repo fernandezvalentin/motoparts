@@ -868,3 +868,15 @@ ul, ol {
     color: var(--text-secondary);
   }
 }
+
+/* Truncation helper for table cells */
+.td-truncate {
+  max-width: 0;
+  width: 100%;
+}
+@media (max-width: 768px) {
+  .td-truncate {
+    max-width: none !important;
+    width: auto !important;
+  }
+}
