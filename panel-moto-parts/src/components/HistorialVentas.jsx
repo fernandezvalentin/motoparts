@@ -293,7 +293,7 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
                     </span>
                   </td>
                   <td data-label="ACCIONES" style={{ textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                       <button 
                         className="btn btn-ghost btn-sm" 
                         onClick={() => handleCopiarTicket(venta)}
