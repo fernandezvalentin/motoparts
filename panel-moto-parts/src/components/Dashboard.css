@@ -287,3 +287,65 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* -------- Horizontal Scroll Cards -------- */
+.horizontal-scroll-container {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  padding: var(--space-4) var(--space-6);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.horizontal-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+.horizontal-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.horizontal-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: var(--radius-full);
+}
+
+.alert-card {
+  flex: 0 0 calc((100% - (4 * var(--space-4))) / 5);
+  min-width: 220px;
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  animation: fadeInUp 300ms var(--ease-out) backwards;
+}
+
+.alert-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-card-body h4 {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1024px) {
+  .alert-card { flex: 0 0 calc((100% - (2 * var(--space-4))) / 3); }
+}
+
+@media (max-width: 768px) {
+  .alert-card { flex: 0 0 calc((100% - var(--space-4)) / 2); }
+}
+
+@media (max-width: 480px) {
+  .alert-card { flex: 0 0 85%; }
+}
