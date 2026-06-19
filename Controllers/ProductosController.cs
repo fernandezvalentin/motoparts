@@ -50,12 +50,7 @@ namespace InventarioApi.Controllers
         public async Task<ActionResult> GetEstadisticas()
         {
             var stats = await _productoService.GetEstadisticasAsync();
-            return Ok(new 
-            {
-                totalProductos = stats.totalProductos,
-                valorInventario = stats.valorInventario,
-                productosStockCritico = stats.productosStockCritico
-            });
+            return Ok(stats);
         }
 
         [HttpGet("{id}")]
@@ -71,25 +66,6 @@ namespace InventarioApi.Controllers
             return Ok(producto);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProducto(int id, Producto producto)
-        {
-            try
-            {
-                var result = await _productoService.UpdateProductoAsync(id, producto);
-                if (!result)
-                {
-                    return NotFound(new { message = $"No se encontró un producto con ID {id}" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al actualizar el producto.", error = ex.Message });
-            }
-
-            return NoContent();
-        }
-
         [HttpPost]
         public async Task<ActionResult<Producto>> PostProducto(Producto producto)
         {
@@ -98,22 +74,93 @@ namespace InventarioApi.Controllers
                 var createdProducto = await _productoService.CreateProductoAsync(producto);
                 return CreatedAtAction(nameof(GetProducto), new { id = createdProducto.Id }, createdProducto);
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
-                return StatusCode(500, new { message = "Error al crear el producto.", error = ex.Message });
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutProducto(int id, Producto producto)
+        {
+            try
+            {
+                var success = await _productoService.UpdateProductoAsync(id, producto);
+                if (!success)
+                {
+                    return NotFound();
+                }
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return Conflict(new { message = ex.Message });
             }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProducto(int id)
         {
-            var result = await _productoService.DeleteProductoAsync(id);
-            if (!result)
+            var success = await _productoService.DeleteProductoAsync(id);
+            if (!success)
             {
                 return NotFound();
             }
 
             return NoContent();
+        }
+
+        [HttpPost("importar-json")]
+        public async Task<IActionResult> ImportarJson([FromBody] IEnumerable<ImportarProductoDto> productosData)
+        {
+            try
+            {
+                if (productosData == null || !productosData.Any())
+                {
+                    return BadRequest(new { message = "No se recibieron datos para importar." });
+                }
+
+                var result = await _productoService.ImportarProductosAsync(productosData);
+
+                return Ok(new { message = "Importación completada", actualizados = result.actualizados, creados = result.creados });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno al importar los productos", error = ex.Message });
+            }
+        }
+
+        [HttpPut("aumento-masivo")]
+        public async Task<ActionResult> AumentoMasivo([FromBody] AumentoMasivoDto dto)
+        {
+            var count = await _productoService.AumentoMasivoAsync(dto);
+
+            if (count == 0)
+            {
+                return NotFound(new { message = "No se encontraron productos que coincidan con los filtros." });
+            }
+
+            return Ok(new { message = $"Se actualizaron los precios de {count} productos.", actualizados = count });
+        }
+
+        [HttpPut("renombrar-proveedor")]
+        public async Task<ActionResult> RenombrarProveedor([FromBody] RenombrarProveedorDto dto)
+        {
+            try
+            {
+                var count = await _productoService.RenombrarProveedorAsync(dto);
+
+                if (count == 0)
+                {
+                    return NotFound(new { message = $"No se encontraron repuestos con el proveedor '{dto.Viejo}'." });
+                }
+
+                return Ok(new { message = $"Se renombraron {count} repuestos a '{dto.Nuevo}' exitosamente." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

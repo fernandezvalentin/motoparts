@@ -44,22 +44,10 @@ namespace InventarioApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetVentas(
-            [FromQuery] DateTime? fechaInicio = null,
-            [FromQuery] DateTime? fechaFin = null,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 50)
+        public async Task<ActionResult<IEnumerable<Venta>>> GetVentas([FromQuery] string? filtro = "todas")
         {
-            var result = await _ventaService.GetVentasPaginatedAsync(fechaInicio, fechaFin, page, pageSize);
-
-            return Ok(new 
-            { 
-                items = result.items, 
-                total = result.total, 
-                page = result.page, 
-                pageSize = result.pageSize, 
-                totalPages = result.totalPages 
-            });
+            var ventas = await _ventaService.GetVentasAsync(filtro);
+            return Ok(ventas);
         }
 
         [HttpGet("{id}")]
@@ -69,10 +57,36 @@ namespace InventarioApi.Controllers
 
             if (venta == null)
             {
-                return NotFound(new { message = $"Venta con ID {id} no encontrada." });
+                return NotFound(new { message = "Venta no encontrada." });
             }
 
             return Ok(venta);
+        }
+
+        [HttpDelete("limpiar")]
+        public async Task<IActionResult> LimpiarHistorial()
+        {
+            await _ventaService.LimpiarHistorialAsync();
+            return Ok(new { message = "Historial de ventas eliminado." });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarVenta(int id)
+        {
+            try
+            {
+                var result = await _ventaService.EliminarVentaAsync(id);
+                if (!result)
+                {
+                    return NotFound(new { message = "Venta no encontrada." });
+                }
+
+                return Ok(new { message = "Venta eliminada y stock restaurado." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al eliminar la venta.", error = ex.Message });
+            }
         }
 
         [HttpGet("estadisticas")]

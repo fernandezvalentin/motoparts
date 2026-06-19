@@ -84,40 +84,95 @@ namespace InventarioApi.Services
             }
         }
 
-        public async Task<(List<Venta> items, int total, int page, int pageSize, int totalPages)> GetVentasPaginatedAsync(
-            DateTime? fechaInicio, DateTime? fechaFin, int page, int pageSize)
+        public async Task<IEnumerable<Venta>> GetVentasAsync(string? filtro)
         {
-            var query = _ventaRepository.GetQueryable()
+            var query = _ventaRepository.GetQueryable();
+            var hoyUtc = DateTime.UtcNow;
+
+            switch (filtro?.ToLower())
+            {
+                case "hoy":
+                    var hoyArs = hoyUtc.AddHours(-3).Date;
+                    query = query.Where(v => v.FechaVenta.AddHours(-3) >= hoyArs);
+                    break;
+                case "semana":
+                    var inicioSemana = hoyUtc.AddHours(-3).Date.AddDays(-7);
+                    query = query.Where(v => v.FechaVenta.AddHours(-3) >= inicioSemana);
+                    break;
+                case "mes":
+                    var hoyArsMes = hoyUtc.AddHours(-3);
+                    var inicioMes = new DateTime(hoyArsMes.Year, hoyArsMes.Month, 1);
+                    query = query.Where(v => v.FechaVenta.AddHours(-3) >= inicioMes);
+                    break;
+                case "año":
+                    var hoyArsAnio = hoyUtc.AddHours(-3);
+                    var inicioAnio = new DateTime(hoyArsAnio.Year, 1, 1);
+                    query = query.Where(v => v.FechaVenta.AddHours(-3) >= inicioAnio);
+                    break;
+                default:
+                    break;
+            }
+
+            return await query
                 .Include(v => v.Detalles)
                 .ThenInclude(d => d.Producto)
-                .AsQueryable();
-
-            if (fechaInicio.HasValue)
-            {
-                query = query.Where(v => v.FechaVenta >= fechaInicio.Value.ToUniversalTime());
-            }
-
-            if (fechaFin.HasValue)
-            {
-                var finDia = fechaFin.Value.Date.AddDays(1).AddTicks(-1).ToUniversalTime();
-                query = query.Where(v => v.FechaVenta <= finDia);
-            }
-
-            var total = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling(total / (double)pageSize);
-
-            var items = await query
                 .OrderByDescending(v => v.FechaVenta)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
                 .ToListAsync();
-
-            return (items, total, page, pageSize, totalPages);
         }
 
         public async Task<Venta?> GetVentaByIdAsync(int id)
         {
             return await _ventaRepository.GetByIdWithDetallesAsync(id);
+        }
+
+        public async Task<bool> EliminarVentaAsync(int id)
+        {
+            var venta = await _ventaRepository.GetQueryable()
+                .Include(v => v.Detalles)
+                .FirstOrDefaultAsync(v => v.Id == id);
+
+            if (venta == null)
+            {
+                return false;
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                foreach (var detalle in venta.Detalles)
+                {
+                    var producto = await _productoRepository.GetByIdAsync(detalle.ProductoId);
+                    if (producto != null)
+                    {
+                        producto.StockActual += detalle.Cantidad;
+                        _productoRepository.Update(producto);
+                    }
+                }
+
+                _context.VentaDetalles.RemoveRange(venta.Detalles);
+                _context.Ventas.Remove(venta);
+                
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task LimpiarHistorialAsync()
+        {
+            var detalles = await _context.VentaDetalles.ToListAsync();
+            _context.VentaDetalles.RemoveRange(detalles);
+            
+            var ventas = await _context.Ventas.ToListAsync();
+            _context.Ventas.RemoveRange(ventas);
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<(int totalVentas, decimal ingresosTotales, decimal ticketPromedio)> GetEstadisticasVentasAsync(
