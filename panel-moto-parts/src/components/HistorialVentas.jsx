@@ -290,9 +290,16 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
                     </div>
                   </td>
                   <td data-label="TOTAL" style={{ textAlign: 'center' }}>
-                    <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>
-                      ${venta.total.toLocaleString("es-AR")}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>
+                        ${venta.total.toLocaleString("es-AR")}
+                      </span>
+                      {venta.descuentoPorcentaje > 0 && (
+                        <span className="badge badge-accent" style={{ fontSize: "0.7rem", marginTop: 4 }}>
+                          -{venta.descuentoPorcentaje}% Desc.
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td data-label="ACCIONES" style={{ textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>

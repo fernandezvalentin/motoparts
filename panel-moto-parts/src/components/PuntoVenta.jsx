@@ -10,6 +10,7 @@ export function PuntoVenta({ onAgregarToast }) {
   const [carrito, setCarrito] = useState([]);
   const [procesando, setProcesando] = useState(false);
   const [metodoPago, setMetodoPago] = useState("Efectivo");
+  const [descuento, setDescuento] = useState(0);
   
   // Mobile UI State
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
@@ -85,14 +86,16 @@ export function PuntoVenta({ onAgregarToast }) {
     }
   };
 
-  const calcularTotal = () => {
+  const calcularSubtotal = () => {
     return carrito.reduce(
       (acc, item) => acc + item.cantidad * item.precioUnitario,
       0
     );
   };
 
-  const total = calcularTotal();
+  const subtotal = calcularSubtotal();
+  const montoDescuento = subtotal * (descuento / 100);
+  const total = subtotal - montoDescuento;
 
   // Procesar Venta
   const confirmarVenta = async () => {
@@ -102,6 +105,7 @@ export function PuntoVenta({ onAgregarToast }) {
     try {
       const dto = {
         metodoPago: metodoPago,
+        descuentoPorcentaje: descuento,
         detalles: carrito.map((item) => ({
           productoId: item.productoId,
           cantidad: item.cantidad,
@@ -114,6 +118,7 @@ export function PuntoVenta({ onAgregarToast }) {
       setCarrito([]);
       setBusqueda("");
       setMetodoPago("Efectivo");
+      setDescuento(0);
       setMobileCartOpen(false);
       // Recargar el catálogo para ver el nuevo stock
       await cargarCatologo();
@@ -273,25 +278,52 @@ export function PuntoVenta({ onAgregarToast }) {
         </div>
 
         <div className="pos-cart-footer">
-          <div className="pos-cart-total">
-            <span>Total:</span>
-            <span className="pos-cart-total-value">
-              ${calcularTotal().toLocaleString("es-AR")}
-            </span>
+          <div className="pos-cart-summary" style={{ marginBottom: "var(--space-4)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, color: "var(--text-secondary)" }}>
+              <span>Subtotal:</span>
+              <span>${subtotal.toLocaleString("es-AR")}</span>
+            </div>
+            {descuento > 0 && (
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, color: "var(--success)" }}>
+                <span>Descuento ({descuento}%):</span>
+                <span>-${montoDescuento.toLocaleString("es-AR", { maximumFractionDigits: 2 })}</span>
+              </div>
+            )}
+            <div className="pos-cart-total" style={{ borderTop: "1px solid var(--border-color)", paddingTop: 8, marginTop: 8 }}>
+              <span>Total Final:</span>
+              <span className="pos-cart-total-value">
+                ${total.toLocaleString("es-AR", { maximumFractionDigits: 2 })}
+              </span>
+            </div>
           </div>
 
-          <div style={{ marginBottom: "var(--space-4)" }}>
-            <label style={{ display: "block", marginBottom: "var(--space-2)", fontSize: "var(--font-sm)", color: "var(--text-muted)" }}>Método de Pago</label>
-            <select
-              className="select"
-              value={metodoPago}
-              onChange={(e) => setMetodoPago(e.target.value)}
-            >
-              <option value="Efectivo">💵 Efectivo</option>
-              <option value="Débito">💳 Débito</option>
-              <option value="Crédito">💳 Crédito</option>
-              <option value="Transferencia">📱 Transferencia</option>
-            </select>
+          <div style={{ display: "flex", gap: "var(--space-3)", marginBottom: "var(--space-4)" }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", marginBottom: "var(--space-2)", fontSize: "var(--font-sm)", color: "var(--text-muted)" }}>Descuento Cliente</label>
+              <select
+                className="select"
+                value={descuento}
+                onChange={(e) => setDescuento(Number(e.target.value))}
+              >
+                <option value={0}>Sin descuento (0%)</option>
+                {[...Array(15)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>{i + 1}%</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", marginBottom: "var(--space-2)", fontSize: "var(--font-sm)", color: "var(--text-muted)" }}>Método de Pago</label>
+              <select
+                className="select"
+                value={metodoPago}
+                onChange={(e) => setMetodoPago(e.target.value)}
+              >
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Débito">💳 Débito</option>
+                <option value="Crédito">💳 Crédito</option>
+                <option value="Transferencia">📱 Transferencia</option>
+              </select>
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: "var(--space-3)" }}>

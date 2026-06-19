@@ -16,6 +16,7 @@ namespace InventarioApi.Models
     {
         public List<DetalleVentaDto> Detalles { get; set; } = new();
         public string MetodoPago { get; set; } = "Efectivo";
+        public decimal DescuentoPorcentaje { get; set; } = 0;
     }
 
     public class DetalleVentaDto

@@ -68,8 +68,13 @@ namespace InventarioApi.Services
                     totalVenta += detalle.Cantidad * detalle.PrecioUnitario;
                     await _ventaRepository.AddDetalleAsync(detalle);
                 }
+                decimal descuentoAplicado = dto.DescuentoPorcentaje >= 0 && dto.DescuentoPorcentaje <= 100 
+                    ? dto.DescuentoPorcentaje 
+                    : 0;
 
-                venta.Total = totalVenta;
+                venta.Total = Math.Round(totalVenta * (1 - (descuentoAplicado / 100)), 2);
+                venta.DescuentoPorcentaje = descuentoAplicado;
+                
                 _ventaRepository.Update(venta);
 
                 await _ventaRepository.SaveChangesAsync();
