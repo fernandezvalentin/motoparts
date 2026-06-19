@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using InventarioApi.Data;
+using InventarioApi.Repositories;
+using InventarioApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +46,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddAuthorization();
+
+// 4. Configuración de Inyección de Dependencias (S.O.L.I.D.)
+builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+builder.Services.AddScoped<IVentaRepository, VentaRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(x =>
