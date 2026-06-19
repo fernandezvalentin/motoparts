@@ -171,13 +171,25 @@ namespace InventarioApi.Services
 
         public async Task LimpiarHistorialAsync()
         {
-            var detalles = await _context.VentaDetalles.ToListAsync();
-            _context.VentaDetalles.RemoveRange(detalles);
-            
-            var ventas = await _context.Ventas.ToListAsync();
-            _context.Ventas.RemoveRange(ventas);
+            if (_context.Database.IsNpgsql())
+            {
+                await _context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"VentaDetalles\", \"Ventas\" RESTART IDENTITY CASCADE;");
+            }
+            else
+            {
+                var detalles = await _context.VentaDetalles.ToListAsync();
+                _context.VentaDetalles.RemoveRange(detalles);
+                
+                var ventas = await _context.Ventas.ToListAsync();
+                _context.Ventas.RemoveRange(ventas);
+                await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync();
+                if (_context.Database.IsSqlite())
+                {
+                    await _context.Database.ExecuteSqlRawAsync("DELETE FROM sqlite_sequence WHERE name='Ventas';");
+                    await _context.Database.ExecuteSqlRawAsync("DELETE FROM sqlite_sequence WHERE name='VentaDetalles';");
+                }
+            }
         }
 
         public async Task<(int totalVentas, decimal ingresosTotales, decimal ticketPromedio)> GetEstadisticasVentasAsync(
