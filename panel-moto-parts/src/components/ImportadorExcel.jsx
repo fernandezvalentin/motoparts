@@ -195,7 +195,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
           nombre: fila[mapeo.nombre]?.toString() || "",
           precioLista: precioNum,
           precioPublico: precioPublico,
-          stock: mapeo.stock ? (parseInt(fila[mapeo.stock]) || 0) : 0,
+          stock: mapeo.stock ? (parseInt(fila[mapeo.stock]) || 0) : -1,
           proveedor: mapeo.proveedor ? (fila[mapeo.proveedor]?.toString() || "") : valoresPorDefecto.proveedor,
           marca: mapeo.marca ? (fila[mapeo.marca]?.toString() || "") : valoresPorDefecto.marca,
           modelo: mapeo.modelo ? (fila[mapeo.modelo]?.toString() || "") : "",
