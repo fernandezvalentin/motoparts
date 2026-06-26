@@ -27,6 +27,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
   });
   const [cotizacionDolar, setCotizacionDolar] = useState(1000);
   const [porcentajeGanancia, setPorcentajeGanancia] = useState(40);
+  const [traducirNombres, setTraducirNombres] = useState(false);
   const [paso, setPaso] = useState(1); // 1: Subir, 2: Mapear, 3: Procesando
 
   const handleFileUpload = (e) => {
@@ -207,6 +208,28 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
         return;
       }
 
+      if (traducirNombres) {
+        const chunkSize = 20;
+        for (let i = 0; i < productosAImportar.length; i += chunkSize) {
+          const chunk = productosAImportar.slice(i, i + chunkSize);
+          const textoUnido = chunk.map(p => p.nombre).join(" ||| ");
+          try {
+            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q=${encodeURIComponent(textoUnido)}`);
+            const data = await res.json();
+            const translatedText = data[0].map(item => item[0]).join('');
+            const translatedNombres = translatedText.split(/\|\|\|/g).map(s => s.trim());
+            
+            chunk.forEach((p, idx) => {
+              if (translatedNombres[idx] && translatedNombres[idx].length > 0) {
+                p.nombre = translatedNombres[idx];
+              }
+            });
+          } catch (e) {
+            console.error("Error al traducir lote", e);
+          }
+        }
+      }
+
       const res = await importarProductosJson(productosAImportar);
       onAgregarToast(`¡Importación exitosa! Se actualizaron ${res.actualizados} y se crearon ${res.creados} productos.`, "success");
       onCompletado();
@@ -341,7 +364,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
                 <p style={{ fontSize: "var(--font-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-3)" }}>
                   Si el Excel no tiene columna de Proveedor o Marca, podés ingresarlos acá y se aplicarán a toda la lista.
                 </p>
-                <div style={{ display: "flex", gap: "10px" }}>
+                <div style={{ display: "flex", gap: "10px", marginBottom: "var(--space-4)" }}>
                   <input 
                     type="text" 
                     className="input" 
@@ -357,6 +380,15 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
                     onChange={(e) => setValoresPorDefecto(prev => ({ ...prev, marca: e.target.value }))}
                   />
                 </div>
+                <h4 style={{ margin: "var(--space-4) 0 var(--space-3) 0" }}>Traducción Automática</h4>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "var(--text-primary)" }}>
+                  <input 
+                    type="checkbox" 
+                    checked={traducirNombres}
+                    onChange={(e) => setTraducirNombres(e.target.checked)}
+                  />
+                  Traducir automáticamente los nombres del Inglés al Español (Ideal para BAJAJ)
+                </label>
               </div>
             </div>
           )}
@@ -364,7 +396,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
           {paso === 3 && (
             <div className="import-step processing-step" style={{ textAlign: "center", padding: "var(--space-6) 0" }}>
               <div className="spinner" style={{ fontSize: "2rem", marginBottom: "var(--space-3)" }}>⏳</div>
-              <h3>Importando productos...</h3>
+              <h3>{traducirNombres ? "Importando y traduciendo productos..." : "Importando productos..."}</h3>
               <p style={{ color: "var(--text-muted)" }}>Esto puede demorar unos segundos dependiendo del tamaño de la lista.</p>
             </div>
           )}
