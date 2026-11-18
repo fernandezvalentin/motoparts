@@ -1,0 +1,117 @@
+"use client";
+
+import { useState } from "react";
+import { actualizarCredenciales } from "@/lib/api";
+import "./ConfiguracionModal.css";
+
+export const ConfiguracionModal = ({ onClose, onLogout }) => {
+  const [nuevoUsuario, setNuevoUsuario] = useState("");
+  const [nuevaContraseña, setNuevaContraseña] = useState("");
+  const [confirmarContraseña, setConfirmarContraseña] = useState("");
+  const [error, setError] = useState(null);
+  const [exito, setExito] = useState(false);
+  const [cargando, setCargando] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!nuevoUsuario && !nuevaContraseña) {
+      setError("Por favor, ingresa al menos un nuevo email o contraseña.");
+      return;
+    }
+
+    if (nuevaContraseña && nuevaContraseña !== confirmarContraseña) {
+      setError("Las contraseñas no coinciden. Por favor, revisa.");
+      return;
+    }
+
+    setCargando(true);
+    setError(null);
+
+    try {
+      await actualizarCredenciales(nuevoUsuario, nuevaContraseña);
+      setExito(true);
+      setTimeout(() => {
+        onLogout(); // Forzamos cerrar sesión tras cambiar datos
+      }, 3000);
+    } catch (err) {
+      setError(err.message || "Error al actualizar las credenciales.");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay visible" onClick={onClose}>
+      <div className="modal-content config-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>⚙️ Configuración</h2>
+          <button className="modal-close" onClick={onClose}>
+            &times;
+          </button>
+        </div>
+
+        <div className="modal-body">
+          {exito ? (
+            <div className="config-success">
+              <h3>¡Credenciales actualizadas!</h3>
+              <p>Por seguridad, por favor inicia sesión nuevamente.</p>
+              <p className="loading-text">Redirigiendo...</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="config-form">
+              <p className="config-hint">
+                Puedes cambiar tu email, tu contraseña o ambos. Si dejas un campo en blanco, ese dato no se modificará. Si cambias el email, Supabase te enviará un correo para confirmarlo.
+              </p>
+              
+              {error && <div className="config-error">{error}</div>}
+
+              <div className="form-group">
+                <label>Nuevo Email</label>
+                <input
+                  type="email"
+                  value={nuevoUsuario}
+                  onChange={(e) => setNuevoUsuario(e.target.value)}
+                  placeholder="Ej: juan@motoparts.com"
+                  className="form-control"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Nueva Contraseña</label>
+                <input
+                  type="password"
+                  value={nuevaContraseña}
+                  onChange={(e) => setNuevaContraseña(e.target.value)}
+                  placeholder="Escribe la nueva contraseña"
+                  className="form-control"
+                />
+              </div>
+
+              {nuevaContraseña && (
+                <div className="form-group slide-in">
+                  <label>Repetir Contraseña</label>
+                  <input
+                    type="password"
+                    value={confirmarContraseña}
+                    onChange={(e) => setConfirmarContraseña(e.target.value)}
+                    placeholder="Vuelve a escribir la contraseña"
+                    className="form-control"
+                  />
+                </div>
+              )}
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={onClose} disabled={cargando}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={cargando}>
+                  {cargando ? "Guardando..." : "Guardar Cambios"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

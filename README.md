@@ -4,54 +4,125 @@
 
 ## 🚀 Características Principales
 
-Decidí enfocarme en resolver los problemas reales de un mostrador, manteniendo la interfaz lo más limpia posible:
+- **📊 Dashboard Estadístico:** valor total del inventario, top 5 más vendidos, productos por proveedor y alertas automáticas cuando un repuesto se está quedando sin stock.
+- **📦 Gestión de Inventario:** alta, baja y modificación de productos, búsqueda por SKU, nombre o proveedor, importación desde Excel (con traducción automática y conversión de dólares) y aumentos masivos de precios.
+- **🛒 Punto de Venta (POS):** carrito con descuentos y métodos de pago; descuenta el stock de forma atómica y no deja vender productos agotados.
+- **🧾 Historial de Ventas:** filtros por día/semana/mes/año, impresión de tickets y anulación de ventas con devolución de stock.
+- **📱 PWA Instalable:** se instala como app en Windows o en el celular.
 
-- **📊 Dashboard Estadístico:** Un resumen en tiempo real del valor total del inventario y alertas automáticas cuando un repuesto se está quedando sin stock.
-- **📦 Gestión de Inventario:** ABM (Alta, Baja y Modificación) de productos, con búsqueda rápida por código SKU, nombre o categoría.
-- **🛒 Punto de Venta (POS):** Un módulo de caja con carrito de compras que descuenta automáticamente el stock de la base de datos al confirmar una venta. Evita vender productos agotados.
-- **🧾 Historial de Ventas:** Registro inalterable de cada transacción realizada con su fecha, total y detalle de artículos.
-- **📱 PWA Instalable:** Configuré el frontend como una Progressive Web App. Esto permite que el sistema se instale como una aplicación nativa en el escritorio de Windows o en el celular, abriéndose con un doble clic sin necesidad de escribir URLs.
+## 🛠️ Tecnologías
 
-## 🛠️ Tecnologías Utilizadas
+| Capa | Tecnología |
+| --- | --- |
+| Frontend y API | **Next.js 16** (App Router, Route Handlers, Proxy) + React 19 |
+| Base de datos | **Supabase** (Postgres) con Row Level Security y funciones SQL para la lógica transaccional |
+| Autenticación | **Supabase Auth** (email y contraseña, sesión en cookies con `@supabase/ssr`) |
+| Crons | **GitHub Actions** programado → `/api/cron/keepalive` para que Supabase no pause el proyecto |
+| CI/CD | **GitHub Actions** (lint, build y validación de migraciones) + deploy en **Vercel** |
 
-Para este proyecto elegí un stack moderno que me permitiera desarrollar rápido y mantener un alto rendimiento:
+## 📁 Estructura
 
-**Backend:**
-- **C# / .NET 8 Web API:** Para construir una API RESTful segura y tipada.
-- **Entity Framework Core:** Como ORM para interactuar con la base de datos.
-- **SQLite:** Elegí SQLite por su portabilidad. No requiere que mi papá instale pesados motores de bases de datos (como SQL Server) en la computadora del local; la base de datos vive en un simple archivo local.
-
-**Frontend:**
-- **React.js + Vite:** Para una experiencia de usuario fluida (Single Page Application) y tiempos de compilación ultrarrápidos.
-- **CSS Vanilla (Custom Properties):** Diseñé toda la interfaz desde cero usando variables CSS y flexbox/grid, creando un modo oscuro elegante sin depender de librerías de componentes pesadas.
-
-## ⚙️ Cómo ejecutar el proyecto localmente
-
-Si quieres probar el sistema en tu máquina, sigue estos pasos:
-
-### 1. Iniciar el Backend (.NET)
-Abre una terminal en la carpeta principal del proyecto (`InventarioApi`):
-```bash
-# Aplica las migraciones a la base de datos SQLite
-dotnet ef database update
-
-# Levanta el servidor backend (se ejecutará por defecto en el puerto 5190)
-dotnet run
+```
+src/
+├── app/
+│   ├── (panel)/            # Páginas protegidas: dashboard, inventario, pos, historial
+│   ├── login/              # Pantalla de ingreso
+│   ├── api/                # Route Handlers (reemplazan a la API .NET)
+│   │   ├── productos/      # CRUD, importar, aumento-masivo, renombrar-proveedor, estadísticas
+│   │   ├── ventas/         # registrar, listar, eliminar, limpiar
+│   │   └── cron/keepalive/ # Endpoint del cron
+│   ├── layout.js
+│   └── manifest.js         # Manifest de la PWA
+├── components/             # Componentes de la UI
+├── lib/
+│   ├── api.js              # Funciones que usan los componentes para llamar a la API
+│   ├── http.js             # Helpers de los Route Handlers (auth, errores)
+│   └── supabase/           # Clientes de Supabase (navegador y servidor)
+└── proxy.js                # Refresca la sesión y protege las rutas
+supabase/
+├── config.toml             # Configuración para el entorno local (Supabase CLI)
+└── migrations/             # Esquema, RLS y funciones SQL
+.github/workflows/
+├── ci.yml                  # Lint + build + validación de migraciones en cada push/PR
+├── keepalive.yml           # Cron cada 2 días
+└── supabase-migrations.yml # Aplica migraciones a producción al hacer push a main
 ```
 
-### 2. Iniciar el Frontend (React)
-Abre otra terminal y navega a la carpeta del panel:
+## ⚙️ Desarrollo local
+
+Requisitos: Node.js 20.9+ y (opcional, para la base local) Docker.
+
 ```bash
-cd panel-moto-parts
-
-# Instala las dependencias
 npm install
+```
 
-# Inicia el entorno de desarrollo de Vite (se ejecutará en el puerto 5173)
+```bash
+cp .env.example .env.local
+```
+
+### Opción A: Supabase local (recomendado para desarrollar)
+
+```bash
+npx supabase start
+```
+
+El comando aplica las migraciones y muestra la `API URL` y la `Publishable key`: copialas en `.env.local`. El registro público está deshabilitado, así que creá tu usuario desde Supabase Studio (http://127.0.0.1:54323 → Authentication → Add user).
+
+### Opción B: Proyecto de Supabase en la nube
+
+Usá la URL y la publishable key de tu proyecto (ver "Puesta en producción").
+
+### Levantar la app
+
+```bash
 npm run dev
 ```
 
-Visita `http://localhost:5173` en tu navegador y ya podrás usar el sistema.
+Visitá http://localhost:3000 e ingresá con tu email y contraseña.
+
+## 🚢 Puesta en producción
+
+### 1. Supabase
+
+1. Creá un proyecto en [supabase.com](https://supabase.com).
+2. Aplicá el esquema: pegá el contenido de `supabase/migrations/*.sql` en el **SQL Editor**, o usá la CLI (`npx supabase link --project-ref <id>` y `npx supabase db push`).
+3. En **Authentication → Sign In / Providers**, desactivá **Allow new users to sign up** (solo deben entrar los usuarios que vos crees).
+4. En **Authentication → Users → Add user**, creá el usuario administrador.
+5. En **Authentication → URL Configuration**, poné la URL de Vercel como *Site URL*.
+
+### 2. Vercel
+
+1. Importá el repositorio de GitHub en [vercel.com](https://vercel.com) (detecta Next.js automáticamente).
+2. Cargá las variables de entorno:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `CRON_SECRET` (generalo con `openssl rand -hex 32`)
+3. Cada push a `main` despliega a producción y cada PR genera una preview.
+
+### 3. GitHub (Settings → Secrets and variables → Actions)
+
+| Secret | Para qué |
+| --- | --- |
+| `APP_URL` | URL de producción en Vercel (ej. `https://motoparts.vercel.app`) |
+| `CRON_SECRET` | El mismo valor que en Vercel |
+| `SUPABASE_ACCESS_TOKEN` | Token personal de Supabase (Account → Access Tokens) |
+| `SUPABASE_DB_PASSWORD` | Contraseña de la base del proyecto |
+| `SUPABASE_PROJECT_ID` | Reference ID del proyecto |
+
+Los tres últimos solo hacen falta si querés que las migraciones nuevas se apliquen solas al hacer push a `main`.
+
+## ⏰ Crons
+
+`keepalive.yml` corre cada 2 días y llama a `GET /api/cron/keepalive` con el header `Authorization: Bearer <CRON_SECRET>`. Ese endpoint ejecuta una consulta en la base para que Supabase no pause el proyecto gratuito por inactividad (lo hace a los 7 días). Se puede ejecutar a mano desde la pestaña **Actions → Keepalive Supabase → Run workflow**.
+
+> GitHub solo ejecuta los workflows programados que están en la rama por defecto del repositorio.
+
+## 🔐 Seguridad
+
+- Todas las tablas tienen **Row Level Security**: solo usuarios autenticados pueden leer o escribir; el rol anónimo no tiene acceso.
+- Las operaciones críticas (registrar/anular ventas, importar, aumentos masivos) son **funciones de Postgres** que corren en una sola transacción y bloquean las filas de stock para evitar ventas simultáneas sobre el mismo producto.
+- El SKU es único sin distinguir mayúsculas y minúsculas.
+- Las ventas guardan el nombre y SKU del producto: si después se borra el producto, el historial se conserva.
 
 ---
 *Desarrollado con dedicación para simplificar el trabajo de todos los días.*
