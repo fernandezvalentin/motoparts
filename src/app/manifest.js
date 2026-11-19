@@ -6,8 +6,8 @@ export default function manifest() {
     description: "Sistema de control de inventario y ventas",
     start_url: "/",
     display: "standalone",
-    theme_color: "#1a1d21",
-    background_color: "#0d0f12",
+    theme_color: "#0a1426",
+    background_color: "#0a1426",
     icons: [
       {
         src: "/icon.png",

@@ -9,31 +9,31 @@
 @custom-variant dark (&:is(.dark *));
 
 /* -------- Tokens de diseño -------- */
-/* Paleta de la marca: fondo casi negro y acento ámbar.
+/* Paleta de la marca: azul marino de fondo y acento ámbar.
    "--ui-accent" es el fondo sutil de hover (en shadcn se llama "accent"). */
 :root {
   --radius: 0.625rem;
 
-  --background: #0c0c10;
-  --foreground: #f0f0f3;
-  --card: #1a1a24;
-  --card-foreground: #f0f0f3;
-  --popover: #1a1a24;
-  --popover-foreground: #f0f0f3;
+  --background: #0a1426;
+  --foreground: #eef2fa;
+  --card: #111e36;
+  --card-foreground: #eef2fa;
+  --popover: #13213b;
+  --popover-foreground: #eef2fa;
   --primary: #f59e0b;
-  --primary-foreground: #0c0c10;
-  --secondary: #1f1f2c;
-  --secondary-foreground: #f0f0f3;
-  --muted: #131318;
-  --muted-foreground: #a0a0b4;
-  --ui-accent: #1f1f2c;
-  --ui-accent-foreground: #f0f0f3;
+  --primary-foreground: #0a1426;
+  --secondary: #182a49;
+  --secondary-foreground: #eef2fa;
+  --muted: #0e1a30;
+  --muted-foreground: #93a3c2;
+  --ui-accent: #1a2d4f;
+  --ui-accent-foreground: #eef2fa;
   --destructive: #ef4444;
   --success: #22c55e;
-  --border: #2a2a38;
-  --input: #2a2a38;
+  --border: #22355a;
+  --input: #27406b;
   --ring: #f59e0b;
-  --sidebar: #101014;
+  --sidebar: #081022;
 }
 
 @theme inline {
@@ -100,6 +100,6 @@
     border: 2px solid var(--background);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a3a4c;
+    background: #33507f;
   }
 }
