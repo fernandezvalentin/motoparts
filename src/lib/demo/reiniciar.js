@@ -16,6 +16,35 @@ const comprobar = ({ error }, paso) => {
   if (error) throw new Error(`${paso}: ${error.message}`);
 };
 
+// Host del proyecto (sin claves) para que los errores digan a qué base se intentó conectar
+const hostSupabase = () => {
+  try {
+    return new URL(SUPABASE_URL).host;
+  } catch {
+    return String(SUPABASE_URL);
+  }
+};
+
+function pista(mensaje = "") {
+  if (/invalid path/i.test(mensaje)) return "Revisá NEXT_PUBLIC_SUPABASE_URL: tiene que ser https://<id>.supabase.co.";
+  if (/invalid api key|jwt|unauthorized|no api key/i.test(mensaje)) {
+    return "Revisá SUPABASE_SERVICE_ROLE_KEY: tiene que ser la secret key del proyecto de la demo.";
+  }
+  if (/fetch failed|enotfound|getaddrinfo/i.test(mensaje)) {
+    return "No se pudo conectar: revisá que NEXT_PUBLIC_SUPABASE_URL sea la del proyecto de la demo.";
+  }
+  if (/permission denied/i.test(mensaje)) return "La clave no tiene permisos: usá la secret key (service_role), no la publishable.";
+  return "";
+}
+
+// Consulta liviana para detectar problemas de configuración antes de borrar nada
+async function verificarConexion(supabase) {
+  const { error } = await supabase.from("productos").select("id").limit(1);
+  if (error) {
+    throw new Error(`No se pudo conectar a ${hostSupabase()}: ${error.message}. ${pista(error.message)}`.trim());
+  }
+}
+
 // Crea el usuario demo si no existe, o le restablece la contraseña si alguien la cambió
 async function prepararUsuarioDemo(supabase) {
   const { email, password } = credencialesDemo();
@@ -49,6 +78,7 @@ async function vaciarBucketFacturas(supabase) {
 export async function reiniciarDemo(hoy = new Date()) {
   const supabase = clienteServicio();
   const { productos, ventas, facturas } = generarDatosDemo(hoy);
+  await verificarConexion(supabase);
 
   // 1. Borrar todo (los detalles se borran en cascada con las ventas)
   comprobar(await supabase.from("ventas").delete().gte("id", 0), "Borrar ventas");
@@ -123,6 +153,7 @@ export async function reiniciarDemo(hoy = new Date()) {
   const usuario = await prepararUsuarioDemo(supabase);
 
   return {
+    proyecto: hostSupabase(),
     productos: creados.length,
     ventas: ventasCreadas.length,
     detalles: detalles.length,
