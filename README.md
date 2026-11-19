@@ -1,15 +1,47 @@
-# 🏍️ Moto Parts - Sistema de Inventario y Punto de Venta
+<div align="center">
 
-¡Hola! Desarrollé este sistema full-stack como una solución a medida para ayudar a un cliente a administrar su negocio de repuestos de motos. Mi objetivo principal fue crear una herramienta que fuera robusta por detrás, pero extremadamente intuitiva y fácil de usar en el día a día, permitiéndole llevar el control del local sin fricciones tecnológicas.
+# 🏍️ Moto Parts
 
-## 🚀 Características Principales
+**Sistema de inventario y punto de venta para una casa de repuestos de motos.**
 
-- **📊 Dashboard Estadístico:** valor total del inventario, top 5 más vendidos, productos por proveedor y alertas automáticas cuando un repuesto se está quedando sin stock.
-- **📦 Gestión de Inventario:** alta, baja y modificación de productos, búsqueda por SKU, nombre o proveedor, importación desde Excel (con traducción automática y conversión con la cotización del dólar del día) y aumentos masivos de precios.
-- **🛒 Punto de Venta (POS):** carrito con descuentos y métodos de pago; descuenta el stock de forma atómica y no deja vender productos agotados.
-- **🧾 Historial de Ventas:** filtros por día/semana/mes/año, impresión de tickets, envío del ticket por WhatsApp y anulación de ventas con devolución de stock.
-- **📄 Facturación de proveedores:** se sube la factura en PDF, el sistema lee número, proveedor, fechas y total para revisarlos, y se lleva el estado de pago (pendiente, pagada, vencida) con el PDF original guardado en Supabase Storage.
-- **📱 PWA Instalable:** se instala como app en Windows o en el celular.
+### [▶ Probar la demo](https://motoparts-demo.vercel.app)
+
+Entrás con un clic, sin registrarte. Usa datos de ejemplo que se reinician todos los días: podés vender, cargar productos y probar todo.
+
+![Next.js](https://img.shields.io/badge/Next.js_16-000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React_19-20232a?logo=react&logoColor=61dafb)
+![Supabase](https://img.shields.io/badge/Supabase-1c1c1c?logo=supabase&logoColor=3ecf8e)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-0b1120?logo=tailwindcss&logoColor=38bdf8)
+![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-000?logo=shadcnui&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000?logo=vercel&logoColor=white)
+
+<img src="docs/capturas/panel.png" alt="Panel de control con ventas del día, alertas de stock y más vendidos" width="100%">
+
+</div>
+
+Lo desarrollé a medida para que un negocio de repuestos de motos lleve el control del local sin complicaciones: robusto por detrás y simple de usar en el día a día. La versión que usa el negocio es privada; la [demo](https://motoparts-demo.vercel.app) es el mismo sistema, con su propia base de datos y datos de ejemplo.
+
+## ✨ Qué hace
+
+- **Panel de control:** ventas del día, valor del inventario, alertas de stock bajo, más vendidos y productos por proveedor.
+- **Punto de venta:** búsqueda rápida, compatible con lector de código de barras, carrito con descuentos y medios de pago, y control de stock al vender.
+- **Inventario:** búsqueda y filtros, alta y edición con cálculo de margen, aumentos masivos de precios e importación de listas de proveedores desde Excel, con la cotización del dólar del día y traducción automática de nombres.
+- **Historial de ventas:** resumen por período (total, ticket promedio y desglose por medio de pago), tickets para imprimir o enviar por WhatsApp y anulación con devolución de stock.
+- **Facturación de proveedores:** se sube el PDF, el sistema lee número, proveedor, fechas y total, y se sigue el estado de pago con aviso de vencimientos.
+- **App instalable (PWA)** en la compu o el celular, con diseño adaptado a cada pantalla.
+
+## 📸 Capturas
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/capturas/punto-de-venta.png" alt="Punto de venta con carrito y medios de pago"><br><sub>Punto de venta</sub></td>
+    <td width="50%"><img src="docs/capturas/inventario.png" alt="Inventario con buscador, filtros y estado de stock"><br><sub>Inventario</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/capturas/historial.png" alt="Historial de ventas con resumen del día"><br><sub>Historial de ventas</sub></td>
+    <td width="50%" align="center"><img src="docs/capturas/celular.png" alt="Punto de venta en el celular" width="45%"><br><sub>En el celular</sub></td>
+  </tr>
+</table>
 
 ## 🛠️ Tecnologías
 
