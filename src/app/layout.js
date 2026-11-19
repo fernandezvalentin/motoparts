@@ -34,7 +34,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={inter.variable}>
+    <html lang="es" className={`${inter.variable} dark`}>
       <body>{children}</body>
     </html>
   );

@@ -2,13 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CircleAlert, Eye, EyeOff, Loader2, Lock, Mail, Motorbike } from "lucide-react";
 import { login } from "@/lib/api";
-import "./Login.css";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [verPassword, setVerPassword] = useState(false);
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
@@ -33,52 +39,100 @@ export function Login() {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="login-logo">🏍️</div>
-          <h1 className="login-title">Moto Parts</h1>
-          <p className="login-subtitle">Acceso seguro al sistema</p>
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-10">
+      {/* Resplandor ámbar de fondo */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 left-1/2 size-[36rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+      />
+
+      <div className="relative w-full max-w-sm animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+        <div className="mb-8 flex flex-col items-center gap-3 text-center">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+            <Motorbike className="size-8" strokeWidth={1.75} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Moto Parts</h1>
+            <p className="text-sm text-muted-foreground">Sistema de inventario y ventas</p>
+          </div>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          {error && <div className="login-error">{error}</div>}
+        <Card className="gap-5 border-border/80 shadow-xl shadow-black/40">
+          <CardHeader>
+            <CardTitle className="text-lg">Iniciar sesión</CardTitle>
+            <CardDescription>Ingresá con tu email y contraseña.</CardDescription>
+          </CardHeader>
 
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              autoComplete="email"
-              className="form-control"
-              placeholder="Ej: admin@motoparts.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={cargando}
-            />
-          </div>
+          <CardContent>
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+              {error && (
+                <Alert variant="destructive" className="border-destructive/40 bg-destructive/10">
+                  <CircleAlert />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-          <div className="form-group">
-            <label>Contraseña</label>
-            <input
-              type="password"
-              autoComplete="current-password"
-              className="form-control"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={cargando}
-            />
-          </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    autoFocus
+                    className="h-11 pl-9"
+                    placeholder="nombre@ejemplo.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={cargando}
+                    aria-invalid={Boolean(error) && !email}
+                  />
+                </div>
+              </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary login-btn"
-            disabled={cargando}
-          >
-            {cargando ? "Iniciando sesión..." : "Ingresar"}
-          </button>
-        </form>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="password">Contraseña</Label>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={verPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    className="h-11 pr-10 pl-9"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={cargando}
+                    aria-invalid={Boolean(error) && !password}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="absolute top-1/2 right-1.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    onClick={() => setVerPassword((v) => !v)}
+                    aria-label={verPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {verPassword ? <EyeOff /> : <Eye />}
+                  </Button>
+                </div>
+              </div>
+
+              <Button type="submit" size="lg" className="mt-2 h-11 w-full font-semibold" disabled={cargando}>
+                {cargando ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    Ingresando...
+                  </>
+                ) : (
+                  "Ingresar"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </main>
   );
 }
