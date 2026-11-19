@@ -1,26 +1,36 @@
 "use client";
 
-import "./ConfirmModal.css";
+import { TriangleAlert } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-export function ConfirmModal({ message, onConfirm, onCancel }) {
+export function ConfirmModal({ open, message, onConfirm, onCancel }) {
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div
-        className="modal-box"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-icon">⚠️</div>
-        <h3 className="modal-title">¿Estás seguro?</h3>
-        <p className="modal-message">{message}</p>
-        <div className="modal-actions">
-          <button className="btn btn-secondary" onClick={onCancel}>
-            Cancelar
-          </button>
-          <button className="btn btn-danger" onClick={onConfirm}>
+    <AlertDialog open={open} onOpenChange={(abierto) => !abierto && onCancel()}>
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10 text-destructive">
+            <TriangleAlert />
+          </AlertDialogMedia>
+          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+          <AlertDialogDescription>{message}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onConfirm}>
             Sí, eliminar
-          </button>
-        </div>
-      </div>
-    </div>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

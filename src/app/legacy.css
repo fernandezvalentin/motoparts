@@ -890,3 +890,16 @@ ul, ol {
     width: auto !important;
   }
 }
+/* -------- Reglas que antes vivían en PanelShell.css y ConfirmModal.css -------- */
+/* Las usan pantallas que todavía no se migraron (PuntoVenta y los modales viejos). */
+.hide-desktop { display: none; }
+@media (max-width: 768px) {
+  .hide-desktop { display: flex !important; }
+}
+
+.modal-title {
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+}
