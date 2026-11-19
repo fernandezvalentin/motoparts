@@ -1,9 +1,13 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { PackageSearch } from "lucide-react";
 import { ProductoForm } from "@/components/ProductoForm";
 import { usePanel } from "@/components/PanelShell";
 import { obtenerProducto } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/app/EmptyState";
 
 export default function EditarProductoPage({ params }) {
   const { id } = use(params);
@@ -22,22 +26,26 @@ export default function EditarProductoPage({ params }) {
 
   if (estado.cargando) {
     return (
-      <div className="card" style={{ maxWidth: 800 }}>
-        <div className="skeleton" style={{ width: 240, height: 24 }} />
-        <div className="skeleton" style={{ width: "100%", height: 200, marginTop: 16 }} />
+      <div>
+        <Skeleton className="mb-3 h-8 w-28" />
+        <Skeleton className="h-9 w-72" />
+        <Skeleton className="mt-2 h-4 w-48" />
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <Skeleton className="h-80 rounded-xl" />
+          <Skeleton className="h-80 rounded-xl" />
+        </div>
       </div>
     );
   }
 
   if (!estado.producto) {
     return (
-      <div className="empty-state">
-        <div className="empty-state-icon">🔍</div>
-        <p className="empty-state-title">Producto no encontrado</p>
-        <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => navegar("inventario")}>
-          Volver al inventario
-        </button>
-      </div>
+      <EmptyState
+        icon={PackageSearch}
+        title="Producto no encontrado"
+        description="Puede que lo hayan eliminado o que el enlace sea incorrecto."
+        action={<Button onClick={() => navegar("inventario")}>Volver al inventario</Button>}
+      />
     );
   }
 

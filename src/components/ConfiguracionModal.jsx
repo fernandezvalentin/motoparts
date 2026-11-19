@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { CircleAlert, CircleCheck, Loader2 } from "lucide-react";
 import { actualizarCredenciales } from "@/lib/api";
-import "./ConfiguracionModal.css";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Field } from "@/components/app/Field";
 
 export const ConfiguracionModal = ({ onClose, onLogout }) => {
-  const [nuevoUsuario, setNuevoUsuario] = useState("");
+  const [nuevoEmail, setNuevoEmail] = useState("");
   const [nuevaContraseña, setNuevaContraseña] = useState("");
   const [confirmarContraseña, setConfirmarContraseña] = useState("");
   const [error, setError] = useState(null);
@@ -14,104 +19,115 @@ export const ConfiguracionModal = ({ onClose, onLogout }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!nuevoUsuario && !nuevaContraseña) {
-      setError("Por favor, ingresa al menos un nuevo email o contraseña.");
+    if (!nuevoEmail && !nuevaContraseña) {
+      setError("Ingresá un email nuevo, una contraseña nueva o ambos.");
       return;
     }
-
+    if (nuevaContraseña && nuevaContraseña.length < 6) {
+      setError("La contraseña tiene que tener al menos 6 caracteres.");
+      return;
+    }
     if (nuevaContraseña && nuevaContraseña !== confirmarContraseña) {
-      setError("Las contraseñas no coinciden. Por favor, revisa.");
+      setError("Las contraseñas no coinciden.");
       return;
     }
 
     setCargando(true);
     setError(null);
-
     try {
-      await actualizarCredenciales(nuevoUsuario, nuevaContraseña);
+      await actualizarCredenciales(nuevoEmail, nuevaContraseña);
       setExito(true);
-      setTimeout(() => {
-        onLogout(); // Forzamos cerrar sesión tras cambiar datos
-      }, 3000);
+      // Por seguridad se cierra la sesión después de cambiar los datos de acceso
+      setTimeout(() => onLogout(), 3000);
     } catch (err) {
-      setError(err.message || "Error al actualizar las credenciales.");
+      setError(err.message || "Error al actualizar los datos de acceso.");
     } finally {
       setCargando(false);
     }
   };
 
   return (
-    <div className="modal-overlay visible" onClick={onClose}>
-      <div className="modal-content config-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>⚙️ Configuración</h2>
-          <button className="modal-close" onClick={onClose}>
-            &times;
-          </button>
-        </div>
+    <Dialog open onOpenChange={(abierto) => !abierto && !exito && onClose()}>
+      <DialogContent className="sm:max-w-md" showCloseButton={!exito}>
+        <DialogHeader>
+          <DialogTitle>Configuración de la cuenta</DialogTitle>
+          <DialogDescription>
+            Cambiá tu email, tu contraseña o ambos. Lo que dejes en blanco no se modifica.
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="modal-body">
-          {exito ? (
-            <div className="config-success">
-              <h3>¡Credenciales actualizadas!</h3>
-              <p>Por seguridad, por favor inicia sesión nuevamente.</p>
-              <p className="loading-text">Redirigiendo...</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="config-form">
-              <p className="config-hint">
-                Puedes cambiar tu email, tu contraseña o ambos. Si dejas un campo en blanco, ese dato no se modificará. Si cambias el email, Supabase te enviará un correo para confirmarlo.
+        {exito ? (
+          <div className="flex flex-col items-center gap-3 py-6 text-center">
+            <span className="flex size-12 items-center justify-center rounded-full bg-success/15 text-green-400 ring-1 ring-success/30">
+              <CircleCheck className="size-6" />
+            </span>
+            <div>
+              <p className="font-semibold">Datos actualizados</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Por seguridad vas a tener que volver a iniciar sesión.
+                {nuevoEmail && " Si cambiaste el email, revisá tu correo para confirmarlo."}
               </p>
-              
-              {error && <div className="config-error">{error}</div>}
-
-              <div className="form-group">
-                <label>Nuevo Email</label>
-                <input
-                  type="email"
-                  value={nuevoUsuario}
-                  onChange={(e) => setNuevoUsuario(e.target.value)}
-                  placeholder="Ej: juan@motoparts.com"
-                  className="form-control"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Nueva Contraseña</label>
-                <input
+            </div>
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="size-3.5 animate-spin" />
+              Cerrando sesión...
+            </p>
+          </div>
+        ) : (
+          <form id="form-config" onSubmit={handleSubmit} className="grid gap-4">
+            {error && (
+              <Alert variant="destructive" className="border-destructive/40 bg-destructive/10">
+                <CircleAlert />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            <Field label="Nuevo email" htmlFor="nuevo-email" hint="Te vamos a mandar un correo para confirmarlo.">
+              <Input
+                id="nuevo-email"
+                type="email"
+                autoComplete="email"
+                value={nuevoEmail}
+                onChange={(e) => setNuevoEmail(e.target.value)}
+                placeholder="nombre@ejemplo.com"
+              />
+            </Field>
+            <Field label="Nueva contraseña" htmlFor="nueva-pass" hint="Mínimo 6 caracteres.">
+              <Input
+                id="nueva-pass"
+                type="password"
+                autoComplete="new-password"
+                value={nuevaContraseña}
+                onChange={(e) => setNuevaContraseña(e.target.value)}
+                placeholder="••••••••"
+              />
+            </Field>
+            {nuevaContraseña && (
+              <Field label="Repetir contraseña" htmlFor="repetir-pass" className="animate-in fade-in-0 slide-in-from-top-1">
+                <Input
+                  id="repetir-pass"
                   type="password"
-                  value={nuevaContraseña}
-                  onChange={(e) => setNuevaContraseña(e.target.value)}
-                  placeholder="Escribe la nueva contraseña"
-                  className="form-control"
+                  autoComplete="new-password"
+                  value={confirmarContraseña}
+                  onChange={(e) => setConfirmarContraseña(e.target.value)}
+                  placeholder="••••••••"
                 />
-              </div>
+              </Field>
+            )}
+          </form>
+        )}
 
-              {nuevaContraseña && (
-                <div className="form-group slide-in">
-                  <label>Repetir Contraseña</label>
-                  <input
-                    type="password"
-                    value={confirmarContraseña}
-                    onChange={(e) => setConfirmarContraseña(e.target.value)}
-                    placeholder="Vuelve a escribir la contraseña"
-                    className="form-control"
-                  />
-                </div>
-              )}
-
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={onClose} disabled={cargando}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={cargando}>
-                  {cargando ? "Guardando..." : "Guardar Cambios"}
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
-      </div>
-    </div>
+        {!exito && (
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose} disabled={cargando}>
+              Cancelar
+            </Button>
+            <Button type="submit" form="form-config" disabled={cargando}>
+              {cargando && <Loader2 className="animate-spin" />}
+              {cargando ? "Guardando..." : "Guardar cambios"}
+            </Button>
+          </DialogFooter>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };

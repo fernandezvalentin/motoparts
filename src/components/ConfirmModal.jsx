@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export function ConfirmModal({ open, message, onConfirm, onCancel }) {
+export function ConfirmModal({ open, message, onConfirm, onCancel, titulo = "¿Estás seguro?", confirmar = "Sí, eliminar" }) {
   return (
     <AlertDialog open={open} onOpenChange={(abierto) => !abierto && onCancel()}>
       <AlertDialogContent size="sm">
@@ -21,13 +21,13 @@ export function ConfirmModal({ open, message, onConfirm, onCancel }) {
           <AlertDialogMedia className="bg-destructive/10 text-destructive">
             <TriangleAlert />
           </AlertDialogMedia>
-          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+          <AlertDialogTitle>{titulo}</AlertDialogTitle>
           <AlertDialogDescription>{message}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            Sí, eliminar
+            {confirmar}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

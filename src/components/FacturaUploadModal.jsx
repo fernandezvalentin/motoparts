@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { FileText, Info, Loader2, TriangleAlert } from "lucide-react";
 import {
   MAX_MB_FACTURA,
   crearFactura,
@@ -8,7 +9,13 @@ import {
   extraerDatosFactura,
   subirPdfFactura,
 } from "@/lib/api";
-import "./ImportadorExcel.css";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Field } from "@/components/app/Field";
+import { FileDrop } from "@/components/app/FileDrop";
 
 const DATOS_VACIOS = {
   numeroComprobante: "",
@@ -26,20 +33,20 @@ export function FacturaUploadModal({ onClose, onSuccess, onAgregarToast }) {
   const [cargando, setCargando] = useState(false);
   const [paso, setPaso] = useState(1); // 1: elegir PDF, 2: revisar datos
   const [datos, setDatos] = useState(DATOS_VACIOS);
-  const inputRef = useRef(null);
 
-  const handleFileChange = (e) => {
-    const archivo = e.target.files?.[0];
-    if (!archivo) return;
+  const handleArchivo = (archivo) => {
     if (archivo.type !== "application/pdf") {
       onAgregarToast("El archivo debe ser un PDF.", "warning");
-      e.target.value = "";
       return;
     }
     if (archivo.size > MAX_MB_FACTURA * 1024 * 1024) {
       onAgregarToast(`El PDF no puede superar los ${MAX_MB_FACTURA} MB.`, "warning");
-      e.target.value = "";
       return;
+    }
+    // Si ya se había subido otro PDF, se descarta
+    if (rutaSubida) {
+      descartarPdfFactura(rutaSubida).catch(() => {});
+      setRutaSubida(null);
     }
     setArchivoPdf(archivo);
   };
@@ -71,7 +78,8 @@ export function FacturaUploadModal({ onClose, onSuccess, onAgregarToast }) {
     }
   };
 
-  const handleGuardar = async () => {
+  const handleGuardar = async (e) => {
+    e?.preventDefault();
     const total = Number(datos.total || 0);
     if (!Number.isFinite(total) || total < 0) {
       onAgregarToast("Ingresá un total válido.", "warning");
@@ -88,153 +96,111 @@ export function FacturaUploadModal({ onClose, onSuccess, onAgregarToast }) {
   };
 
   // Al cancelar se borra el PDF que ya se había subido y no se llegó a guardar
-  const handleCancelar = async () => {
+  const handleCancelar = () => {
     if (cargando) return;
     if (rutaSubida) descartarPdfFactura(rutaSubida).catch(() => {});
     onClose();
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setDatos((prev) => ({ ...prev, [name]: value }));
-  };
+  const set = (campo) => (e) => setDatos((prev) => ({ ...prev, [campo]: e.target.value }));
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content import-modal" style={{ maxWidth: "560px" }}>
-        <div className="modal-header">
-          <h2 className="modal-title">{paso === 1 ? "📄 Importar Factura (PDF)" : "📝 Revisar Datos"}</h2>
-          <button className="btn btn-ghost" onClick={handleCancelar} disabled={cargando} aria-label="Cerrar">
-            ❌
-          </button>
-        </div>
+    <Dialog open onOpenChange={(abierto) => !abierto && handleCancelar()}>
+      <DialogContent className="sm:max-w-lg" onInteractOutside={(e) => cargando && e.preventDefault()}>
+        <DialogHeader>
+          <DialogTitle>{paso === 1 ? "Cargar factura de proveedor" : "Revisar datos de la factura"}</DialogTitle>
+          <DialogDescription>
+            {paso === 1
+              ? "Subí el PDF y el sistema va a intentar leer el número, el proveedor, las fechas y el total."
+              : "Revisá y corregí lo que se leyó del PDF antes de guardar."}
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="modal-body">
-          {paso === 1 && (
-            <>
-              <p style={{ marginBottom: "var(--space-4)", color: "var(--text-secondary)" }}>
-                Subí la factura del proveedor en PDF. El sistema intentará leer el número, el proveedor, las
-                fechas y el total para que solo tengas que revisarlos.
-              </p>
-              <div className="file-drop-area">
-                <span className="file-icon">📄</span>
-                <span className="file-msg">
-                  {archivoPdf ? archivoPdf.name : "Arrastrá el PDF acá o hacé clic para buscarlo"}
-                </span>
-                <input
-                  ref={inputRef}
-                  className="file-input"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleFileChange}
-                  disabled={cargando}
-                />
-              </div>
-            </>
-          )}
+        {paso === 1 ? (
+          <FileDrop
+            accept="application/pdf"
+            archivo={archivoPdf}
+            onFile={handleArchivo}
+            disabled={cargando}
+            icon={FileText}
+            titulo="Arrastrá el PDF acá o hacé clic para buscarlo"
+            detalle={`Solo PDF, hasta ${MAX_MB_FACTURA} MB`}
+          />
+        ) : (
+          <form id="form-factura" onSubmit={handleGuardar} className="grid gap-4">
+            {sinTexto ? (
+              <Alert className="border-primary/30 bg-primary/5 text-amber-300">
+                <TriangleAlert />
+                <AlertDescription className="text-amber-200/90">
+                  El PDF parece ser una imagen escaneada y no se pudo leer el texto. Completá los datos a mano.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Alert>
+                <Info />
+                <AlertDescription>Los datos se completaron automáticamente. Verificalos con la factura.</AlertDescription>
+              </Alert>
+            )}
 
-          {paso === 2 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-              <p style={{ color: "var(--text-secondary)", fontSize: "var(--font-sm)" }}>
-                {sinTexto
-                  ? "⚠️ El PDF parece ser una imagen escaneada y no se pudo leer texto. Completá los datos a mano."
-                  : "Revisá y corregí los datos que el sistema logró leer antes de guardar."}
-              </p>
-
-              <div className="form-group">
-                <label className="label" htmlFor="proveedorEmisor">Proveedor / Emisor</label>
-                <input
-                  id="proveedorEmisor"
-                  name="proveedorEmisor"
-                  type="text"
-                  className="input"
-                  value={datos.proveedorEmisor}
-                  onChange={handleChange}
-                  placeholder="Ej: FAR Motopartes"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="label" htmlFor="numeroComprobante">N° Comprobante</label>
-                <input
-                  id="numeroComprobante"
-                  name="numeroComprobante"
-                  type="text"
-                  className="input"
-                  value={datos.numeroComprobante}
-                  onChange={handleChange}
-                  placeholder="00001-00001234"
-                />
-              </div>
-
-              <div className="form-grid-2">
-                <div className="form-group">
-                  <label className="label" htmlFor="fechaEmision">Fecha Emisión</label>
-                  <input
-                    id="fechaEmision"
-                    name="fechaEmision"
-                    type="date"
-                    className="input"
-                    value={datos.fechaEmision}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="label" htmlFor="fechaVencimiento">Fecha Vencimiento</label>
-                  <input
-                    id="fechaVencimiento"
-                    name="fechaVencimiento"
-                    type="date"
-                    className="input"
-                    value={datos.fechaVencimiento}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              <div className="form-grid-2">
-                <div className="form-group">
-                  <label className="label" htmlFor="total">Total ($)</label>
-                  <input
-                    id="total"
-                    name="total"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    className="input"
-                    value={datos.total}
-                    onChange={handleChange}
-                    placeholder="0,00"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="label" htmlFor="estado">Estado</label>
-                  <select id="estado" name="estado" className="select" value={datos.estado} onChange={handleChange}>
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="Pagado">Pagado</option>
-                    <option value="Vencido">Vencido</option>
-                  </select>
-                </div>
-              </div>
+            <Field label="Proveedor / emisor" htmlFor="proveedorEmisor">
+              <Input id="proveedorEmisor" value={datos.proveedorEmisor} onChange={set("proveedorEmisor")} placeholder="Ej: FAR Motopartes" />
+            </Field>
+            <Field label="N° de comprobante" htmlFor="numeroComprobante">
+              <Input id="numeroComprobante" value={datos.numeroComprobante} onChange={set("numeroComprobante")} placeholder="00001-00001234" className="font-mono" />
+            </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Fecha de emisión" htmlFor="fechaEmision">
+                <Input id="fechaEmision" type="date" value={datos.fechaEmision} onChange={set("fechaEmision")} />
+              </Field>
+              <Field label="Fecha de vencimiento" htmlFor="fechaVencimiento">
+                <Input id="fechaVencimiento" type="date" value={datos.fechaVencimiento} onChange={set("fechaVencimiento")} />
+              </Field>
             </div>
-          )}
-        </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Total" htmlFor="total">
+                <div className="relative">
+                  <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                  <Input id="total" type="number" min="0" step="0.01" className="pl-7 tabular-nums" value={datos.total} onChange={set("total")} placeholder="0,00" />
+                </div>
+              </Field>
+              <Field label="Estado" htmlFor="estado">
+                <Select value={datos.estado} onValueChange={(v) => setDatos((prev) => ({ ...prev, estado: v }))}>
+                  <SelectTrigger id="estado" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pendiente">Pendiente</SelectItem>
+                    <SelectItem value="Pagado">Pagada</SelectItem>
+                    <SelectItem value="Vencido">Vencida</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+          </form>
+        )}
 
-        <div className="modal-footer" style={{ marginTop: "var(--space-6)" }}>
-          <button className="btn btn-ghost" onClick={handleCancelar} disabled={cargando}>
-            Cancelar
-          </button>
-          {paso === 1 ? (
-            <button className="btn btn-primary" onClick={handleExtraerDatos} disabled={!archivoPdf || cargando}>
-              {cargando ? "Leyendo PDF..." : "Siguiente"}
-            </button>
-          ) : (
-            <button className="btn btn-primary" onClick={handleGuardar} disabled={cargando}>
-              {cargando ? "Guardando..." : "Confirmar y Guardar"}
-            </button>
+        <DialogFooter>
+          {paso === 2 && (
+            <Button variant="ghost" onClick={() => setPaso(1)} disabled={cargando} className="sm:mr-auto">
+              Volver
+            </Button>
           )}
-        </div>
-      </div>
-    </div>
+          <Button variant="outline" onClick={handleCancelar} disabled={cargando}>
+            Cancelar
+          </Button>
+          {paso === 1 ? (
+            <Button onClick={handleExtraerDatos} disabled={!archivoPdf || cargando}>
+              {cargando && <Loader2 className="animate-spin" />}
+              {cargando ? "Leyendo PDF..." : "Continuar"}
+            </Button>
+          ) : (
+            <Button type="submit" form="form-factura" disabled={cargando}>
+              {cargando && <Loader2 className="animate-spin" />}
+              {cargando ? "Guardando..." : "Guardar factura"}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

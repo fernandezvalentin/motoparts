@@ -179,8 +179,9 @@ export function PanelShell({ children }) {
     (TIPOS_TOAST[type] ?? toast)(message);
   }, []);
 
-  const mostrarConfirm = useCallback((message, onConfirm) => {
-    setConfirmModal({ message, onConfirm });
+  // opciones: { titulo, confirmar } para cambiar el título y el texto del botón
+  const mostrarConfirm = useCallback((message, onConfirm, opciones = {}) => {
+    setConfirmModal({ message, onConfirm, ...opciones });
   }, []);
 
   // Acepta "inventario", "inventario?stockBajo=true", o una ruta absoluta "/pos"
@@ -292,6 +293,8 @@ export function PanelShell({ children }) {
         <ConfirmModal
           open={Boolean(confirmModal)}
           message={confirmModal?.message}
+          titulo={confirmModal?.titulo}
+          confirmar={confirmModal?.confirmar}
           onConfirm={handleConfirm}
           onCancel={() => setConfirmModal(null)}
         />

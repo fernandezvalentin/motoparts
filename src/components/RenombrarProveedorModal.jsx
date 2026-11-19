@@ -1,113 +1,122 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { ArrowDown, Loader2, TriangleAlert } from "lucide-react";
 import { obtenerProveedores, renombrarProveedor } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Field } from "@/components/app/Field";
 
 export function RenombrarProveedorModal({ onCerrar, onCompletado, onAgregarToast }) {
-  const [form, setForm] = useState({
-    viejo: "",
-    nuevo: ""
-  });
+  const [viejo, setViejo] = useState("");
+  const [nuevo, setNuevo] = useState("");
+  const [confirmando, setConfirmando] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [proveedores, setProveedores] = useState([]);
 
   useEffect(() => {
     obtenerProveedores()
-      .then(data => {
-        if (data && Array.isArray(data)) {
-          setProveedores(data);
-        }
+      .then((data) => {
+        if (Array.isArray(data)) setProveedores(data);
       })
       .catch(console.error);
   }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const nombreNuevo = nuevo.trim();
+  const valido = viejo && nombreNuevo && nombreNuevo !== viejo;
+  const fusiona = proveedores.includes(nombreNuevo) && nombreNuevo !== viejo;
 
   const handleAplicar = async () => {
-    if (!form.viejo || !form.nuevo) {
-      onAgregarToast("Tenés que seleccionar el proveedor viejo y escribir el nuevo nombre.", "error");
+    if (!valido) return;
+    // Primer clic: pide confirmación; segundo clic: aplica
+    if (!confirmando) {
+      setConfirmando(true);
       return;
     }
-
-    if (form.viejo === form.nuevo) {
-      onAgregarToast("El nuevo nombre tiene que ser distinto al viejo.", "error");
-      return;
-    }
-
-    if (!window.confirm(`¿Seguro que querés renombrar todos los repuestos de "${form.viejo}" a "${form.nuevo}"? Esta acción no se puede deshacer.`)) {
-      return;
-    }
-
     setProcesando(true);
     try {
-      const res = await renombrarProveedor(form.viejo, form.nuevo);
+      const res = await renombrarProveedor(viejo, nombreNuevo);
       onAgregarToast(res.message, "success");
       onCompletado();
     } catch (error) {
       onAgregarToast(error.message || "Error al renombrar el proveedor.", "error");
-    } finally {
       setProcesando(false);
     }
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content import-modal" style={{ maxWidth: '500px' }}>
-        <div className="modal-header">
-          <h2 className="modal-title">✏️ Renombrar Proveedor</h2>
-          <button className="btn btn-ghost" onClick={onCerrar} disabled={procesando}>❌</button>
-        </div>
+    <Dialog open onOpenChange={(abierto) => !abierto && !procesando && onCerrar()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Renombrar proveedor</DialogTitle>
+          <DialogDescription>
+            Pasa todos los productos de un proveedor a otro nombre. Útil cuando una importación dejó el mismo proveedor escrito de dos formas (por ejemplo, &quot;FAR MOTOPARTES&quot; y &quot;FAR&quot;).
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="modal-body">
-          <p style={{ color: "var(--text-secondary)", marginBottom: "var(--space-4)" }}>
-            Si importaste un Excel y te quedaron repuestos con un nombre de proveedor viejo (ej: &quot;FAR MOTOPARTES&quot;) y querés pasarlos a uno nuevo (ej: &quot;FAR&quot;), usá esta herramienta.
-          </p>
-
-          <div className="form-group" style={{ marginBottom: "var(--space-4)" }}>
-            <label className="label">Proveedor Viejo (el que querés eliminar)</label>
-            <div className="select-wrapper">
-              <select
-                className="select"
-                name="viejo"
-                value={form.viejo}
-                onChange={handleChange}
-              >
-                <option value="">-- Seleccionar Proveedor --</option>
-                {proveedores.map(prov => (
-                  <option key={prov} value={prov}>{prov}</option>
+        <div className="grid gap-3">
+          <Field label="Proveedor actual" htmlFor="prov-viejo">
+            <Select
+              value={viejo}
+              onValueChange={(v) => {
+                setViejo(v);
+                setConfirmando(false);
+              }}
+            >
+              <SelectTrigger id="prov-viejo" className="w-full">
+                <SelectValue placeholder="Elegí un proveedor" />
+              </SelectTrigger>
+              <SelectContent>
+                {proveedores.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
                 ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="label">Nombre Nuevo</label>
-            <input
-              name="nuevo"
-              type="text"
-              className="input"
+              </SelectContent>
+            </Select>
+          </Field>
+          <ArrowDown className="mx-auto size-4 text-muted-foreground" />
+          <Field label="Nombre nuevo" htmlFor="prov-nuevo" hint={fusiona ? "Ya existe: los productos se van a unir a ese proveedor." : undefined}>
+            <Input
+              id="prov-nuevo"
+              list="lista-proveedores-renombrar"
               placeholder="Ej: FAR"
-              value={form.nuevo}
-              onChange={handleChange}
+              value={nuevo}
+              onChange={(e) => {
+                setNuevo(e.target.value);
+                setConfirmando(false);
+              }}
             />
-          </div>
+            <datalist id="lista-proveedores-renombrar">
+              {proveedores.filter((p) => p !== viejo).map((p) => (
+                <option key={p} value={p} />
+              ))}
+            </datalist>
+          </Field>
+
+          {confirmando && (
+            <Alert className="border-primary/30 bg-primary/5 text-amber-300 animate-in fade-in-0">
+              <TriangleAlert />
+              <AlertDescription className="text-amber-200/90">
+                Todos los productos de &quot;{viejo}&quot; van a pasar a &quot;{nombreNuevo}&quot;. No se puede deshacer automáticamente.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
 
-        <div className="modal-footer" style={{ marginTop: "var(--space-5)" }}>
-          <button className="btn btn-ghost" onClick={onCerrar} disabled={procesando}>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCerrar} disabled={procesando}>
             Cancelar
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={handleAplicar}
-            disabled={procesando || !form.viejo || !form.nuevo}
-          >
-            {procesando ? "Renombrando..." : "Renombrar"}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+          <Button onClick={handleAplicar} disabled={procesando || !valido}>
+            {procesando && <Loader2 className="animate-spin" />}
+            {procesando ? "Renombrando..." : confirmando ? "Sí, renombrar" : "Renombrar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

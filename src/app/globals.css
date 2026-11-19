@@ -2,21 +2,15 @@
    MOTO PARTS — Estilos globales (Tailwind CSS v4 + shadcn/ui)
    ========================================================== */
 
-/* Orden de las capas: los estilos viejos quedan por debajo de los
-   componentes y utilidades de Tailwind, así no pisan las pantallas nuevas. */
-@layer theme, base, legacy, components, utilities;
-
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "./legacy.css" layer(legacy);
 
 /* La app es siempre oscura: la clase "dark" está fija en <html> */
 @custom-variant dark (&:is(.dark *));
 
 /* -------- Tokens de diseño -------- */
 /* Paleta de la marca: fondo casi negro y acento ámbar.
-   "--ui-accent" es el fondo sutil de hover (en shadcn se llama "accent");
-   se renombra porque legacy.css ya usa "--accent" para el ámbar. */
+   "--ui-accent" es el fondo sutil de hover (en shadcn se llama "accent"). */
 :root {
   --radius: 0.625rem;
 
@@ -74,7 +68,38 @@
 }
 
 @layer base {
+  :root {
+    color-scheme: dark;
+  }
   * {
     @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    overflow-x: hidden;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Barra de desplazamiento discreta */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a4c;
   }
 }

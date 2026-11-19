@@ -16,6 +16,7 @@
 | Capa | Tecnología |
 | --- | --- |
 | Frontend y API | **Next.js 16** (App Router, Route Handlers, Proxy) + React 19 |
+| Interfaz | **Tailwind CSS v4** + componentes de **shadcn/ui** (Radix) e íconos **Lucide** |
 | Base de datos | **Supabase** (Postgres) con Row Level Security y funciones SQL para la lógica transaccional |
 | Archivos | **Supabase Storage** (bucket privado para los PDFs de facturas) |
 | Autenticación | **Supabase Auth** (email y contraseña, sesión en cookies con `@supabase/ssr`) |
@@ -37,7 +38,9 @@ src/
 │   │   └── cron/keepalive/ # Endpoint del cron
 │   ├── layout.js
 │   └── manifest.js         # Manifest de la PWA
-├── components/             # Componentes de la UI
+├── components/             # Pantallas de la app
+│   ├── app/                # Piezas comunes (encabezado, estado vacío, campos, subida de archivos)
+│   └── ui/                 # Componentes base de shadcn/ui
 ├── lib/
 │   ├── api.js              # Funciones que usan los componentes para llamar a la API
 │   ├── http.js             # Helpers de los Route Handlers (auth, errores)
