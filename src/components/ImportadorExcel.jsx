@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import * as XLSX from "xlsx";
-import { importarProductosJson } from "@/lib/api";
+import { importarProductosJson, obtenerCotizacion } from "@/lib/api";
+import { CASAS_DOLAR } from "@/lib/cotizacion";
 import "./ImportadorExcel.css";
 
 export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
@@ -26,7 +27,9 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
     proveedor: "",
     marca: ""
   });
-  const [cotizacionDolar, setCotizacionDolar] = useState(1000);
+  const [tipoDolar, setTipoDolar] = useState("oficial"); // oficial | blue | bolsa | manual
+  const [cotizacionDolar, setCotizacionDolar] = useState("");
+  const [estadoCotizacion, setEstadoCotizacion] = useState({ cargando: false, error: "", actualizado: null });
   const [porcentajeGanancia, setPorcentajeGanancia] = useState(40);
   const [traducirNombres, setTraducirNombres] = useState(false);
   const [paso, setPaso] = useState(1); // 1: Subir, 2: Mapear, 3: Procesando
@@ -157,13 +160,44 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
     setMapeo(nuevoMapeo);
   };
 
+  // Trae la cotización del día; si falla, queda para cargarla a mano
+  const cargarCotizacion = async (casa) => {
+    if (casa === "manual") {
+      setEstadoCotizacion({ cargando: false, error: "", actualizado: null });
+      return;
+    }
+    setEstadoCotizacion({ cargando: true, error: "", actualizado: null });
+    try {
+      const cotizacion = await obtenerCotizacion(casa);
+      setCotizacionDolar(cotizacion.venta);
+      setEstadoCotizacion({ cargando: false, error: "", actualizado: cotizacion.actualizado });
+    } catch (error) {
+      setEstadoCotizacion({ cargando: false, error: error.message, actualizado: null });
+    }
+  };
+
+  const handleTipoDolarChange = (casa) => {
+    setTipoDolar(casa);
+    cargarCotizacion(casa);
+  };
+
   const handleMapeoChange = (campo, valor) => {
     setMapeo(prev => ({ ...prev, [campo]: valor }));
+    // Al elegir por primera vez la columna en dólares, buscamos la cotización
+    if (campo === "precioListaDolar" && valor && !mapeo.precioListaDolar && tipoDolar !== "manual") {
+      cargarCotizacion(tipoDolar);
+    }
   };
 
   const handleImportar = async () => {
     if (!mapeo.nombre || !mapeo.precioLista) {
       onAgregarToast("El Nombre y el Precio Lista son obligatorios para importar.", "error");
+      return;
+    }
+
+    const cotizacion = Number(cotizacionDolar);
+    if (mapeo.precioListaDolar && !(cotizacion > 0)) {
+      onAgregarToast("Ingresá la cotización del dólar para convertir los precios.", "error");
       return;
     }
 
@@ -186,7 +220,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
         let precioDolares = mapeo.precioListaDolar ? parsearPrecio(fila[mapeo.precioListaDolar]) : 0;
         
         // Si hay precio en dólares, lo usamos convirtiéndolo a pesos
-        let precioNum = precioDolares > 0 ? (precioDolares * cotizacionDolar) : precioPesos;
+        let precioNum = precioDolares > 0 ? (precioDolares * cotizacion) : precioPesos;
 
         // Calcular precio al público
         const precioPublico = precioNum + (precioNum * (porcentajeGanancia / 100));
@@ -209,6 +243,9 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
         return;
       }
 
+      // La traducción usa un servicio gratuito de Google que no es oficial: si falla,
+      // los nombres quedan como vienen en el Excel y se avisa al terminar.
+      let sinTraducir = 0;
       if (traducirNombres) {
         const chunkSize = 20;
         for (let i = 0; i < productosAImportar.length; i += chunkSize) {
@@ -216,6 +253,7 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
           const textoUnido = chunk.map(p => p.nombre).join(" ||| ");
           try {
             const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q=${encodeURIComponent(textoUnido)}`);
+            if (!res.ok) throw new Error(`El traductor respondió ${res.status}`);
             const data = await res.json();
             const translatedText = data[0].map(item => item[0]).join('');
             const translatedNombres = translatedText.split(/\|\|\|/g).map(s => s.trim());
@@ -227,12 +265,16 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
             });
           } catch (e) {
             console.error("Error al traducir lote", e);
+            sinTraducir += chunk.length;
           }
         }
       }
 
       const res = await importarProductosJson(productosAImportar);
       onAgregarToast(`¡Importación exitosa! Se actualizaron ${res.actualizados} y se crearon ${res.creados} productos.`, "success");
+      if (sinTraducir > 0) {
+        onAgregarToast(`No se pudieron traducir ${sinTraducir} nombres: quedaron como venían en el Excel.`, "warning");
+      }
       onCompletado();
     } catch (error) {
       onAgregarToast(error.message || "Hubo un error al guardar los productos en la base de datos.", "error");
@@ -332,16 +374,39 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
                     <p style={{ fontSize: "var(--font-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-2)" }}>
                       Cotización del Dólar (para convertir la columna importada)
                     </p>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                      <select
+                        className="select"
+                        style={{ width: "auto", minWidth: "150px" }}
+                        value={tipoDolar}
+                        onChange={(e) => handleTipoDolarChange(e.target.value)}
+                      >
+                        {Object.entries(CASAS_DOLAR).map(([casa, nombre]) => (
+                          <option key={casa} value={casa}>Dólar {nombre}</option>
+                        ))}
+                        <option value="manual">Cargar a mano</option>
+                      </select>
                       <span style={{ fontWeight: "bold" }}>$</span>
-                      <input 
-                        type="number" 
-                        className="input" 
+                      <input
+                        type="number"
+                        className="input"
                         style={{ width: "120px" }}
+                        min="0"
+                        placeholder={estadoCotizacion.cargando ? "Buscando..." : "0"}
                         value={cotizacionDolar}
-                        onChange={(e) => setCotizacionDolar(parseFloat(e.target.value) || 0)}
+                        onChange={(e) => {
+                          setCotizacionDolar(e.target.value);
+                          if (tipoDolar !== "manual") setTipoDolar("manual");
+                        }}
                       />
                     </div>
+                    <p style={{ fontSize: "var(--font-xs)", marginTop: "var(--space-2)", color: estadoCotizacion.error ? "var(--danger)" : "var(--text-muted)" }}>
+                      {estadoCotizacion.cargando && "Buscando la cotización del día..."}
+                      {estadoCotizacion.error && estadoCotizacion.error}
+                      {!estadoCotizacion.cargando && !estadoCotizacion.error && tipoDolar !== "manual" && cotizacionDolar !== "" &&
+                        `Precio de venta del dólar ${CASAS_DOLAR[tipoDolar]}${estadoCotizacion.actualizado ? ` (actualizado el ${new Date(estadoCotizacion.actualizado).toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })})` : ""}. Podés corregirlo a mano.`}
+                      {tipoDolar === "manual" && !estadoCotizacion.error && "Valor cargado a mano."}
+                    </p>
                   </div>
                 )}
 
@@ -390,6 +455,12 @@ export function ImportadorExcel({ onCerrar, onCompletado, onAgregarToast }) {
                   />
                   Traducir automáticamente los nombres del Inglés al Español (Ideal para BAJAJ)
                 </label>
+                {traducirNombres && (
+                  <p style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)", marginTop: "var(--space-2)" }}>
+                    Usa el traductor gratuito de Google, que no es un servicio oficial y puede fallar o tardar.
+                    Si no traduce algún nombre, queda como viene en el Excel y te avisamos al terminar.
+                  </p>
+                )}
               </div>
             </div>
           )}

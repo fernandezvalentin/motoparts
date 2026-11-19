@@ -5,9 +5,9 @@
 ## 🚀 Características Principales
 
 - **📊 Dashboard Estadístico:** valor total del inventario, top 5 más vendidos, productos por proveedor y alertas automáticas cuando un repuesto se está quedando sin stock.
-- **📦 Gestión de Inventario:** alta, baja y modificación de productos, búsqueda por SKU, nombre o proveedor, importación desde Excel (con traducción automática y conversión de dólares) y aumentos masivos de precios.
+- **📦 Gestión de Inventario:** alta, baja y modificación de productos, búsqueda por SKU, nombre o proveedor, importación desde Excel (con traducción automática y conversión con la cotización del dólar del día) y aumentos masivos de precios.
 - **🛒 Punto de Venta (POS):** carrito con descuentos y métodos de pago; descuenta el stock de forma atómica y no deja vender productos agotados.
-- **🧾 Historial de Ventas:** filtros por día/semana/mes/año, impresión de tickets y anulación de ventas con devolución de stock.
+- **🧾 Historial de Ventas:** filtros por día/semana/mes/año, impresión de tickets, envío del ticket por WhatsApp y anulación de ventas con devolución de stock.
 - **📄 Facturación de proveedores:** se sube la factura en PDF, el sistema lee número, proveedor, fechas y total para revisarlos, y se lleva el estado de pago (pendiente, pagada, vencida) con el PDF original guardado en Supabase Storage.
 - **📱 PWA Instalable:** se instala como app en Windows o en el celular.
 
@@ -31,8 +31,9 @@ src/
 │   ├── login/              # Pantalla de ingreso
 │   ├── api/                # Route Handlers (reemplazan a la API .NET)
 │   │   ├── productos/      # CRUD, importar, aumento-masivo, renombrar-proveedor, estadísticas
-│   │   ├── ventas/         # registrar, listar, eliminar, limpiar
+│   │   ├── ventas/         # registrar, listar y eliminar (devuelve el stock)
 │   │   ├── facturas/       # CRUD, lectura del PDF (extraer) y link al archivo
+│   │   ├── cotizacion/     # Cotización del dólar (dolarapi.com) para importar listas en USD
 │   │   └── cron/keepalive/ # Endpoint del cron
 │   ├── layout.js
 │   └── manifest.js         # Manifest de la PWA

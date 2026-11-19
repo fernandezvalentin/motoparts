@@ -222,17 +222,6 @@ export const obtenerVentas = async (filtro = "todas") => {
   }
 };
 
-// DELETE: Limpiar historial de ventas
-export const limpiarVentas = async () => {
-  try {
-    const response = await request("/ventas/limpiar", { method: "DELETE" });
-    return response.ok;
-  } catch (error) {
-    console.error("Error en limpiarVentas:", error);
-    return false;
-  }
-};
-
 // DELETE: Eliminar una venta individual (devuelve el stock)
 export const eliminarVenta = async (id) => {
   try {
@@ -242,6 +231,18 @@ export const eliminarVenta = async (id) => {
     console.error("Error en eliminarVenta:", error);
     return false;
   }
+};
+
+// ---------------------------------------------------------------------------
+// Cotización del dólar
+// ---------------------------------------------------------------------------
+
+// casa: "oficial" | "blue" | "bolsa" (MEP). Devuelve { casa, nombre, venta, actualizado }.
+export const obtenerCotizacion = async (casa) => {
+  const response = await request(`/cotizacion?casa=${encodeURIComponent(casa)}`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "No se pudo obtener la cotización del dólar.");
+  return data;
 };
 
 // ---------------------------------------------------------------------------

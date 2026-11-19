@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { obtenerVentas, limpiarVentas, eliminarVenta } from "@/lib/api";
+import { obtenerVentas, eliminarVenta } from "@/lib/api";
 import "./HistorialVentas.css";
 
 export function HistorialVentas({ onConfirmar, onAgregarToast }) {
@@ -20,21 +20,6 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga de datos al cambiar el filtro
     cargarHistorial();
   }, [cargarHistorial]);
-
-  const handleLimpiarHistorial = () => {
-    onConfirmar(
-      "¿Estás seguro de que querés borrar todo el historial de ventas? Esta acción NO se puede deshacer.",
-      async () => {
-        const ok = await limpiarVentas();
-        if (ok) {
-          onAgregarToast("Historial de ventas borrado exitosamente.", "success");
-          cargarHistorial();
-        } else {
-          onAgregarToast("Error al borrar el historial de ventas.", "error");
-        }
-      }
-    );
-  };
 
   const handleEliminarVenta = (id) => {
     onConfirmar(
@@ -80,13 +65,15 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
     return texto;
   };
 
-  const handleCopiarTicket = (venta) => {
+  // Abre WhatsApp (web o app) con el ticket listo para elegir el contacto y enviarlo
+  const handleEnviarWhatsApp = (venta) => {
     const texto = generarTextoTicket(venta);
-    navigator.clipboard.writeText(texto).then(() => {
-      onAgregarToast("Ticket copiado al portapapeles", "success");
-    }).catch(err => {
-      onAgregarToast("Error al copiar el ticket", "error");
-    });
+    const ventana = window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
+    if (!ventana) {
+      onAgregarToast("El navegador bloqueó la ventana emergente.", "error");
+      return;
+    }
+    ventana.opener = null;
   };
 
   const handleImprimirTicket = (venta) => {
@@ -229,14 +216,6 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
             <option value="mes">Este Mes</option>
             <option value="año">Este Año</option>
           </select>
-          <button 
-            className="btn btn-secondary" 
-            style={{ color: "var(--danger)" }}
-            onClick={handleLimpiarHistorial} 
-            disabled={ventas.length === 0}
-          >
-            🗑️ Borrar Todo
-          </button>
           <button className="btn btn-secondary" onClick={cargarHistorial}>
             ↻ Actualizar
           </button>
@@ -307,11 +286,11 @@ export function HistorialVentas({ onConfirmar, onAgregarToast }) {
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                       <button 
                         className="btn btn-secondary btn-sm" 
-                        onClick={() => handleCopiarTicket(venta)}
-                        title="Copiar Ticket"
+                        onClick={() => handleEnviarWhatsApp(venta)}
+                        title="Enviar el ticket por WhatsApp"
                         style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                       >
-                        <span>📋</span> Copiar
+                        <span>💬</span> WhatsApp
                       </button>
                       <button 
                         className="btn btn-secondary btn-sm" 

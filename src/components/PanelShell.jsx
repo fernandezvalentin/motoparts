@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronsUpDown,
-  ExternalLink,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -143,12 +142,6 @@ function MenuUsuario({ email, onConfiguracion, onLogout, onNuevo, align = "start
         <DropdownMenuItem onSelect={onConfiguracion}>
           <Settings />
           Configuración
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="text-popover-foreground">
-          <a href="https://github.com/fernandezvalentin/motoparts" target="_blank" rel="noopener noreferrer">
-            <ExternalLink />
-            Ver en GitHub
-          </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onSelect={onLogout}>
