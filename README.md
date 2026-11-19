@@ -1,6 +1,6 @@
 # 🏍️ Moto Parts - Sistema de Inventario y Punto de Venta
 
-¡Hola! Desarrollé este sistema full-stack como una solución a medida para ayudar a mi papá a administrar el negocio familiar de repuestos de motos. Mi objetivo principal fue crear una herramienta que fuera robusta por detrás, pero extremadamente intuitiva y fácil de usar en el día a día, permitiéndole llevar el control del local sin fricciones tecnológicas.
+¡Hola! Desarrollé este sistema full-stack como una solución a medida para ayudar a un cliente a administrar su negocio de repuestos de motos. Mi objetivo principal fue crear una herramienta que fuera robusta por detrás, pero extremadamente intuitiva y fácil de usar en el día a día, permitiéndole llevar el control del local sin fricciones tecnológicas.
 
 ## 🚀 Características Principales
 
@@ -8,6 +8,7 @@
 - **📦 Gestión de Inventario:** alta, baja y modificación de productos, búsqueda por SKU, nombre o proveedor, importación desde Excel (con traducción automática y conversión de dólares) y aumentos masivos de precios.
 - **🛒 Punto de Venta (POS):** carrito con descuentos y métodos de pago; descuenta el stock de forma atómica y no deja vender productos agotados.
 - **🧾 Historial de Ventas:** filtros por día/semana/mes/año, impresión de tickets y anulación de ventas con devolución de stock.
+- **📄 Facturación de proveedores:** se sube la factura en PDF, el sistema lee número, proveedor, fechas y total para revisarlos, y se lleva el estado de pago (pendiente, pagada, vencida) con el PDF original guardado en Supabase Storage.
 - **📱 PWA Instalable:** se instala como app en Windows o en el celular.
 
 ## 🛠️ Tecnologías
@@ -16,6 +17,7 @@
 | --- | --- |
 | Frontend y API | **Next.js 16** (App Router, Route Handlers, Proxy) + React 19 |
 | Base de datos | **Supabase** (Postgres) con Row Level Security y funciones SQL para la lógica transaccional |
+| Archivos | **Supabase Storage** (bucket privado para los PDFs de facturas) |
 | Autenticación | **Supabase Auth** (email y contraseña, sesión en cookies con `@supabase/ssr`) |
 | Crons | **GitHub Actions** programado → `/api/cron/keepalive` para que Supabase no pause el proyecto |
 | CI/CD | **GitHub Actions** (lint, build y validación de migraciones) + deploy en **Vercel** |
@@ -25,11 +27,12 @@
 ```
 src/
 ├── app/
-│   ├── (panel)/            # Páginas protegidas: dashboard, inventario, pos, historial
+│   ├── (panel)/            # Páginas protegidas: dashboard, inventario, pos, historial, facturación
 │   ├── login/              # Pantalla de ingreso
 │   ├── api/                # Route Handlers (reemplazan a la API .NET)
 │   │   ├── productos/      # CRUD, importar, aumento-masivo, renombrar-proveedor, estadísticas
 │   │   ├── ventas/         # registrar, listar, eliminar, limpiar
+│   │   ├── facturas/       # CRUD, lectura del PDF (extraer) y link al archivo
 │   │   └── cron/keepalive/ # Endpoint del cron
 │   ├── layout.js
 │   └── manifest.js         # Manifest de la PWA
@@ -37,6 +40,7 @@ src/
 ├── lib/
 │   ├── api.js              # Funciones que usan los componentes para llamar a la API
 │   ├── http.js             # Helpers de los Route Handlers (auth, errores)
+│   ├── facturas/           # Lector de PDFs de facturas (+ pruebas)
 │   └── supabase/           # Clientes de Supabase (navegador y servidor)
 └── proxy.js                # Refresca la sesión y protege las rutas
 supabase/
@@ -80,12 +84,18 @@ npm run dev
 
 Visitá http://localhost:3000 e ingresá con tu email y contraseña.
 
+Pruebas del lector de facturas:
+
+```bash
+npm test
+```
+
 ## 🚢 Puesta en producción
 
 ### 1. Supabase
 
 1. Creá un proyecto en [supabase.com](https://supabase.com).
-2. Aplicá el esquema: pegá el contenido de `supabase/migrations/*.sql` en el **SQL Editor**, o usá la CLI (`npx supabase link --project-ref <id>` y `npx supabase db push`).
+2. Aplicá el esquema con la CLI (`npx supabase link --project-ref <id>` y `npx supabase db push`), o pegá cada archivo de `supabase/migrations/` **en orden** en el **SQL Editor**. La migración de facturas también crea el bucket privado `facturas` en Storage.
 3. En **Authentication → Sign In / Providers**, desactivá **Allow new users to sign up** (solo deben entrar los usuarios que vos crees).
 4. En **Authentication → Users → Add user**, creá el usuario administrador.
 5. En **Authentication → URL Configuration**, poné la URL de Vercel como *Site URL*.

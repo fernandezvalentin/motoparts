@@ -27,3 +27,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Archivos subidos en la versión .NET (facturas reales: no subir)
+uploads/

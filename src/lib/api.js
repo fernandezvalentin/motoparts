@@ -243,3 +243,78 @@ export const eliminarVenta = async (id) => {
     return false;
   }
 };
+
+// ---------------------------------------------------------------------------
+// Facturas de proveedores
+// ---------------------------------------------------------------------------
+
+const BUCKET_FACTURAS = "facturas";
+export const MAX_MB_FACTURA = 10;
+
+const leerError = async (response, fallback) => {
+  const data = await response.json().catch(() => ({}));
+  return new Error(data.message || fallback);
+};
+
+export const obtenerFacturas = async () => {
+  const response = await request("/facturas");
+  if (!response.ok) throw await leerError(response, "Error al obtener las facturas");
+  return response.json();
+};
+
+// Sube el PDF directo a Supabase Storage (sin pasar por el servidor) y devuelve su ruta
+export const subirPdfFactura = async (archivo) => {
+  if (archivo.type !== "application/pdf") throw new Error("El archivo debe ser un PDF.");
+  if (archivo.size > MAX_MB_FACTURA * 1024 * 1024) {
+    throw new Error(`El PDF no puede superar los ${MAX_MB_FACTURA} MB.`);
+  }
+
+  const ruta = `${crypto.randomUUID()}.pdf`;
+  const { error } = await getSupabaseBrowserClient()
+    .storage.from(BUCKET_FACTURAS)
+    .upload(ruta, archivo, { contentType: "application/pdf", upsert: false });
+
+  if (error) throw new Error(`No se pudo subir el PDF: ${error.message}`);
+  return ruta;
+};
+
+// Si el usuario cancela antes de guardar, borramos el PDF que ya se había subido
+export const descartarPdfFactura = async (ruta) => {
+  if (!ruta) return;
+  await getSupabaseBrowserClient().storage.from(BUCKET_FACTURAS).remove([ruta]);
+};
+
+// Lee el PDF en el servidor y sugiere los datos de la factura
+export const extraerDatosFactura = async (ruta) => {
+  const response = await request("/facturas/extraer", {
+    method: "POST",
+    body: JSON.stringify({ ruta }),
+  });
+  if (!response.ok) throw await leerError(response, "Error al leer el PDF");
+  return response.json();
+};
+
+export const crearFactura = async (factura) => {
+  const response = await request("/facturas", {
+    method: "POST",
+    body: JSON.stringify(factura),
+  });
+  if (!response.ok) throw await leerError(response, "Error al guardar la factura");
+  return response.json();
+};
+
+export const actualizarEstadoFactura = async (id, estado) => {
+  const response = await request(`/facturas/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ estado }),
+  });
+  if (!response.ok) throw await leerError(response, "Error al actualizar el estado");
+  return response.json();
+};
+
+export const eliminarFactura = async (id) => {
+  const response = await request(`/facturas/${id}`, { method: "DELETE" });
+  if (!response.ok) throw await leerError(response, "Error al eliminar la factura");
+};
+
+export const urlArchivoFactura = (id) => `${API_URL}/facturas/${id}/archivo`;

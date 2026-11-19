@@ -16,6 +16,7 @@ export const RUTAS = {
   nuevo: "/inventario/nuevo",
   pos: "/pos",
   historial: "/historial",
+  facturacion: "/facturacion",
 };
 
 const PanelContext = createContext(null);
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { key: "inventario", icon: "📦", label: "Inventario", mobileLabel: "Inventario" },
   { key: "pos", icon: "🛒", label: "Punto de Venta", mobileLabel: "Ventas" },
   { key: "historial", icon: "🧾", label: "Historial de Ventas", mobileLabel: "Historial" },
+  { key: "facturacion", icon: "📄", label: "Facturación", mobileLabel: "Facturas" },
   { key: "nuevo", icon: "➕", label: "Nuevo Producto" },
 ];
 
@@ -39,6 +41,7 @@ function rutaActiva(pathname) {
   if (pathname.startsWith("/inventario")) return "inventario";
   if (pathname.startsWith("/pos")) return "pos";
   if (pathname.startsWith("/historial")) return "historial";
+  if (pathname.startsWith("/facturacion")) return "facturacion";
   return "dashboard";
 }
 
