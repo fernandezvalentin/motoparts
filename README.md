@@ -45,6 +45,7 @@ src/
 │   ├── api.js              # Funciones que usan los componentes para llamar a la API
 │   ├── http.js             # Helpers de los Route Handlers (auth, errores)
 │   ├── facturas/           # Lector de PDFs de facturas (+ pruebas)
+│   ├── demo/               # Demo pública: datos de ejemplo y reinicio diario
 │   └── supabase/           # Clientes de Supabase (navegador y servidor)
 └── proxy.js                # Refresca la sesión y protege las rutas
 supabase/
@@ -133,6 +134,27 @@ Supabase pausa los proyectos gratuitos tras 7 días sin actividad. Para evitarlo
 - **GitHub Actions** (`keepalive.yml`): cada 2 días. Se puede ejecutar a mano desde **Actions → Keepalive Supabase → Run workflow**.
 
 > GitHub solo ejecuta los workflows programados de la rama por defecto, y en los repositorios públicos los desactiva después de 60 días sin commits. Por eso está también el cron de Vercel, que no tiene esa limitación.
+
+## 🎮 Demo pública
+
+Para mostrar la app en un portfolio hay una **demo separada**: el mismo código desplegado en otro proyecto de Vercel, conectado a otro proyecto de Supabase con datos de ejemplo. Los datos reales del negocio nunca se exponen.
+
+- En la pantalla de login aparece el botón **Entrar a la demo**: inicia sesión desde el servidor con un usuario demo, sin pedir contraseña.
+- Dentro de la app se ve un aviso de que es una demo, y no se puede cambiar el email ni la contraseña.
+- Todos los días, `GET /api/cron/reset-demo` (cron de Vercel) borra todo y vuelve a cargar los datos de `src/lib/demo/datos.js`, con fechas relativas al día. También crea el usuario demo si no existe o le restablece la contraseña.
+- Todo se activa con `DEMO_MODE=true`. En producción esa variable no existe y las rutas de la demo devuelven 404.
+
+Variables del proyecto de Vercel de la demo:
+
+| Variable | Valor |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Las del proyecto de Supabase **de la demo** |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret key (service_role) del proyecto de la demo. Solo para el reinicio |
+| `DEMO_MODE` / `NEXT_PUBLIC_DEMO_MODE` | `true` |
+| `DEMO_EMAIL` / `DEMO_PASSWORD` | Usuario demo (se crea solo en el primer reinicio) |
+| `CRON_SECRET` | Cualquier valor largo y aleatorio |
+
+Para reiniciar a mano: Vercel → proyecto de la demo → **Settings → Cron Jobs → `/api/cron/reset-demo` → Run**.
 
 ## 🔐 Seguridad
 

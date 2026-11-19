@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -39,4 +40,13 @@ export async function readJson(request) {
 export function parseId(value) {
   const id = Number(value);
   return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
+
+// Verifica el header "Authorization: Bearer <CRON_SECRET>" de los crons (GitHub Actions y Vercel)
+export function cronAutorizado(request) {
+  const secreto = process.env.CRON_SECRET;
+  if (!secreto) return false;
+  const recibido = Buffer.from(request.headers.get("authorization") ?? "");
+  const esperado = Buffer.from(`Bearer ${secreto}`);
+  return recibido.length === esperado.length && timingSafeEqual(recibido, esperado);
 }

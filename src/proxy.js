@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { SUPABASE_URL, SUPABASE_KEY } from "@/lib/supabase/env";
 
 // Rutas accesibles sin iniciar sesión
-const RUTAS_PUBLICAS = ["/login", "/api/cron"];
+const RUTAS_PUBLICAS = ["/login", "/api/cron", "/api/demo"];
 
 export async function proxy(request) {
   let response = NextResponse.next({ request });

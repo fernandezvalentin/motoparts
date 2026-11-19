@@ -14,11 +14,13 @@ import {
   ReceiptText,
   Settings,
   ShoppingCart,
+  Sparkles,
   UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import { logout } from "@/lib/api";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { ES_DEMO_CLIENTE } from "@/lib/demo/config";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -126,7 +128,7 @@ function MenuUsuario({ email, onConfiguracion, onLogout, onNuevo, align = "start
         </span>
         <span className="min-w-0 flex-1 max-md:hidden">
           <span className="block truncate font-medium">{email ?? "Mi cuenta"}</span>
-          <span className="block text-xs text-muted-foreground">Configuración y sesión</span>
+          <span className="block text-xs text-muted-foreground">{onConfiguracion ? "Configuración y sesión" : "Usuario de demostración"}</span>
         </span>
         <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground max-md:hidden" />
       </DropdownMenuTrigger>
@@ -139,11 +141,13 @@ function MenuUsuario({ email, onConfiguracion, onLogout, onNuevo, align = "start
             Nuevo producto
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onSelect={onConfiguracion}>
-          <Settings />
-          Configuración
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {onConfiguracion && (
+          <DropdownMenuItem onSelect={onConfiguracion}>
+            <Settings />
+            Configuración
+          </DropdownMenuItem>
+        )}
+        {(onConfiguracion || onNuevo) && <DropdownMenuSeparator />}
         <DropdownMenuItem variant="destructive" onSelect={onLogout}>
           <LogOut />
           Cerrar sesión
@@ -208,7 +212,8 @@ export function PanelShell({ children }) {
 
   const menuProps = {
     email,
-    onConfiguracion: () => setMostrarConfiguracion(true),
+    // En la demo pública no se pueden cambiar el email ni la contraseña del usuario demo
+    onConfiguracion: ES_DEMO_CLIENTE ? undefined : () => setMostrarConfiguracion(true),
     onLogout: handleLogout,
   };
 
@@ -248,6 +253,14 @@ export function PanelShell({ children }) {
 
         {/* Contenido */}
         <main className="min-w-0 pt-14 pb-[calc(4rem+env(safe-area-inset-bottom))] md:ml-64 md:pt-0 md:pb-0">
+          {ES_DEMO_CLIENTE && (
+            <div className="flex items-center justify-center gap-2 border-b border-primary/25 bg-primary/10 px-4 py-2 text-center text-xs text-amber-200 sm:text-sm">
+              <Sparkles className="size-4 shrink-0 text-primary" />
+              <span>
+                Estás usando una <strong className="font-semibold text-primary">demo</strong> con datos de ejemplo. Podés probar todo: los datos se reinician todos los días.
+              </span>
+            </div>
+          )}
           <div
             key={pathname}
             className="mx-auto max-w-[1200px] px-4 pt-6 pb-12 animate-in fade-in-0 duration-300 md:px-6 lg:px-8 lg:pt-8"

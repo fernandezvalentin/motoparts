@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CircleAlert, Eye, EyeOff, Loader2, Lock, Mail, Motorbike } from "lucide-react";
+import { ChevronDown, CircleAlert, Eye, EyeOff, Loader2, Lock, Mail, Motorbike, Play } from "lucide-react";
 import { login } from "@/lib/api";
+import { ES_DEMO_CLIENTE } from "@/lib/demo/config";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,27 @@ export function Login() {
   const [verPassword, setVerPassword] = useState(false);
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
+  // En la demo pública el formulario queda plegado debajo del botón "Entrar a la demo"
+  const [mostrarFormulario, setMostrarFormulario] = useState(!ES_DEMO_CLIENTE);
+  const [entrandoDemo, setEntrandoDemo] = useState(false);
+  const [errorDemo, setErrorDemo] = useState("");
+
+  const entrarDemo = async () => {
+    setErrorDemo("");
+    setEntrandoDemo(true);
+    try {
+      const res = await fetch("/api/demo/login", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "No se pudo entrar a la demo.");
+      }
+      router.replace("/");
+      router.refresh();
+    } catch (err) {
+      setErrorDemo(err.message);
+      setEntrandoDemo(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,7 +79,42 @@ export function Login() {
           </div>
         </div>
 
-        <Card className="gap-5 border-border/80 shadow-xl shadow-black/40">
+        {ES_DEMO_CLIENTE && (
+          <Card className="mb-4 gap-4 border-primary/40 shadow-xl shadow-black/40">
+            <CardHeader>
+              <CardTitle className="text-lg">Probá la demo</CardTitle>
+              <CardDescription>
+                Recorré el inventario, hacé ventas y cargá facturas con datos de ejemplo. No hace falta registrarse:
+                los datos se reinician todos los días.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              {errorDemo && (
+                <Alert variant="destructive" className="border-destructive/40 bg-destructive/10">
+                  <CircleAlert />
+                  <AlertDescription>{errorDemo}</AlertDescription>
+                </Alert>
+              )}
+              <Button size="lg" className="h-11 w-full font-semibold" onClick={entrarDemo} disabled={entrandoDemo}>
+                {entrandoDemo ? <Loader2 className="animate-spin" /> : <Play />}
+                {entrandoDemo ? "Entrando..." : "Entrar a la demo"}
+              </Button>
+              {!mostrarFormulario && (
+                <button
+                  type="button"
+                  onClick={() => setMostrarFormulario(true)}
+                  className="inline-flex items-center justify-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  ¿Tenés usuario? Ingresá con tu email
+                  <ChevronDown className="size-3.5" />
+                </button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {mostrarFormulario && (
+        <Card className="gap-5 border-border/80 shadow-xl shadow-black/40 animate-in fade-in-0">
           <CardHeader>
             <CardTitle className="text-lg">Iniciar sesión</CardTitle>
             <CardDescription>Ingresá con tu email y contraseña.</CardDescription>
@@ -132,6 +189,7 @@ export function Login() {
             </form>
           </CardContent>
         </Card>
+        )}
       </div>
     </main>
   );
