@@ -20,7 +20,7 @@
 | Base de datos | **Supabase** (Postgres) con Row Level Security y funciones SQL para la lógica transaccional |
 | Archivos | **Supabase Storage** (bucket privado para los PDFs de facturas) |
 | Autenticación | **Supabase Auth** (email y contraseña, sesión en cookies con `@supabase/ssr`) |
-| Crons | **GitHub Actions** programado → `/api/cron/keepalive` para que Supabase no pause el proyecto |
+| Crons | **Vercel Cron** (diario) y **GitHub Actions** (cada 2 días) → `/api/cron/keepalive` para que Supabase no pause el proyecto |
 | CI/CD | **GitHub Actions** (lint, build y validación de migraciones) + deploy en **Vercel** |
 
 ## 📁 Estructura
@@ -127,9 +127,12 @@ Los tres últimos solo hacen falta si querés que las migraciones nuevas se apli
 
 ## ⏰ Crons
 
-`keepalive.yml` corre cada 2 días y llama a `GET /api/cron/keepalive` con el header `Authorization: Bearer <CRON_SECRET>`. Ese endpoint ejecuta una consulta en la base para que Supabase no pause el proyecto gratuito por inactividad (lo hace a los 7 días). Se puede ejecutar a mano desde la pestaña **Actions → Keepalive Supabase → Run workflow**.
+Supabase pausa los proyectos gratuitos tras 7 días sin actividad. Para evitarlo, dos crons independientes llaman a `GET /api/cron/keepalive` con el header `Authorization: Bearer <CRON_SECRET>`, y ese endpoint hace una consulta a la base:
 
-> GitHub solo ejecuta los workflows programados que están en la rama por defecto del repositorio.
+- **Vercel Cron** (`vercel.json`): todos los días a las 11:23 (hora de Argentina). Vercel manda el `CRON_SECRET` solo, tomándolo de las variables de entorno del proyecto. Se ve en Vercel → proyecto → **Settings → Cron Jobs**.
+- **GitHub Actions** (`keepalive.yml`): cada 2 días. Se puede ejecutar a mano desde **Actions → Keepalive Supabase → Run workflow**.
+
+> GitHub solo ejecuta los workflows programados de la rama por defecto, y en los repositorios públicos los desactiva después de 60 días sin commits. Por eso está también el cron de Vercel, que no tiene esa limitación.
 
 ## 🔐 Seguridad
 
