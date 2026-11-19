@@ -1,6 +1,6 @@
 # 🏍️ Moto Parts - Sistema de Inventario y Punto de Venta
 
-¡Hola! Desarrollé este sistema full-stack como una solución a medida para ayudar a mi papá a administrar el negocio familiar de repuestos de motos. Mi objetivo principal fue crear una herramienta que fuera robusta por detrás, pero extremadamente intuitiva y fácil de usar en el día a día, permitiéndole llevar el control del local sin fricciones tecnológicas.
+¡Hola! Desarrollé este sistema full-stack como una solución a medida para ayudar a un cliente a administrar su negocio de repuestos de motos. Mi objetivo principal fue crear una herramienta que fuera robusta por detrás, pero extremadamente intuitiva y fácil de usar en el día a día, permitiéndole llevar el control del local sin fricciones tecnológicas.
 
 ## 🚀 Características Principales
 
@@ -19,7 +19,7 @@ Para este proyecto elegí un stack moderno que me permitiera desarrollar rápido
 **Backend:**
 - **C# / .NET 8 Web API:** Para construir una API RESTful segura y tipada.
 - **Entity Framework Core:** Como ORM para interactuar con la base de datos.
-- **SQLite:** Elegí SQLite por su portabilidad. No requiere que mi papá instale pesados motores de bases de datos (como SQL Server) en la computadora del local; la base de datos vive en un simple archivo local.
+- **SQLite:** Elegí SQLite por su portabilidad. No requiere que el cliente instale pesados motores de bases de datos (como SQL Server) en la computadora del local; la base de datos vive en un simple archivo local.
 
 **Frontend:**
 - **React.js + Vite:** Para una experiencia de usuario fluida (Single Page Application) y tiempos de compilación ultrarrápidos.

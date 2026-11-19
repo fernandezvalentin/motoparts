@@ -20,6 +20,7 @@ namespace InventarioApi.Data
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<VentaDetalle> VentaDetalles { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Factura> Facturas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

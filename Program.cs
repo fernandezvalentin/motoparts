@@ -8,9 +8,9 @@ using InventarioApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configuración de Base de Datos (PostgreSQL)
+// 1. Configuración de Base de Datos (SQLite)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 2. Configuración de CORS
 builder.Services.AddCors(options =>
@@ -51,10 +51,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IFacturaRepository, FacturaRepository>();
 
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFacturaService, FacturaService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(x =>
@@ -89,7 +91,8 @@ app.MapGet("/api/ping", () => Results.Ok(new { status = "awake", timestamp = Dat
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
+    var prodCount = dbContext.Productos.Count();
+    Console.WriteLine($"[DB_CHECK] Products count: {prodCount}");
 }
 
 app.Run();

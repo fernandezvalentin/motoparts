@@ -1,9 +1,9 @@
 // src/services/api.js
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5190/api";
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5190/api";
 
 // Helper to get auth headers
-const getHeaders = () => {
+export const getHeaders = () => {
   const token = localStorage.getItem("moto_parts_token");
   return {
     "Content-Type": "application/json",

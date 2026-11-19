@@ -6,6 +6,7 @@ import { InventarioList } from "./components/InventarioList";
 import { ProductoForm } from "./components/ProductoForm";
 import { PuntoVenta } from "./components/PuntoVenta";
 import { HistorialVentas } from "./components/HistorialVentas";
+import { FacturacionList } from "./components/FacturacionList";
 import { Login } from "./components/Login";
 import { ToastContainer } from "./components/Toast";
 import { ConfirmModal } from "./components/ConfirmModal";
@@ -16,7 +17,7 @@ function App() {
   const getHashPage = () => {
     const hashStr = window.location.hash.replace("#", "");
     const page = hashStr.split("?")[0];
-    const validPages = ["dashboard", "inventario", "nuevo", "pos", "historial"];
+    const validPages = ["dashboard", "inventario", "nuevo", "pos", "historial", "facturacion"];
     return validPages.includes(page) ? page : "dashboard";
   };
 
@@ -134,6 +135,8 @@ function App() {
             onAgregarToast={agregarToast} 
           />
         );
+      case "facturacion":
+        return <FacturacionList onAgregarToast={agregarToast} />;
       default:
         return <Dashboard onNavegar={handleNavigate} />;
     }
@@ -212,6 +215,14 @@ function App() {
           </button>
 
           <button
+            className={`nav-item ${paginaActual === "facturacion" ? "active" : ""}`}
+            onClick={() => handleNavigate("facturacion")}
+          >
+            <span className="nav-item-icon">📄</span>
+            Facturación
+          </button>
+
+          <button
             className={`nav-item ${paginaActual === "nuevo" ? "active" : ""}`}
             onClick={handleNuevo}
           >
@@ -287,11 +298,18 @@ function App() {
           <span className="bottom-nav-label">Ventas</span>
         </button>
         <button
-          className={`bottom-nav-item ${paginaActual === "historial" ? "active" : ""}`}
-          onClick={() => handleNavigate("historial")}
-        >
-          <span className="bottom-nav-icon">🧾</span>
-          <span className="bottom-nav-label">Historial</span>
+            className={`bottom-nav-item ${paginaActual === "historial" ? "active" : ""}`}
+            onClick={() => handleNavigate("historial")}
+          >
+            <span className="bottom-nav-icon">🧾</span>
+            <span className="bottom-nav-label">Historial</span>
+        </button>
+        <button
+            className={`bottom-nav-item ${paginaActual === "facturacion" ? "active" : ""}`}
+            onClick={() => handleNavigate("facturacion")}
+          >
+            <span className="bottom-nav-icon">📄</span>
+            <span className="bottom-nav-label">Facturas</span>
         </button>
       </nav>
     </div>

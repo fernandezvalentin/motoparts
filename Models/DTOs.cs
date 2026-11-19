@@ -50,4 +50,32 @@ namespace InventarioApi.Models
         public string? Marca { get; set; }
         public string? TipoOperacion { get; set; } // "Ambos", "Costo", "Publico", "FijarMargen"
     }
+
+    public class FacturaDto
+    {
+        public int Id { get; set; }
+        public string? NumeroComprobante { get; set; }
+        public string? ProveedorEmisor { get; set; }
+        public DateTime? FechaEmision { get; set; }
+        public DateTime? FechaVencimiento { get; set; }
+        public decimal Total { get; set; }
+        public string Estado { get; set; } = "Pendiente";
+        public string? RutaArchivo { get; set; }
+        public DateTime FechaCreacion { get; set; }
+    }
+
+    public class CreateFacturaDto
+    {
+        public string? NumeroComprobante { get; set; }
+        public string? ProveedorEmisor { get; set; }
+        public DateTime? FechaEmision { get; set; }
+        public DateTime? FechaVencimiento { get; set; }
+        public decimal Total { get; set; }
+        public string Estado { get; set; } = "Pendiente";
+    }
+
+    public class UpdateFacturaEstadoDto
+    {
+        public string Estado { get; set; } = string.Empty;
+    }
 }
