@@ -95,7 +95,7 @@ npm test
 ### 1. Supabase
 
 1. Creá un proyecto en [supabase.com](https://supabase.com).
-2. Aplicá el esquema con la CLI (`npx supabase link --project-ref <id>` y `npx supabase db push`), o pegá cada archivo de `supabase/migrations/` **en orden** en el **SQL Editor**. La migración de facturas también crea el bucket privado `facturas` en Storage.
+2. Aplicá el esquema con la CLI (`npx supabase link --project-ref <id>` y `npx supabase db push --remote`), o pegá cada archivo de `supabase/migrations/` **en orden** en el **SQL Editor**. La migración de facturas también crea el bucket privado `facturas` en Storage.
 3. En **Authentication → Sign In / Providers**, desactivá **Allow new users to sign up** (solo deben entrar los usuarios que vos crees).
 4. En **Authentication → Users → Add user**, creá el usuario administrador.
 5. En **Authentication → URL Configuration**, poné la URL de Vercel como *Site URL*.
