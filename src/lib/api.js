@@ -354,3 +354,17 @@ export const deshacerMovimiento = async (id) => {
   if (!response.ok) throw await leerError(response, "Error al deshacer");
   return response.json();
 };
+
+// ---------------------------------------------------------------------------
+// Administración
+// ---------------------------------------------------------------------------
+
+// Borra productos, ventas, facturas e historial de movimientos. Solo administradores.
+export const reiniciarDatos = async (confirmacion) => {
+  const response = await request("/admin/reiniciar", {
+    method: "POST",
+    body: JSON.stringify({ confirmacion }),
+  });
+  if (!response.ok) throw await leerError(response, "Error al reiniciar los datos");
+  return response.json();
+};

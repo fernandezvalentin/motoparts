@@ -81,4 +81,17 @@ jobs:
           do $$ begin
             if (select stock_actual from productos where id = 1) <> 5 then raise exception 'deshacer incorrecto'; end if;
           end $$;
+          -- Reinicio de datos: un usuario común no puede; un administrador sí
+          select set_config('request.jwt.claims', '{"app_metadata":{"provider":"email"}}', false);
+          do $$ begin
+            perform reiniciar_datos('BORRAR TODO');
+            raise exception 'un usuario sin rol admin pudo reiniciar';
+          exception when raise_exception then
+            if sqlerrm like 'un usuario sin rol admin%' then raise; end if;
+          end $$;
+          select set_config('request.jwt.claims', '{"app_metadata":{"rol":"admin"}}', false);
+          select reiniciar_datos('BORRAR TODO');
+          do $$ begin
+            if (select count(*) from productos) <> 0 or (select count(*) from ventas) <> 0 then raise exception 'reinicio incompleto'; end if;
+          end $$;
           SQL

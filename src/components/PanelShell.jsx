@@ -12,6 +12,7 @@ import {
   Package,
   PackagePlus,
   ReceiptText,
+  RotateCcw,
   Settings,
   ShoppingCart,
   Sparkles,
@@ -34,6 +35,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { ConfirmModal } from "./ConfirmModal";
 import { ConfiguracionModal } from "./ConfiguracionModal";
+import { ReiniciarDatosModal } from "./ReiniciarDatosModal";
 
 // Rutas del panel. Las claves son los nombres que ya usaban los componentes al navegar.
 export const RUTAS = {
@@ -135,7 +137,7 @@ function NavLink({ item, activo, onClick }) {
   );
 }
 
-function MenuUsuario({ email, onConfiguracion, onLogout, onNuevo, align = "start", className }) {
+function MenuUsuario({ email, onConfiguracion, onReiniciar, onLogout, onNuevo, align = "start", className }) {
   const inicial = email?.[0]?.toUpperCase();
   return (
     <DropdownMenu>
@@ -169,7 +171,13 @@ function MenuUsuario({ email, onConfiguracion, onLogout, onNuevo, align = "start
             Configuración
           </DropdownMenuItem>
         )}
-        {(onConfiguracion || onNuevo) && <DropdownMenuSeparator />}
+        {onReiniciar && (
+          <DropdownMenuItem variant="destructive" onSelect={onReiniciar}>
+            <RotateCcw />
+            Reiniciar datos…
+          </DropdownMenuItem>
+        )}
+        {(onConfiguracion || onNuevo || onReiniciar) && <DropdownMenuSeparator />}
         <DropdownMenuItem variant="destructive" onSelect={onLogout}>
           <LogOut />
           Cerrar sesión
@@ -185,6 +193,9 @@ export function PanelShell({ children }) {
   const paginaActual = rutaActiva(pathname);
 
   const [email, setEmail] = useState(null);
+  // Administrador: app_metadata.rol = "admin" en Supabase Auth (no se puede cambiar desde la app)
+  const [esAdmin, setEsAdmin] = useState(false);
+  const [mostrarReinicio, setMostrarReinicio] = useState(false);
   const [confirmModal, setConfirmModal] = useState(null);
   const [mostrarConfiguracion, setMostrarConfiguracion] = useState(false);
 
@@ -193,7 +204,9 @@ export function PanelShell({ children }) {
     getSupabaseBrowserClient()
       .auth.getSession()
       .then(({ data }) => {
-        if (activo) setEmail(data.session?.user?.email ?? null);
+        if (!activo) return;
+        setEmail(data.session?.user?.email ?? null);
+        setEsAdmin(data.session?.user?.app_metadata?.rol === "admin");
       })
       .catch(() => {});
     return () => {
@@ -236,6 +249,8 @@ export function PanelShell({ children }) {
     email,
     // En la demo pública no se pueden cambiar el email ni la contraseña del usuario demo
     onConfiguracion: ES_DEMO_CLIENTE ? undefined : () => setMostrarConfiguracion(true),
+    // Solo para administradores y nunca en la demo pública
+    onReiniciar: esAdmin && !ES_DEMO_CLIENTE ? () => setMostrarReinicio(true) : undefined,
     onLogout: handleLogout,
   };
 
@@ -338,6 +353,8 @@ export function PanelShell({ children }) {
         {mostrarConfiguracion && (
           <ConfiguracionModal onClose={() => setMostrarConfiguracion(false)} onLogout={handleLogout} />
         )}
+
+        {mostrarReinicio && <ReiniciarDatosModal onClose={() => setMostrarReinicio(false)} />}
       </div>
     </PanelContext.Provider>
   );

@@ -137,7 +137,11 @@ npm test
 1. Creá un proyecto en [supabase.com](https://supabase.com).
 2. Aplicá el esquema con la CLI (`npx supabase link --project-ref <id>` y `npx supabase db push --remote`), o pegá cada archivo de `supabase/migrations/` **en orden** en el **SQL Editor**. La migración de facturas también crea el bucket privado `facturas` en Storage.
 3. En **Authentication → Sign In / Providers**, desactivá **Allow new users to sign up** (solo deben entrar los usuarios que vos crees).
-4. En **Authentication → Users → Add user**, creá el usuario administrador.
+4. En **Authentication → Users → Add user**, creá los usuarios. Para que uno sea **administrador** (puede reiniciar los datos desde su menú de usuario), corré en el **SQL Editor**:
+   ```sql
+   update auth.users set raw_app_meta_data = raw_app_meta_data || '{"rol":"admin"}' where email = 'tu@email.com';
+   ```
+   Para quitarlo: `raw_app_meta_data - 'rol'`. El cambio se aplica al volver a iniciar sesión.
 5. En **Authentication → URL Configuration**, poné la URL de Vercel como *Site URL*.
 
 ### 2. Vercel
@@ -197,6 +201,7 @@ Para reiniciar a mano: Vercel → proyecto de la demo → **Settings → Cron Jo
 - Las operaciones críticas (registrar/anular ventas, importar, aumentos masivos) son **funciones de Postgres** que corren en una sola transacción y bloquean las filas de stock para evitar ventas simultáneas sobre el mismo producto.
 - El SKU es único sin distinguir mayúsculas y minúsculas.
 - Las ventas guardan el nombre y SKU del producto: si después se borra el producto, el historial se conserva.
+- **Reiniciar datos** (borra productos, ventas, facturas y movimientos; mantiene los usuarios) solo aparece para administradores, pide escribir `BORRAR TODO` y la base de datos vuelve a verificar el rol: un usuario común no puede ejecutarlo aunque llame a la API directamente. El rol vive en `app_metadata`, que los usuarios no pueden modificar.
 
 ---
 *Desarrollado con dedicación para simplificar el trabajo de todos los días.*
