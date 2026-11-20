@@ -4,7 +4,7 @@ export const NEGOCIO = {
   nombre: "FERNANDEZ MOTO PARTS",
   rubro: "Venta de repuestos y accesorios de motos",
   direccion: "Belgrano, 998. Bragado, Prov. de Buenos Aires",
-  telefono: "2342-413823",
+  telefono: "2342-447293",
 };
 
 const formatoFecha = new Intl.DateTimeFormat("es-AR", {
