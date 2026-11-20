@@ -52,6 +52,6 @@ export async function proxy(request) {
 export const config = {
   // Todo excepto archivos estáticos, imágenes y el manifest de la PWA
   matcher: [
-    "/((?!_next/static|_next/image|favicon.svg|icon.png|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.svg|icon.png|manifest.webmanifest|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
