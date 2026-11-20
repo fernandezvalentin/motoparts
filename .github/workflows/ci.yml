@@ -71,4 +71,14 @@ jobs:
           select eliminar_venta(1);
           select estadisticas_inventario();
           select buscar_productos('test');
+          select ajustar_stock(1, 'sumar', 4);
+          select alta_rapida_producto('Producto rapido', 1000, 2);
+          do $$ begin
+            if (select stock_actual from productos where id = 1) <> 9 then raise exception 'ajustar_stock incorrecto'; end if;
+            if not exists (select 1 from stock_movimientos where tipo = 'venta') then raise exception 'la venta no registró movimiento'; end if;
+          end $$;
+          select deshacer_movimiento((select id from stock_movimientos where tipo = 'ingreso'));
+          do $$ begin
+            if (select stock_actual from productos where id = 1) <> 5 then raise exception 'deshacer incorrecto'; end if;
+          end $$;
           SQL

@@ -6,6 +6,8 @@
 
 - **📊 Dashboard Estadístico:** valor total del inventario, top 5 más vendidos, productos por proveedor y alertas automáticas cuando un repuesto se está quedando sin stock.
 - **📦 Gestión de Inventario:** alta, baja y modificación de productos, búsqueda por SKU, nombre o proveedor, importación desde Excel (con traducción automática y conversión de dólares) y aumentos masivos de precios.
+- **📥 Cargar Stock (pensado para el celular):** buscar el repuesto, tocarlo y poner cuántos llegaron (o cuántos hay en el estante); la app hace la cuenta. Alta rápida de productos nuevos con solo nombre, precio y cantidad.
+- **🕘 Movimientos de stock:** cada cambio (cargas, conteos, ventas, importaciones, ediciones) queda registrado con quién y cuándo, y las cargas se pueden deshacer.
 - **🛒 Punto de Venta (POS):** carrito con descuentos y métodos de pago; descuenta el stock de forma atómica y no deja vender productos agotados.
 - **🧾 Historial de Ventas:** filtros por día/semana/mes/año, impresión de tickets y anulación de ventas con devolución de stock.
 - **📄 Facturación de proveedores:** se sube la factura en PDF, el sistema lee número, proveedor, fechas y total para revisarlos, y se lleva el estado de pago (pendiente, pagada, vencida) con el PDF original guardado en Supabase Storage.
@@ -27,12 +29,13 @@
 ```
 src/
 ├── app/
-│   ├── (panel)/            # Páginas protegidas: dashboard, inventario, pos, historial, facturación
+│   ├── (panel)/            # Páginas protegidas: dashboard, inventario, cargar stock, pos, historial, facturación
 │   ├── login/              # Pantalla de ingreso
 │   ├── api/                # Route Handlers (reemplazan a la API .NET)
 │   │   ├── productos/      # CRUD, importar, aumento-masivo, renombrar-proveedor, estadísticas
 │   │   ├── ventas/         # registrar, listar, eliminar, limpiar
 │   │   ├── facturas/       # CRUD, lectura del PDF (extraer) y link al archivo
+│   │   ├── stock/          # ajustar (sumar/conteo), alta rápida, movimientos y deshacer
 │   │   └── cron/keepalive/ # Endpoint del cron
 │   ├── layout.js
 │   └── manifest.js         # Manifest de la PWA
@@ -120,6 +123,15 @@ npm test
 | `SUPABASE_PROJECT_ID` | Reference ID del proyecto |
 
 Los tres últimos solo hacen falta si querés que las migraciones nuevas se apliquen solas al hacer push a `main`.
+
+## 🤝 Trabajo a distancia
+
+El sistema está en la nube, así que se puede usar y administrar desde distintas ciudades:
+
+- **Listas de precios:** el proveedor manda el Excel, se reenvía a quien administra y se importa desde **Inventario → Importar Excel** (si la lista no trae stock, el stock no se toca).
+- **Cantidades:** en el local se cargan desde el celular en **Cargar Stock** (*Llegó mercadería* suma, *Conteo* fija lo que hay en el estante).
+- **Supervisión:** en **Cargar Stock → Movimientos** se ve cada cambio con su usuario; las cargas equivocadas se corrigen con **Deshacer**.
+- Conviene crear un usuario por persona (Supabase → Authentication → Users) para saber quién hizo cada cambio.
 
 ## ⏰ Crons
 

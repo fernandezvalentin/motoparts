@@ -13,6 +13,7 @@ import "./PanelShell.css";
 export const RUTAS = {
   dashboard: "/",
   inventario: "/inventario",
+  stock: "/stock",
   nuevo: "/inventario/nuevo",
   pos: "/pos",
   historial: "/historial",
@@ -30,6 +31,7 @@ export function usePanel() {
 const NAV_ITEMS = [
   { key: "dashboard", icon: "📊", label: "Panel de Control", mobileLabel: "Inicio" },
   { key: "inventario", icon: "📦", label: "Inventario", mobileLabel: "Inventario" },
+  { key: "stock", icon: "📥", label: "Cargar Stock", mobileLabel: "Stock" },
   { key: "pos", icon: "🛒", label: "Punto de Venta", mobileLabel: "Ventas" },
   { key: "historial", icon: "🧾", label: "Historial de Ventas", mobileLabel: "Historial" },
   { key: "facturacion", icon: "📄", label: "Facturación", mobileLabel: "Facturas" },
@@ -39,6 +41,7 @@ const NAV_ITEMS = [
 function rutaActiva(pathname) {
   if (pathname === "/inventario/nuevo") return "nuevo";
   if (pathname.startsWith("/inventario")) return "inventario";
+  if (pathname.startsWith("/stock")) return "stock";
   if (pathname.startsWith("/pos")) return "pos";
   if (pathname.startsWith("/historial")) return "historial";
   if (pathname.startsWith("/facturacion")) return "facturacion";
