@@ -10,12 +10,12 @@ import {
   LogOut,
   Motorbike,
   Package,
-  PackageCheck,
   PackagePlus,
   ReceiptText,
   Settings,
   ShoppingCart,
   Sparkles,
+  Truck,
   UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -54,16 +54,34 @@ export function usePanel() {
   return ctx;
 }
 
-const NAV_ITEMS = [
-  { key: "dashboard", icon: LayoutDashboard, label: "Panel de control", mobileLabel: "Inicio" },
-  { key: "inventario", icon: Package, label: "Inventario", mobileLabel: "Inventario" },
-  { key: "stock", icon: PackageCheck, label: "Cargar stock", mobileLabel: "Stock" },
-  { key: "pos", icon: ShoppingCart, label: "Punto de venta", mobileLabel: "Ventas" },
-  { key: "historial", icon: ReceiptText, label: "Historial de ventas", mobileLabel: "Historial" },
-  { key: "facturacion", icon: FileText, label: "Facturación", mobileLabel: "Facturas" },
+// Menú lateral agrupado por tarea, con lo que más se usa en el mostrador arriba.
+// Los ítems con mobileLabel también aparecen, en el mismo orden, en la barra inferior del celular.
+const SECCIONES = [
+  {
+    items: [{ key: "dashboard", icon: LayoutDashboard, label: "Panel de control", mobileLabel: "Inicio" }],
+  },
+  {
+    titulo: "Ventas",
+    items: [
+      { key: "pos", icon: ShoppingCart, label: "Punto de venta", mobileLabel: "Ventas" },
+      { key: "historial", icon: ReceiptText, label: "Historial de ventas", mobileLabel: "Historial" },
+    ],
+  },
+  {
+    titulo: "Stock",
+    items: [
+      { key: "inventario", icon: Package, label: "Inventario", mobileLabel: "Inventario" },
+      { key: "stock", icon: Truck, label: "Cargar stock", mobileLabel: "Stock" },
+      { key: "nuevo", icon: PackagePlus, label: "Nuevo producto" },
+    ],
+  },
+  {
+    titulo: "Proveedores",
+    items: [{ key: "facturacion", icon: FileText, label: "Facturación", mobileLabel: "Facturas" }],
+  },
 ];
 
-const ACCIONES = [{ key: "nuevo", icon: PackagePlus, label: "Nuevo producto" }];
+const NAV_MOBILE = SECCIONES.flatMap((s) => s.items).filter((item) => item.mobileLabel);
 
 function rutaActiva(pathname) {
   if (pathname === "/inventario/nuevo") return "nuevo";
@@ -231,14 +249,15 @@ export function PanelShell({ children }) {
           </div>
 
           <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4" aria-label="Principal">
-            <p className="px-3 pb-2 text-xs font-medium tracking-wide text-muted-foreground/70 uppercase">Menú</p>
-            {NAV_ITEMS.map((item) => (
-              <NavLink key={item.key} item={item} activo={paginaActual === item.key} />
-            ))}
-
-            <p className="mt-5 px-3 pb-2 text-xs font-medium tracking-wide text-muted-foreground/70 uppercase">Acciones</p>
-            {ACCIONES.map((item) => (
-              <NavLink key={item.key} item={item} activo={paginaActual === item.key} />
+            {SECCIONES.map((seccion, i) => (
+              <div key={seccion.titulo ?? i} className={cn("flex flex-col gap-1", i > 0 && "mt-4")}>
+                {seccion.titulo && (
+                  <p className="px-3 pb-1 text-xs font-medium tracking-wide text-muted-foreground/70 uppercase">{seccion.titulo}</p>
+                )}
+                {seccion.items.map((item) => (
+                  <NavLink key={item.key} item={item} activo={paginaActual === item.key} />
+                ))}
+              </div>
             ))}
           </nav>
 
@@ -278,7 +297,7 @@ export function PanelShell({ children }) {
           className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
           aria-label="Principal"
         >
-          {NAV_ITEMS.map((item) => {
+          {NAV_MOBILE.map((item) => {
             const Icono = item.icon;
             const activo = paginaActual === item.key;
             return (
