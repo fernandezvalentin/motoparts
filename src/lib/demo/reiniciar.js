@@ -106,6 +106,13 @@ export async function reiniciarDemo(hoy = new Date()) {
     .select("id, sku");
   if (errProductos) throw new Error(`Cargar productos: ${errProductos.message}`);
   const idPorSku = new Map(creados.map((p) => [p.sku, p.id]));
+
+  // Al insertar productos con stock se registran movimientos "Producto nuevo": la demo arranca sin historial.
+  // Si la base de la demo todavía no tiene la tabla (migración sin aplicar), se sigue igual.
+  const { error: errMovimientos } = await supabase.from("stock_movimientos").delete().gte("id", 0);
+  if (errMovimientos && !/stock_movimientos|does not exist|schema cache/i.test(errMovimientos.message)) {
+    throw new Error(`Borrar movimientos de stock: ${errMovimientos.message}`);
+  }
   const nombrePorSku = new Map(productos.map((p) => [p.sku, p.nombre]));
 
   // 3. Ventas y sus detalles (PostgREST devuelve las filas en el mismo orden en que se insertan)

@@ -319,3 +319,38 @@ export const eliminarFactura = async (id) => {
 };
 
 export const urlArchivoFactura = (id) => `${API_URL}/facturas/${id}/archivo`;
+
+// ---------------------------------------------------------------------------
+// Carga de stock y movimientos
+// ---------------------------------------------------------------------------
+
+// modo: "sumar" (llegó mercadería) | "fijar" (conteo)
+export const ajustarStock = async (productoId, modo, cantidad) => {
+  const response = await request("/stock/ajustar", {
+    method: "POST",
+    body: JSON.stringify({ productoId, modo, cantidad }),
+  });
+  if (!response.ok) throw await leerError(response, "Error al cargar el stock");
+  return response.json();
+};
+
+export const altaRapidaProducto = async ({ nombre, precio, cantidad, sku }) => {
+  const response = await request("/stock/alta", {
+    method: "POST",
+    body: JSON.stringify({ nombre, precio, cantidad, sku }),
+  });
+  if (!response.ok) throw await leerError(response, "Error al crear el producto");
+  return response.json();
+};
+
+export const obtenerMovimientos = async (filtro = "hoy") => {
+  const response = await request(`/stock/movimientos?filtro=${encodeURIComponent(filtro)}`);
+  if (!response.ok) throw await leerError(response, "Error al obtener los movimientos");
+  return response.json();
+};
+
+export const deshacerMovimiento = async (id) => {
+  const response = await request(`/stock/movimientos/${id}/deshacer`, { method: "POST" });
+  if (!response.ok) throw await leerError(response, "Error al deshacer");
+  return response.json();
+};

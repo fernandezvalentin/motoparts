@@ -10,6 +10,7 @@ import {
   LogOut,
   Motorbike,
   Package,
+  PackageCheck,
   PackagePlus,
   ReceiptText,
   Settings,
@@ -38,6 +39,7 @@ import { ConfiguracionModal } from "./ConfiguracionModal";
 export const RUTAS = {
   dashboard: "/",
   inventario: "/inventario",
+  stock: "/stock",
   nuevo: "/inventario/nuevo",
   pos: "/pos",
   historial: "/historial",
@@ -55,6 +57,7 @@ export function usePanel() {
 const NAV_ITEMS = [
   { key: "dashboard", icon: LayoutDashboard, label: "Panel de control", mobileLabel: "Inicio" },
   { key: "inventario", icon: Package, label: "Inventario", mobileLabel: "Inventario" },
+  { key: "stock", icon: PackageCheck, label: "Cargar stock", mobileLabel: "Stock" },
   { key: "pos", icon: ShoppingCart, label: "Punto de venta", mobileLabel: "Ventas" },
   { key: "historial", icon: ReceiptText, label: "Historial de ventas", mobileLabel: "Historial" },
   { key: "facturacion", icon: FileText, label: "Facturación", mobileLabel: "Facturas" },
@@ -65,6 +68,7 @@ const ACCIONES = [{ key: "nuevo", icon: PackagePlus, label: "Nuevo producto" }];
 function rutaActiva(pathname) {
   if (pathname === "/inventario/nuevo") return "nuevo";
   if (pathname.startsWith("/inventario")) return "inventario";
+  if (pathname.startsWith("/stock")) return "stock";
   if (pathname.startsWith("/pos")) return "pos";
   if (pathname.startsWith("/historial")) return "historial";
   if (pathname.startsWith("/facturacion")) return "facturacion";

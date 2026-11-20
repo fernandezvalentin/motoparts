@@ -26,6 +26,8 @@ Lo desarrollé a medida para que un negocio de repuestos de motos lleve el contr
 - **Panel de control:** ventas del día, valor del inventario, alertas de stock bajo, más vendidos y productos por proveedor.
 - **Punto de venta:** búsqueda rápida, compatible con lector de código de barras, carrito con descuentos y medios de pago, y control de stock al vender.
 - **Inventario:** búsqueda y filtros, alta y edición con cálculo de margen, aumentos masivos de precios e importación de listas de proveedores desde Excel, con la cotización del dólar del día y traducción automática de nombres.
+- **Cargar stock desde el celular:** se busca el repuesto, se toca y se pone cuántos llegaron (o cuántos hay en el estante): la app hace la cuenta. Alta rápida de productos con solo nombre, precio y cantidad.
+- **Movimientos de stock:** cada cambio (cargas, conteos, ventas, importaciones y ediciones) queda registrado con quién y cuándo, y las cargas equivocadas se pueden deshacer.
 - **Historial de ventas:** resumen por período (total, ticket promedio y desglose por medio de pago), tickets para imprimir o enviar por WhatsApp y anulación con devolución de stock.
 - **Facturación de proveedores:** se sube el PDF, el sistema lee número, proveedor, fechas y total, y se sigue el estado de pago con aviso de vencimientos.
 - **App instalable (PWA)** en la compu o el celular, con diseño adaptado a cada pantalla.
@@ -60,12 +62,13 @@ Lo desarrollé a medida para que un negocio de repuestos de motos lleve el contr
 ```
 src/
 ├── app/
-│   ├── (panel)/            # Páginas protegidas: dashboard, inventario, pos, historial, facturación
+│   ├── (panel)/            # Páginas protegidas: dashboard, inventario, cargar stock, pos, historial, facturación
 │   ├── login/              # Pantalla de ingreso
 │   ├── api/                # Route Handlers (reemplazan a la API .NET)
 │   │   ├── productos/      # CRUD, importar, aumento-masivo, renombrar-proveedor, estadísticas
 │   │   ├── ventas/         # registrar, listar y eliminar (devuelve el stock)
 │   │   ├── facturas/       # CRUD, lectura del PDF (extraer) y link al archivo
+│   │   ├── stock/          # sumar o contar stock, alta rápida, movimientos y deshacer
 │   │   ├── cotizacion/     # Cotización del dólar (dolarapi.com) para importar listas en USD
 │   │   └── cron/keepalive/ # Endpoint del cron
 │   ├── layout.js
